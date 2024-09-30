@@ -6,6 +6,11 @@ services:
     container_name: bside-rdb
     env_file:
       - .env
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_PASSWORD: ${DB_PASSWD}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWD}
+      MYSQL_USER: ${DB_USERNAME}
     ports:
       - '3306:3306'
     networks:
