@@ -1,0 +1,10 @@
+server:
+  port: 443
+  http2:
+    enabled: true
+  ssl:
+    enabled: true
+    key-store: ${KET_STORE}
+    key-store-password: ${KET_STORE_PASSWD}
+    key-store-type: ${KET_STORE_TYPE}
+    key-alias: ${KET_ALIAS}

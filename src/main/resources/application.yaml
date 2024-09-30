@@ -4,4 +4,4 @@ spring:
   profiles:
     group:
       dev: dev, common
-      prod: prod, common
+      prod: prod, common, ssl
