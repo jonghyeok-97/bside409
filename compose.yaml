@@ -1,0 +1,31 @@
+services:
+  mysql:
+    image: 'mysql:8.0.39'
+    volumes:
+      - data:/var/lib/mysql
+    container_name: bside-rdb
+    env_file:
+      - .env
+    ports:
+      - '3306:3306'
+    networks:
+      - bside-network
+  backend:
+    build: .
+    restart: always
+    container_name: bside-backend
+    env_file:
+      - .env
+    ports:
+      - '8080:8080'
+    depends_on:
+      - mysql
+    networks:
+      - bside-network
+
+networks:
+  bside-network:
+    driver: bridge
+
+volumes:
+  data:
