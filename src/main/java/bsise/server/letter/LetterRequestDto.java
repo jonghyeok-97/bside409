@@ -1,0 +1,34 @@
+package bsise.server.letter;
+
+import bsise.server.user.Preference;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Schema(description = "유저가 전송하는 편지 DTO")
+@Getter
+@RequiredArgsConstructor
+public class LetterRequestDto {
+
+    @Schema(description = "유저의 이메일", requiredMode = RequiredMode.REQUIRED)
+    @NotBlank(message = "사용자의 이메일이 존재하지 않습니다.")
+    private final String email;
+
+    @Schema(description = "유저가 작성한 메시지 내용", requiredMode = RequiredMode.REQUIRED)
+    @NotBlank(message = "사용자가 작성한 메시지가 없습니다.")
+    private final String message;
+
+    @Schema(description = "유저가 선호하는 답변 유형", allowableValues = {"F", "T"}, requiredMode = RequiredMode.REQUIRED)
+    @NotNull(message = "선호하는 답변 유형이 없습니다.")
+    private final Preference preference;
+
+    public Letter toLetterWithoutUser() {
+        return Letter.builder()
+                .message(message)
+                .preference(preference)
+                .build();
+    }
+}
