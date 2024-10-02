@@ -1,5 +1,6 @@
 package bsise.server.clovar;
 
+import bsise.server.reply.Reply;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -21,5 +22,9 @@ public class TwoTypeMessage {
 
     public static TwoTypeMessage of(String messageForF, String messageForT) {
         return new TwoTypeMessage(messageForF, messageForT);
+    }
+
+    public static TwoTypeMessage fromReply(Reply reply) {
+        return new TwoTypeMessage(reply.getMessageForF(), reply.getMessageForT());
     }
 }
