@@ -3,5 +3,5 @@ spring:
     name: server
   profiles:
     group:
-      dev: dev, common, secret
-      prod: prod, common, secret, ssl
+      dev: dev, common, secret, oauth
+      prod: prod, common, secret, oauth, ssl
