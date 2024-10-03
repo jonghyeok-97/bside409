@@ -27,9 +27,9 @@ public class UpOAuth2UserService extends DefaultOAuth2UserService {
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         // registrationId 확인
-        log.debug("client registration={}", userRequest.getClientRegistration());
-        log.debug("access token={}", userRequest.getAccessToken().getTokenValue());
-        log.debug("attributes={}", super.loadUser(userRequest).getAttributes());
+        log.info("client registration={}", userRequest.getClientRegistration());
+        log.info("access token={}", userRequest.getAccessToken().getTokenValue());
+        log.info("attributes={}", super.loadUser(userRequest).getAttributes());
 
         OAuth2User oAuth2User = super.loadUser(userRequest);
         OAuth2UserInfo oAuth2UserInfo = extractOAuth2UserInfo(userRequest, oAuth2User);
@@ -39,12 +39,12 @@ public class UpOAuth2UserService extends DefaultOAuth2UserService {
         // 신규 OAuth2 유저 => 저장
         if (optionalUser.isEmpty()) {
             User newUser = userRepository.save(User.makeFromOAuth2UserInfo(oAuth2UserInfo));
-            log.debug("--- 신규 OAuth2 유저: {} ---", newUser.getUsername());
+            log.info("--- 신규 OAuth2 유저: {} ---", newUser.getUsername());
             return new UpUserDetails(newUser, oAuth2User.getAttributes());
         }
 
         // 기존 유저 => UserDetails 반환
-        log.debug("--- 기존 OAuth2 유저 ---");
+        log.info("--- 기존 OAuth2 유저 ---");
         return new UpUserDetails(optionalUser.get(), oAuth2User.getAttributes());
     }
 

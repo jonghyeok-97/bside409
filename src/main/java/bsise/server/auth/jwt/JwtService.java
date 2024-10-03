@@ -5,6 +5,7 @@ import static bsise.server.auth.jwt.JwtConstant.REFRESH_VALID_MILLIS;
 import static bsise.server.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
 
 import bsise.server.auth.OAuth2Provider;
+import bsise.server.auth.UpUserDetails;
 import bsise.server.auth.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -116,13 +117,12 @@ public class JwtService {
     }
 
     public Claims makeNewClaims(Authentication authentication) {
-        DefaultOAuth2User oAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
-        Map<String, Object> attributes = oAuth2User.getAttributes();
+        Map<String, Object> attributes = ((UpUserDetails) authentication.getPrincipal()).getAttributes();
         String registrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
         String profileImageUrl = "";
 
         if (registrationId.equalsIgnoreCase(OAuth2Provider.KAKAO.getName())) {
-            profileImageUrl = attributes.get("profile_image").toString();
+            profileImageUrl = ((Map) ((Map) attributes.get("kakao_account")).get("profile")).get("profile_image_url").toString();
         }
 
         return Jwts.claims()

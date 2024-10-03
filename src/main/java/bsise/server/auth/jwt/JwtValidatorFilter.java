@@ -28,12 +28,12 @@ public class JwtValidatorFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        log.debug("=== jwt validator filter start ===");
+        log.info("=== jwt validator filter start ===");
         String accessToken = jwtService.resolveAccessToken(request);
         String refreshToken = jwtService.resolveRefreshToken(request);
 
-        log.debug("=== accessToken: {}", accessToken);
-        log.debug("=== refreshToken: {}", refreshToken);
+        log.info("=== accessToken: {}", accessToken);
+        log.info("=== refreshToken: {}", refreshToken);
 
         // validate
         try {
@@ -45,6 +45,7 @@ public class JwtValidatorFilter extends OncePerRequestFilter {
                 // 기존 accessToken, refreshToken 반환
                 response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
                 response.setHeader(X_REFRESH_TOKEN, "Bearer " + refreshToken);
+                log.info("=== JWT IN HEADER: 최초 ===");
             }
         } catch (ExpiredJwtException e) {
             if (refreshToken == null || jwtService.isValidRefreshToken(refreshToken)) {
@@ -62,6 +63,7 @@ public class JwtValidatorFilter extends OncePerRequestFilter {
             // 갱신된 accessToken, refreshToken 반환
             response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + reIssuedAccessToken);
             response.setHeader(X_REFRESH_TOKEN, "Bearer " + reIssuedRefreshToken);
+            log.info("=== JWT IN HEADER: 만료 ===");
         }
 
         filterChain.doFilter(request, response);

@@ -27,7 +27,7 @@ public class JwtGeneratorFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        log.debug("=== jwt generator filter start ===");
+        log.info("=== jwt generator filter start ===");
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -47,7 +47,7 @@ public class JwtGeneratorFilter extends OncePerRequestFilter {
         response.setHeader(X_REFRESH_TOKEN, "Bearer " + refreshToken);
 
         filterChain.doFilter(request, response);
-        log.debug("=== jwt generator filter end ===");
+        log.info("=== jwt generator filter end ===");
     }
 
     /**
@@ -59,7 +59,7 @@ public class JwtGeneratorFilter extends OncePerRequestFilter {
      */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return !request.getServletPath().startsWith("/login");
+        return request.getServletPath().startsWith("/login");
 //        return Stream.of(
 //                        "/login"
 //                )

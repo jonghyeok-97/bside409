@@ -91,7 +91,7 @@ public class SecurityConfig {
                 )
                 .oauth2Login(oauth2 -> oauth2 // OAuth2 로그인
                         .loginPage(baseUrl + "/login")
-                        .defaultSuccessUrl(baseUrl + "/")
+//                        .defaultSuccessUrl(baseUrl + "/")
                         .userInfoEndpoint(config -> config.userService(upOAuth2UserService))
                         .successHandler(oAuth2SuccessHandler)
                 )
