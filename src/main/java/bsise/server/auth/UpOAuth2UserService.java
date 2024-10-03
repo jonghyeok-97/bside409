@@ -3,10 +3,12 @@ package bsise.server.auth;
 import bsise.server.user.User;
 import bsise.server.user.UserRepository;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -44,6 +46,17 @@ public class UpOAuth2UserService extends DefaultOAuth2UserService {
         // 기존 유저 => UserDetails 반환
         log.debug("--- 기존 OAuth2 유저 ---");
         return new UpUserDetails(optionalUser.get(), oAuth2User.getAttributes());
+    }
+
+    public boolean isOAuth2User(String username) {
+        return userRepository.existsUserByUsername(username);
+    }
+
+    public UserDetails loadUserByUsername(String username) throws OAuth2AuthenticationException {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NoSuchElementException("no user found with username: " + username));
+
+        return new UpUserDetails(user);
     }
 
     private OAuth2UserInfo extractOAuth2UserInfo(OAuth2UserRequest userRequest, OAuth2User oAuth2User) {
