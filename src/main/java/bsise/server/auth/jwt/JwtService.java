@@ -39,10 +39,10 @@ import org.springframework.stereotype.Component;
 public class JwtService {
 
     @Value("${security.jwt.token.access-key}")
-    private String accessKey = "SpringSecurityKey_@Upup-radio_https://upup-radio.site";
+    private String accessKey;
 
     @Value("${security.jwt.token.refresh-key}")
-    private String refreshKey = "SpringSecurityKey_@Upup-radio_https://upup-radio.site";
+    private String refreshKey;
 
     private final UserService userService;
     private SecretKey accessSecretKey;

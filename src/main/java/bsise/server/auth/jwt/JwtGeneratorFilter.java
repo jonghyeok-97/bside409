@@ -59,9 +59,10 @@ public class JwtGeneratorFilter extends OncePerRequestFilter {
      */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return Stream.of(
-                        "/login"
-                )
-                .noneMatch(url -> url.startsWith(request.getRequestURI())); // none match 라면 true 반환(해당 필터 적용 x)
+        return !request.getServletPath().startsWith("/login");
+//        return Stream.of(
+//                        "/login"
+//                )
+//                .noneMatch(url -> url.startsWith(request.getRequestURI())); // none match 라면 true 반환(해당 필터 적용 x)
     }
 }

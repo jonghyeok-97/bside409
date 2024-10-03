@@ -77,9 +77,7 @@ public class JwtValidatorFilter extends OncePerRequestFilter {
      */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return Stream.of(
-                        "/login"
-                )
-                .noneMatch(url -> url.startsWith(request.getRequestURI())); // none match 라면 true 반환(해당 필터 적용 x)
+        return request.getServletPath().startsWith("/login") || request.getServletPath().startsWith("/oauth2")
+                || request.getServletPath().startsWith("http://localhost:5173/");
     }
 }
