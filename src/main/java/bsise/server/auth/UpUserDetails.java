@@ -38,13 +38,13 @@ public class UpUserDetails implements UserDetails, OAuth2User {
     }
 
     /**
-     * 유저의 식별자 역할은 OAuth2 유저의 이메일이 그 역할을 하기 때문에 이메일을 반환.
+     * 유저의 식별자 역할은 OAuth2 username.
      *
-     * @return OAuth2 유저의 이메일
+     * @return OAuth2 username
      */
     @Override
     public String getUsername() {
-        return user.getEmail();
+        return user.getUsername();
     }
 
     /**
@@ -110,13 +110,13 @@ public class UpUserDetails implements UserDetails, OAuth2User {
     }
 
     /**
-     * OAuth2 유저의 이름(이메일)
+     * OAuth2 username
      *
-     * @return OAuth2 유저 이메일
+     * @return OAuth2 username
      */
     @Override
     public String getName() {
-        return user.getEmail();
+        return user.getUsername();
     }
 
     /**
