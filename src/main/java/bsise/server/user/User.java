@@ -1,5 +1,7 @@
 package bsise.server.user;
 
+import bsise.server.auth.OAuth2Provider;
+import bsise.server.auth.OAuth2UserInfo;
 import bsise.server.common.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,10 +23,13 @@ import lombok.NoArgsConstructor;
 @Table(name = "user")
 public class User extends BaseTimeEntity {
 
+    private static final String TEMP_NICKNAME = "임시 닉네임";
+    private static final String NONE_OF_EMAIL = "noneOfEmail@None.none";
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "user_id", columnDefinition = "BINARY(16)")
+    private UUID id;
 
     @Column(name = "username", nullable = false)
     private String username;
@@ -39,20 +45,43 @@ public class User extends BaseTimeEntity {
     private Preference preference;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "oauth_server", nullable = false)
-    private OAuthServer server;
+    @Column(name = "oauth2_provider", nullable = false)
+    private OAuth2Provider provider;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private Role role;
 
     @Builder
-    public User(String username, String nickname, String email, OAuthServer server, Role role) {
+    public User(String username, String email, String nickname, Preference preference, OAuth2Provider provider, Role role) {
         this.username = username;
-        this.server = server;
-        this.role = role;
-        this.nickname = nickname;
         this.email = email;
+        this.nickname = nickname;
+        this.preference = preference;
+        this.provider = provider;
+        this.role = role;
+    }
+
+    public static User makeFromOAuth2UserInfo(OAuth2UserInfo oAuth2UserInfo) {
+        return User.builder()
+                .username(oAuth2UserInfo.getUserName())
+                .email(oAuth2UserInfo.getEmail())
+                .nickname(TEMP_NICKNAME)
+                .preference(Preference.F)
+                .provider(OAuth2Provider.fromString(oAuth2UserInfo.getProvider()))
+                .role(Role.OAUTH)
+                .build();
+    }
+
+    public static User makeGuest() {
+        return User.builder()
+                .username(TEMP_NICKNAME)
+                .email(NONE_OF_EMAIL)
+                .nickname(TEMP_NICKNAME)
+                .preference(Preference.F)
+                .provider(OAuth2Provider.UNKNOWN)
+                .role(Role.GUEST)
+                .build();
     }
 
     public void addNickname(String nickname) {
