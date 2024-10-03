@@ -53,7 +53,7 @@ public class SecurityConfig {
 
         // filter
         http.addFilterAfter(jwtGeneratorFilter, BasicAuthenticationFilter.class);
-        http.addFilterAfter(jwtValidatorFilter, BasicAuthenticationFilter.class);
+        http.addFilterBefore(jwtValidatorFilter, BasicAuthenticationFilter.class);
 
         // url pattern
         http.authorizeHttpRequests(requests -> requests
