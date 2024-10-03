@@ -15,7 +15,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicLong;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,7 +29,7 @@ public class Letter extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "letter_id")
+    @Column(name = "letter_id", columnDefinition = "BINARY(16)")
     private UUID id;
 
     @Setter
@@ -46,33 +45,33 @@ public class Letter extends BaseTimeEntity {
     private Preference preference;
 
     @Column(name = "like_t")
-    private AtomicLong likeT = new AtomicLong();
+    private Long likeT;
 
     @Column(name = "like_f")
-    private AtomicLong likeF = new AtomicLong();
+    private Long likeF;
 
     @Builder
     public Letter(User user, String message, Preference preference) {
         this.user = user;
         this.message = message;
         this.preference = preference;
-        this.likeT = new AtomicLong();
-        this.likeF = new AtomicLong();
+        this.likeT = 0L;
+        this.likeF = 0L;
     }
 
     public void plusLikeT() {
-        likeT.incrementAndGet();
+        likeT++;
     }
 
     public void plusLikeF() {
-        likeF.incrementAndGet();
+        likeF++;
     }
 
     public void cancelLikeT() {
-        likeT.decrementAndGet();
+        likeT--;
     }
 
     public void cancelLikeF() {
-        likeF.decrementAndGet();
+        likeF--;
     }
 }
