@@ -6,7 +6,7 @@ import static bsise.server.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
 
 import bsise.server.auth.OAuth2Provider;
 import bsise.server.auth.UpUserDetails;
-import bsise.server.auth.UserService;
+import bsise.server.auth.UserDetailFinder;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
@@ -44,7 +44,7 @@ public class JwtService {
     @Value("${security.jwt.token.refresh-key}")
     private String refreshKey;
 
-    private final UserService userService;
+    private final UserDetailFinder userDetailFinder;
     private SecretKey accessSecretKey;
     private SecretKey refreshSecretKey;
 
@@ -97,10 +97,10 @@ public class JwtService {
         String userId = getUserId(jwt);
         UserDetails userDetails;
 
-        if (userService.isOAuth2User(userId)) {
-            userDetails = userService.loadUserByOAuth2UserId(userId);
+        if (userDetailFinder.isOAuth2User(userId)) {
+            userDetails = userDetailFinder.loadUserByOAuth2UserId(userId);
         } else {
-            userDetails = userService.loadUserByUsername(userId);
+            userDetails = userDetailFinder.loadUserByUsername(userId);
         }
 
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
