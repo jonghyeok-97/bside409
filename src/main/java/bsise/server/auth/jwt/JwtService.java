@@ -20,7 +20,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Base64;
 import java.util.Map;
 import java.util.UUID;
 import javax.crypto.SecretKey;
@@ -50,8 +49,8 @@ public class JwtService {
 
     @PostConstruct
     protected void init() {
-        accessSecretKey = Keys.hmacShaKeyFor(Base64.getEncoder().encode(accessKey.getBytes()));
-        refreshSecretKey = Keys.hmacShaKeyFor(Base64.getEncoder().encode(refreshKey.getBytes()));
+        accessSecretKey = Keys.hmacShaKeyFor(accessKey.getBytes());
+        refreshSecretKey = Keys.hmacShaKeyFor(refreshKey.getBytes());
     }
 
     public String issueAccessToken(Claims claims) {
@@ -98,6 +97,7 @@ public class JwtService {
         UserDetails userDetails;
 
         if (userDetailFinder.isOAuth2User(userId)) {
+            // TODO: attribute 필요
             userDetails = userDetailFinder.loadUserByOAuth2UserId(userId);
         } else {
             userDetails = userDetailFinder.loadUserByUsername(userId);
@@ -119,6 +119,8 @@ public class JwtService {
         UpUserDetails principal = (UpUserDetails) authentication.getPrincipal();
         String userId = principal.getUserId();
         Map<String, Object> attributes = principal.getAttributes();
+
+        // FIXME: 두번쨰 인증부터 문제 발생 attribute -> jwt에 넣어야 함
         String registrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
         String profileImageUrl = "";
 
