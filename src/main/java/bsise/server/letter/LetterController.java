@@ -32,7 +32,7 @@ public class LetterController {
     private final ReplyService replyService;
 
     @Operation(summary = "유저의 사연이 담긴 편지를 접수받는 API", description = "유저의 편지로부터 CLOVA를 이용해 답장을 제공합니다.")
-    @PostMapping(path = "/receipt", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public ReplyResponseDto receiveLetter(@Valid @RequestBody LetterRequestDto letterRequestDto) {
         LetterResponseDto letterResponse = letterService.saveLetter(letterRequestDto);
