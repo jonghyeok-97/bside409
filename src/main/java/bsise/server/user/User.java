@@ -44,6 +44,9 @@ public class User extends BaseTimeEntity {
     @Column(name = "preference", nullable = false)
     private Preference preference;
 
+    @Column(name = "is_synced")
+    private boolean isSynced = false;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "oauth2_provider", nullable = false)
     private OAuth2Provider provider;
@@ -53,11 +56,13 @@ public class User extends BaseTimeEntity {
     private Role role;
 
     @Builder
-    public User(String username, String email, String nickname, Preference preference, OAuth2Provider provider, Role role) {
+    public User(String username, String email, String nickname, Preference preference, boolean isSynced,
+                OAuth2Provider provider, Role role) {
         this.username = username;
         this.email = email;
         this.nickname = nickname;
         this.preference = preference;
+        this.isSynced = isSynced;
         this.provider = provider;
         this.role = role;
     }
@@ -68,6 +73,7 @@ public class User extends BaseTimeEntity {
                 .email(oAuth2UserInfo.getEmail())
                 .nickname(TEMP_NICKNAME)
                 .preference(Preference.F)
+                .isSynced(false)
                 .provider(OAuth2Provider.fromString(oAuth2UserInfo.getProvider()))
                 .role(Role.OAUTH)
                 .build();
@@ -79,12 +85,21 @@ public class User extends BaseTimeEntity {
                 .email(NONE_OF_EMAIL)
                 .nickname(TEMP_NICKNAME)
                 .preference(Preference.F)
+                .isSynced(false)
                 .provider(OAuth2Provider.UNKNOWN)
                 .role(Role.GUEST)
                 .build();
     }
 
-    public void addNickname(String nickname) {
+    public void changeNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    public void changePreference(Preference preference) {
+        this.preference = preference;
+    }
+
+    public void changeSynced(boolean isSynced) {
+        this.isSynced = isSynced;
     }
 }
