@@ -20,7 +20,7 @@ public class LetterService {
     private final UserRepository userRepository;
 
     public LetterResponseDto saveLetter(LetterRequestDto letterDto) {
-        User user = userRepository.findByEmail(letterDto.getUserId())
+        User user = userRepository.findById(UUID.fromString(letterDto.getUserId()))
                 .orElseThrow(() -> new NoSuchElementException("User not found: " + letterDto.getUserId()));
 
         Letter letter = letterDto.toLetterWithoutUser();
@@ -44,9 +44,13 @@ public class LetterService {
             throw new NoSuchElementException("User not found: " + userId);
         }
 
-        Page<Letter> page = letterRepository.findAllByUserId(userId, pageable);
+        Page<Letter> page = letterRepository.findLettersByUserId(userId, pageable);
 
         return page.map(LetterResponseDto::fromLetter);
+    }
+
+    public void deleteLetter(UUID letterId) {
+        letterRepository.deleteById(letterId);
     }
 
     @Transactional(readOnly = true)

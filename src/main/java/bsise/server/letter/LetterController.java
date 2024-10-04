@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,16 +45,24 @@ public class LetterController {
     @GetMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public Page<LetterResponseDto> findMyLetters(
-            @PageableDefault(size = 6, sort = {"created_at"}, direction = Direction.DESC) Pageable pageable,
+            @PageableDefault(size = 6, sort = {"createdAt"}, direction = Direction.DESC) Pageable pageable,
             @PathVariable("userId") String userId
     ) {
         return letterService.findMyLetters(pageable, UUID.fromString(userId));
     }
 
+    @Operation(summary = "편지 삭제 요청 API", description = "요청한 편지 ID에 해당하는 편지를 제거합니다.")
+    @DeleteMapping("/{letterId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteLetter(@PathVariable("letterId") String letterId) {
+        letterService.deleteLetter(UUID.fromString(letterId));
+    }
+
+    // FIXME: 커뮤니티 => 구현 나중에
     @Operation(summary = "유저들이 작성한 편지 목록을 반환하는 API", description = "최근 작성된 편지 10개를 제공합니다.")
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/latest", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public List<LetterResponseDto> getLetters() {
+    public List<LetterResponseDto> getTopNLettersForCommunity() {
         return letterService.getLatestLetters();
     }
 }
