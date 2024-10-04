@@ -32,7 +32,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -95,19 +94,19 @@ public class JwtService {
     }
 
     public Authentication getAuthentication(String jwt) {
-        String username = getUsername(jwt);
+        String userId = getUserId(jwt);
         UserDetails userDetails;
 
-        if (userService.isOAuth2User(username)) {
-            userDetails = userService.loadUserByOAuth2Username(username);
+        if (userService.isOAuth2User(userId)) {
+            userDetails = userService.loadUserByOAuth2UserId(userId);
         } else {
-            userDetails = userService.loadUserByUsername(username);
+            userDetails = userService.loadUserByUsername(userId);
         }
 
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
-    public String getUsername(String jwt) {
+    public String getUserId(String jwt) {
         return Jwts.parser()
                 .verifyWith(accessSecretKey)
                 .build()
@@ -117,7 +116,9 @@ public class JwtService {
     }
 
     public Claims makeNewClaims(Authentication authentication) {
-        Map<String, Object> attributes = ((UpUserDetails) authentication.getPrincipal()).getAttributes();
+        UpUserDetails principal = (UpUserDetails) authentication.getPrincipal();
+        String userId = principal.getUserId();
+        Map<String, Object> attributes = principal.getAttributes();
         String registrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
         String profileImageUrl = "";
 
@@ -126,7 +127,7 @@ public class JwtService {
         }
 
         return Jwts.claims()
-                .subject(authentication.getName())
+                .subject(userId)
                 .add("role", authentication.getAuthorities())
                 .add("profileImageUrl", profileImageUrl)
                 .build();

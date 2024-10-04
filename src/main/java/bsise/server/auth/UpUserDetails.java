@@ -128,4 +128,8 @@ public class UpUserDetails implements UserDetails, OAuth2User {
     public Map<String, Object> getAttributes() {
         return attributes;
     }
+
+    public String getUserId() {
+        return user.getId().toString();
+    }
 }

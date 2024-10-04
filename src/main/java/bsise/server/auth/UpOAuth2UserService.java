@@ -2,9 +2,11 @@ package bsise.server.auth;
 
 import bsise.server.user.User;
 import bsise.server.user.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UpOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
+    private final HttpServletRequest request;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -39,22 +42,26 @@ public class UpOAuth2UserService extends DefaultOAuth2UserService {
         // 신규 OAuth2 유저 => 저장
         if (optionalUser.isEmpty()) {
             User newUser = userRepository.save(User.makeFromOAuth2UserInfo(oAuth2UserInfo));
-            log.info("--- 신규 OAuth2 유저: {} ---", newUser.getUsername());
+            request.setAttribute("userId", newUser.getId());
+            log.info("--- 신규 OAuth2 유저: {} ---", newUser.getId());
             return new UpUserDetails(newUser, oAuth2User.getAttributes());
         }
 
+
         // 기존 유저 => UserDetails 반환
-        log.info("--- 기존 OAuth2 유저 ---");
-        return new UpUserDetails(optionalUser.get(), oAuth2User.getAttributes());
+        User user = optionalUser.get();
+        request.setAttribute("userId", user.getId());
+        log.info("--- 기존 OAuth2 유저 ID: {} ---", user.getId());
+        return new UpUserDetails(user, oAuth2User.getAttributes());
     }
 
-    public boolean isOAuth2User(String username) {
-        return userRepository.existsUserByUsername(username);
+    public boolean isOAuth2User(String userId) {
+        return userRepository.existsUserById(UUID.fromString(userId));
     }
 
-    public UserDetails loadUserByUsername(String username) throws OAuth2AuthenticationException {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NoSuchElementException("no user found with username: " + username));
+    public UserDetails loadUserByUsername(String userId) throws OAuth2AuthenticationException {
+        User user = userRepository.findById(UUID.fromString(userId))
+                .orElseThrow(() -> new NoSuchElementException("no user found with userId: " + userId));
 
         return new UpUserDetails(user);
     }
