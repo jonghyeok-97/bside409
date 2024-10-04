@@ -18,6 +18,10 @@ spring:
     compose:
       skip:
         in-tests: false
+  data:
+    redis:
+      host: localhost
+      port: 6379
 logging:
   level:
     org:
