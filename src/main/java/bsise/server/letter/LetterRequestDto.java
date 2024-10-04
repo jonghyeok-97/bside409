@@ -13,12 +13,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class LetterRequestDto {
 
-    @Schema(description = "유저의 이메일", requiredMode = RequiredMode.REQUIRED)
-    @NotBlank(message = "사용자의 이메일이 존재하지 않습니다.")
-    private final String email;
+    @Schema(description = "유저의 아이디", requiredMode = RequiredMode.REQUIRED)
+    @NotBlank(message = "유저의 아이디가 존재하지 않습니다.")
+    private final String userId;
 
     @Schema(description = "유저가 작성한 메시지 내용", requiredMode = RequiredMode.REQUIRED)
-    @NotBlank(message = "사용자가 작성한 메시지가 없습니다.")
+    @NotBlank(message = "유저가 작성한 메시지가 없습니다.")
     private final String message;
 
     @Schema(description = "유저가 선호하는 답변 유형", allowableValues = {"F", "T"}, requiredMode = RequiredMode.REQUIRED)

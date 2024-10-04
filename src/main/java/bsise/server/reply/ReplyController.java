@@ -23,8 +23,8 @@ public class ReplyController {
     @Operation(summary = "답장 조회 API", description = "편지의 식별자로 답장을 찾아 반환합니다.")
     @GetMapping("/{letterId}")
     @ResponseStatus(HttpStatus.OK)
-    public ReplyResponseDto retrieveReply(@PathVariable("letterId") UUID letterId) {
-        return replyService.findReply(letterId);
+    public ReplyResponseDto retrieveReply(@PathVariable("letterId") String letterId) {
+        return replyService.findReply(UUID.fromString(letterId));
     }
 
 }

@@ -19,8 +19,8 @@ public class LetterService {
     private final UserRepository userRepository;
 
     public LetterResponseDto saveLetter(LetterRequestDto letterDto) {
-        User user = userRepository.findByEmail(letterDto.getEmail())
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + letterDto.getEmail()));
+        User user = userRepository.findByEmail(letterDto.getUserId())
+                .orElseThrow(() -> new NoSuchElementException("User not found: " + letterDto.getUserId()));
 
         Letter letter = letterDto.toLetterWithoutUser();
         letter.setUser(user);
