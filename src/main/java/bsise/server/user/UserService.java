@@ -21,7 +21,7 @@ public class UserService {
 
         user.changeNickname(changeDto.getNickname());
         user.changePreference(changeDto.getPreference());
-        user.changeSynced(changeDto.isSync());
+        user.changeSynced(changeDto.isProfileImageDisable());
 
         return UserResponseDto.of(user);
     }

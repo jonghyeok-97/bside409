@@ -20,5 +20,5 @@ public class UserChangeRequestDto {
 
     @Schema(description = "카카오 프로필 이미지 동기화 여부", allowableValues = {"true", "false"})
     @NotNull
-    private boolean isSync;
+    private boolean profileImageDisable;
 }

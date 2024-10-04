@@ -30,6 +30,7 @@ public class UserResponseDto {
         return UserResponseDto.builder()
                 .userId(user.getId().toString())
                 .email(user.getEmail())
+                .preference(user.getPreference())
                 .profileImageDisable(user.isSynced())
                 .build();
     }
