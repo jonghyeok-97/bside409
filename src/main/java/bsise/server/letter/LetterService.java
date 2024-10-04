@@ -1,5 +1,7 @@
 package bsise.server.letter;
 
+import bsise.server.limiter.RateLimitException;
+import bsise.server.limiter.RateLimitService;
 import bsise.server.user.User;
 import bsise.server.user.UserRepository;
 import java.util.List;
@@ -18,8 +20,12 @@ public class LetterService {
 
     private final LetterRepository letterRepository;
     private final UserRepository userRepository;
+    private final RateLimitService rateLimitService;
 
     public LetterResponseDto saveLetter(LetterRequestDto letterDto) {
+        if (!rateLimitService.isRequestAllowed(letterDto.getUserId())) {
+            throw new RateLimitException("요청 제한 횟수 초과");
+        }
         User user = userRepository.findById(UUID.fromString(letterDto.getUserId()))
                 .orElseThrow(() -> new NoSuchElementException("User not found: " + letterDto.getUserId()));
 
