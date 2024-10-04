@@ -14,11 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
 public class JwtGeneratorFilter extends OncePerRequestFilter {
 
@@ -33,6 +31,7 @@ public class JwtGeneratorFilter extends OncePerRequestFilter {
 
         // 인증 정보 없으면 조기 종료
         if (authentication == null) {
+            // FIXME: 필터 종료 => 컨트롤러까지 도달 x
             return;
         }
 
@@ -59,10 +58,8 @@ public class JwtGeneratorFilter extends OncePerRequestFilter {
      */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return request.getServletPath().startsWith("/login");
-//        return Stream.of(
-//                        "/login"
-//                )
-//                .noneMatch(url -> url.startsWith(request.getRequestURI())); // none match 라면 true 반환(해당 필터 적용 x)
+        return Stream.of(
+                "/login", "/oauth2", "/error", "/swagger-", "/v3/api-docs", "/api-docs", "/api/v1/users"
+        ).anyMatch(uri -> request.getServletPath().startsWith(uri));
     }
 }

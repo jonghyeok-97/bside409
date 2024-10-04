@@ -6,6 +6,7 @@ import bsise.server.auth.OAuth2SuccessHandler;
 import bsise.server.auth.UpOAuth2UserService;
 import bsise.server.auth.jwt.JwtAuthenticationEntryPoint;
 import bsise.server.auth.jwt.JwtGeneratorFilter;
+import bsise.server.auth.jwt.JwtService;
 import bsise.server.auth.jwt.JwtValidatorFilter;
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,9 +33,8 @@ public class SecurityConfig {
 
     @Value("${security.base-url}")
     private String baseUrl;
+    private final JwtService jwtService;
     private final UpOAuth2UserService upOAuth2UserService;
-    private final JwtGeneratorFilter jwtGeneratorFilter;
-    private final JwtValidatorFilter jwtValidatorFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
@@ -60,8 +60,9 @@ public class SecurityConfig {
         }));
 
         // filter
-        http.addFilterAfter(jwtGeneratorFilter, UsernamePasswordAuthenticationFilter.class);
-        http.addFilterAfter(jwtValidatorFilter, LogoutFilter.class);
+//        http.addFilterAfter(jwtGeneratorFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(jwtGeneratorFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(jwtValidatorFilter(jwtService), LogoutFilter.class);
 
         // url pattern
         http.authorizeHttpRequests(requests -> requests
@@ -72,6 +73,7 @@ public class SecurityConfig {
                                 "/swagger-ui/index.html",
                                 "/swagger-resources/**",
                                 "/webjars/**",
+                                "/error",
                                 "/login",
                                 "/login/**",
                                 "/oauth2/**",
@@ -79,6 +81,7 @@ public class SecurityConfig {
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
+                                "/api/v1/users/**",
                                 "/api/v1/letters",
                                 "/api/v1/letters/**"
                         ).permitAll()
@@ -100,5 +103,15 @@ public class SecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint))
         ;
         return http.build();
+    }
+
+    @Bean
+    public JwtGeneratorFilter jwtGeneratorFilter(JwtService jwtService) {
+        return new JwtGeneratorFilter(jwtService);
+    }
+
+    @Bean
+    public JwtValidatorFilter jwtValidatorFilter(JwtService jwtService) {
+        return new JwtValidatorFilter(jwtService);
     }
 }

@@ -15,11 +15,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
 public class JwtValidatorFilter extends OncePerRequestFilter {
 
@@ -79,7 +77,8 @@ public class JwtValidatorFilter extends OncePerRequestFilter {
      */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return request.getServletPath().startsWith("/login") || request.getServletPath().startsWith("/oauth2")
-                || request.getServletPath().startsWith("http://localhost:5173/");
+        return Stream.of(
+                "/login", "/oauth2", "/error", "/swagger-", "/v3/api-docs", "/api-docs", "/api/v1/users"
+        ).anyMatch(uri -> request.getServletPath().startsWith(uri));
     }
 }
