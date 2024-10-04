@@ -1,10 +1,13 @@
 package bsise.server.auth;
 
+import static bsise.server.auth.jwt.JwtConstant.ACCESS_VALID_MILLIS;
+import static bsise.server.auth.jwt.JwtConstant.REFRESH_VALID_MILLIS;
 import static bsise.server.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
 
 import bsise.server.auth.jwt.JwtService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -36,9 +39,24 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String accessToken = jwtService.issueAccessToken(claims);
         String refreshToken = jwtService.issueRefreshToken(claims);
 
-        response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
-        response.setHeader(X_REFRESH_TOKEN, "Bearer " + refreshToken);
+        Cookie accessCookie = createJwtCookie("jwt-access", ACCESS_VALID_MILLIS, accessToken);
+        Cookie refreshCookie = createJwtCookie("jwt-refresh", REFRESH_VALID_MILLIS, refreshToken);
+
+        response.addCookie(accessCookie);
+        response.addCookie(refreshCookie);
+        response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
+
         response.sendRedirect(baseUrl + "/");
         log.info("========= OAuth2 success handler end =======");
+    }
+
+    private Cookie createJwtCookie(String cookieKey, int expireAt, String jwt) {
+        Cookie cookie = new Cookie(cookieKey, jwt);
+        cookie.setPath("/");
+        cookie.setSecure(false);
+        cookie.setHttpOnly(false); // FIXME: 개발 중에만 사용
+        cookie.setMaxAge(expireAt);
+
+        return cookie;
     }
 }
