@@ -2,6 +2,7 @@ package bsise.server.letter;
 
 import bsise.server.user.User;
 import bsise.server.user.UserRepository;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class LetterService {
         return LetterResponseDto.fromLetter(savedLetter);
     }
 
+    // FIXME: presentation layer 에 절대 나가지 않도록 개선하기
     @Transactional(readOnly = true)
     public Letter findLetter(UUID letterId) {
         return letterRepository.findById(letterId)
@@ -45,5 +47,14 @@ public class LetterService {
         Page<Letter> page = letterRepository.findAllByUserId(userId, pageable);
 
         return page.map(LetterResponseDto::fromLetter);
+    }
+
+    @Transactional(readOnly = true)
+    public List<LetterResponseDto> getLatestLetters() {
+        List<Letter> top10Letters = letterRepository.findTop10ByOrderByCreatedAtDesc();
+
+        return top10Letters.stream()
+                .map(LetterResponseDto::fromLetter)
+                .toList();
     }
 }

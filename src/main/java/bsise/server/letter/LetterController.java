@@ -5,6 +5,7 @@ import bsise.server.reply.ReplyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -39,13 +40,20 @@ public class LetterController {
         return replyService.makeAndSaveReply(letterResponse);
     }
 
-    @Operation(summary = "유저가 작성한 편지 목록을 반환하는 API", description = "유저가 최근 작성한 편지들을 제공합니다.")
+    @Operation(summary = "특정 유저가 작성한 편지 목록을 반환하는 API", description = "유저가 최근 작성한 편지들을 제공합니다.")
     @GetMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public Page<LetterResponseDto> findMyLetters(
             @PageableDefault(size = 6, sort = {"created_at"}, direction = Direction.DESC) Pageable pageable,
-            @PathVariable("userId") UUID userId
+            @PathVariable("userId") String userId
     ) {
-        return letterService.findMyLetters(pageable, userId);
+        return letterService.findMyLetters(pageable, UUID.fromString(userId));
+    }
+
+    @Operation(summary = "유저들이 작성한 편지 목록을 반환하는 API", description = "최근 작성된 편지 10개를 제공합니다.")
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public List<LetterResponseDto> getLetters() {
+        return letterService.getLatestLetters();
     }
 }

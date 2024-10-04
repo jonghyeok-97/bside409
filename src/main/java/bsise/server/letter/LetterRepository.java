@@ -1,5 +1,6 @@
 package bsise.server.letter;
 
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,4 +11,5 @@ import org.springframework.stereotype.Repository;
 public interface LetterRepository extends JpaRepository<Letter, UUID> {
 
     Page<Letter> findAllByUserId(UUID userId, Pageable pageable);
+    List<Letter> findTop10ByOrderByCreatedAtDesc();
 }
