@@ -12,11 +12,15 @@ import lombok.RequiredArgsConstructor;
 
 @Schema(description = "두 유형의 답장 정보가 들어있는 DTO")
 @Getter
+@Builder
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class ReplyResponseDto {
 
     @Schema(description = "저장된 답장의 식별자")
     private final UUID replyId;
+
+    @Schema(description = "유저가 작성한 편지")
+    private final String content;
 
     @Schema(description = "두 유형의 답장 배열")
     private final TwoTypeMessage reply;
@@ -25,8 +29,12 @@ public class ReplyResponseDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private final LocalDateTime createdAt;
 
-    @Builder
     public static ReplyResponseDto of(Reply reply) {
-        return new ReplyResponseDto(reply.getId(), TwoTypeMessage.fromReply(reply), reply.getCreatedAt());
+        return ReplyResponseDto.builder()
+                .replyId(reply.getId())
+                .content(reply.getLetter().getMessage())
+                .reply(TwoTypeMessage.fromReply(reply))
+                .createdAt(reply.getCreatedAt())
+                .build();
     }
 }

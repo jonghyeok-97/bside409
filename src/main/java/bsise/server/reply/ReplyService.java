@@ -6,6 +6,7 @@ import bsise.server.clovar.ClovaService;
 import bsise.server.letter.Letter;
 import bsise.server.letter.LetterResponseDto;
 import bsise.server.letter.LetterService;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -53,5 +54,17 @@ public class ReplyService {
                 .orElseThrow(() -> new NoSuchElementException("letter not found: " + letterId.toString()));
 
         return ReplyResponseDto.of(reply);
+    }
+
+    public List<ReplyResponseDto> findTopNLetterAndReply(Integer topN) {
+        if (topN > 10) {
+            topN = 10;
+        }
+
+        List<Reply> replies = replyRepository.findRepliesByOrderByCreatedAtDesc(topN);
+
+        return replies.stream()
+                .map(ReplyResponseDto::of)
+                .toList();
     }
 }

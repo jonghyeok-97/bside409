@@ -28,7 +28,7 @@ public class Reply extends BaseTimeEntity {
     @Column(name = "reply_id", nullable = false, columnDefinition = "BINARY(16)")
     private UUID id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "letter_id", nullable = false, unique = true)
     private Letter letter;
 
