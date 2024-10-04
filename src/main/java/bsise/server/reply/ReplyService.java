@@ -1,15 +1,19 @@
 package bsise.server.reply;
 
-import bsise.server.clovar.TwoTypeMessage;
 import bsise.server.clovar.ClovaResponseDto;
 import bsise.server.clovar.ClovaService;
+import bsise.server.clovar.TwoTypeMessage;
 import bsise.server.letter.Letter;
 import bsise.server.letter.LetterResponseDto;
 import bsise.server.letter.LetterService;
+import bsise.server.user.UserRepository;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +24,7 @@ public class ReplyService {
 
     private final ClovaService clovaService;
     private final LetterService letterService;
+    private final UserRepository userRepository;
     private final ReplyRepository replyRepository;
 
     /**
@@ -56,15 +61,49 @@ public class ReplyService {
         return ReplyResponseDto.of(reply);
     }
 
-    public List<ReplyResponseDto> findTopNLetterAndReply(Integer topN) {
-        if (topN > 10) {
-            topN = 10;
-        }
-
-        List<Reply> replies = replyRepository.findRepliesByOrderByCreatedAtDesc(topN);
-
+    public List<ReplyResponseDto> findTopNLetterAndReply(Integer size) {
+        size = correctSize(size);
+        PageRequest pageable = PageRequest.of(0, size, Sort.by(Direction.DESC, "createdAt"));
+        List<Reply> replies = replyRepository.findTopNReplies(pageable);
         return replies.stream()
                 .map(ReplyResponseDto::of)
                 .toList();
+    }
+
+    public List<ReplyResponseDto> findMyLetterAndReply(UUID userId, Integer size) {
+        validateUserId(userId);
+        size = correctSize(size);
+
+        PageRequest pageable = PageRequest.of(0, size, Sort.by(Direction.DESC, "createdAt"));
+        List<Reply> replies = replyRepository.findTopNRepliesByUserId(userId, pageable);
+        return replies.stream()
+                .map(ReplyResponseDto::of)
+                .toList();
+    }
+
+    public List<ReplyResponseDto> findMyLetterAndReply(UUID userId, UUID lastLetterId, Integer size) {
+        validateUserId(userId);
+        size = correctSize(size);
+
+        PageRequest pageable = PageRequest.of(0, size, Sort.by(Direction.DESC, "createdAt"));
+        List<Reply> replies = replyRepository.findRepliesByLetterId(lastLetterId, pageable);
+        return replies.stream()
+                .map(ReplyResponseDto::of)
+                .toList();
+    }
+
+    private void validateUserId(UUID userId) {
+        if (!userRepository.existsUserById(userId)) {
+            throw new NoSuchElementException("user not found");
+        }
+    }
+
+    private Integer correctSize(Integer size) {
+        if (size == null) {
+            return 10;
+        } else if (size > 10) {
+            return 10;
+        }
+        return size;
     }
 }

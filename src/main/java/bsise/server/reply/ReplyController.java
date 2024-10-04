@@ -34,10 +34,26 @@ public class ReplyController {
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public List<ReplyResponseDto> getTopNLetters(
-            @Parameter(name = "top", description = "최대 10개 이내", example = "?top=10")
-            @RequestParam(name = "top", defaultValue = "10", required = false) Integer topN
+            @Parameter(name = "size", description = "최대 10개 이내", example = "?size=10")
+            @RequestParam(name = "size", defaultValue = "10", required = false) Integer size
     ) {
-        return replyService.findTopNLetterAndReply(topN);
+        return replyService.findTopNLetterAndReply(size);
+    }
+
+    @Operation(summary = "유저의 편지함 목록을 반환하는 API", description = "유저가 최근 작성한 편지와 답변들을 제공합니다.")
+    @GetMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public List<ReplyResponseDto> findMyLetters(
+            @PathVariable("userId") String userId,
+            @RequestParam(name = "lastLetterId", required = false) String lastLetterId,
+            @Parameter(name = "size", description = "최대 10개 이내", example = "?size=10")
+            @RequestParam(name = "size", required = false) Integer size
+    ) {
+        if (lastLetterId == null) {
+            return replyService.findMyLetterAndReply(UUID.fromString(userId), size);
+        } else {
+            return replyService.findMyLetterAndReply(UUID.fromString(userId), UUID.fromString(lastLetterId), size);
+        }
     }
 
 }

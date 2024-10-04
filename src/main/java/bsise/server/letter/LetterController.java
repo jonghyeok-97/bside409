@@ -8,10 +8,6 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -39,16 +35,6 @@ public class LetterController {
         LetterResponseDto letterResponse = letterService.saveLetter(letterRequestDto);
 
         return replyService.makeAndSaveReply(letterResponse);
-    }
-
-    @Operation(summary = "특정 유저가 작성한 편지 목록을 반환하는 API", description = "유저가 최근 작성한 편지들을 제공합니다.")
-    @GetMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.OK)
-    public Page<LetterResponseDto> findMyLetters(
-            @PageableDefault(size = 6, sort = {"createdAt"}, direction = Direction.DESC) Pageable pageable,
-            @PathVariable("userId") String userId
-    ) {
-        return letterService.findMyLetters(pageable, UUID.fromString(userId));
     }
 
     @Operation(summary = "편지 삭제 요청 API", description = "요청한 편지 ID에 해당하는 편지를 제거합니다.")
