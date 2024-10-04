@@ -60,7 +60,6 @@ public class SecurityConfig {
         }));
 
         // filter
-//        http.addFilterAfter(jwtGeneratorFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterAfter(jwtGeneratorFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
         http.addFilterAfter(jwtValidatorFilter(jwtService), LogoutFilter.class);
 
@@ -81,17 +80,18 @@ public class SecurityConfig {
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
-                                "/api/v1/users/**",
-                                "/api/v1/letters",
-                                "/api/v1/letters/**"
+                                "/api/v1/users/**"
+//                                "/api/v1/letters",
+//                                "/api/v1/letters/**"
                         ).permitAll()
-                        .requestMatchers("/api/v1/replies/**").hasRole("OAUTH")
+                        .requestMatchers("/api/v1/replies**").authenticated()
+                        .requestMatchers("/api/v1/replies/**").authenticated()
                         .anyRequest().authenticated())
-                .formLogin(form -> form // 게스트 로그인
-                        .loginPage(baseUrl + "/login")
-                        .loginProcessingUrl("/login")
-                        .defaultSuccessUrl(baseUrl + "/")
-                )
+//                .formLogin(form -> form // 게스트 로그인
+//                        .loginPage(baseUrl + "/login")
+//                        .loginProcessingUrl("/login")
+//                        .defaultSuccessUrl(baseUrl + "/")
+//                )
                 .oauth2Login(oauth2 -> oauth2 // OAuth2 로그인
                         .loginPage(baseUrl + "/login")
 //                        .defaultSuccessUrl(baseUrl + "/")
