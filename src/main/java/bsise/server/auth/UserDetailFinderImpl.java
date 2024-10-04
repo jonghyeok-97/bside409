@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public class CustomUserService implements UserService {
+public class UserDetailFinderImpl implements UserDetailFinder {
 
     private final UserDetailsService userDetailsService;
     private final UpOAuth2UserService oAuth2UserService;
@@ -20,7 +20,7 @@ public class CustomUserService implements UserService {
     }
 
     @Override
-    public UserDetails loadUserByOAuth2Username(String username) {
+    public UserDetails loadUserByOAuth2UserId(String username) {
         return oAuth2UserService.loadUserByUsername(username);
     }
 
