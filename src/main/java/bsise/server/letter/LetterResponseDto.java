@@ -27,7 +27,7 @@ public class LetterResponseDto {
     @Schema(description = "유저가 선호하는 답장 유형", examples = {"F", "T"})
     private Preference preference;
 
-    @JsonIgnore
+    @Schema(description = "편지 내용")
     private String content;
 
     @Schema(description = "편지가 저장된 시각")
