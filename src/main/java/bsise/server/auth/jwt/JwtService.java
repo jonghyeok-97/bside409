@@ -4,9 +4,9 @@ import static bsise.server.auth.jwt.JwtConstant.ACCESS_VALID_MILLIS;
 import static bsise.server.auth.jwt.JwtConstant.REFRESH_VALID_MILLIS;
 import static bsise.server.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
 
-import bsise.server.auth.OAuth2Provider;
+import bsise.server.auth.UpOAuth2UserService;
 import bsise.server.auth.UpUserDetails;
-import bsise.server.auth.UserDetailFinder;
+import bsise.server.user.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
@@ -30,7 +30,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -43,7 +42,7 @@ public class JwtService {
     @Value("${security.jwt.token.refresh-key}")
     private String refreshKey;
 
-    private final UserDetailFinder userDetailFinder;
+    private final UpOAuth2UserService oAuth2UserService;
     private SecretKey accessSecretKey;
     private SecretKey refreshSecretKey;
 
@@ -94,14 +93,7 @@ public class JwtService {
 
     public Authentication getAuthentication(String jwt) {
         String userId = getUserId(jwt);
-        UserDetails userDetails;
-
-        if (userDetailFinder.isOAuth2User(userId)) {
-            // TODO: attribute 필요
-            userDetails = userDetailFinder.loadUserByOAuth2UserId(userId);
-        } else {
-            userDetails = userDetailFinder.loadUserByUsername(userId);
-        }
+        UserDetails userDetails = oAuth2UserService.loadUserByUsername(userId);
 
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
@@ -117,16 +109,9 @@ public class JwtService {
 
     public Claims makeNewClaims(Authentication authentication) {
         UpUserDetails principal = (UpUserDetails) authentication.getPrincipal();
-        String userId = principal.getUserId();
-        Map<String, Object> attributes = principal.getAttributes();
-
-        // FIXME: 두번쨰 인증부터 문제 발생 attribute -> jwt에 넣어야 함
-        String registrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
-        String profileImageUrl = "";
-
-        if (registrationId.equalsIgnoreCase(OAuth2Provider.KAKAO.getName())) {
-            profileImageUrl = ((Map) ((Map) attributes.get("kakao_account")).get("profile")).get("profile_image_url").toString();
-        }
+        User authenticatedUser = principal.getUser();
+        String userId = authenticatedUser.getId().toString();
+        String profileImageUrl = authenticatedUser.getProfileImageUrl();
 
         return Jwts.claims()
                 .subject(userId)
