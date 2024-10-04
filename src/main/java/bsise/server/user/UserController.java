@@ -38,6 +38,6 @@ public class UserController {
     @GetMapping("/{userId}/test")
     public UserResponseDto testGetUserInfo(@PathVariable("userId") String userId) {
         log.info("Get user info by user id {}", userId);
-        return new UserResponseDto(userId, "test@test.com", Preference.F, false);
+        return new UserResponseDto(userId, "임시 닉네임", "test@test.com", Preference.F, false, true);
     }
 }

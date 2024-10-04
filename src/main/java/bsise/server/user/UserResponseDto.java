@@ -17,6 +17,9 @@ public class UserResponseDto {
     @Schema(description = "유저 아이디", example = "123e4567-e89b-12d3-a456-426655440000")
     private String userId;
 
+    @Schema(description = "유저 닉네임", examples = {"임시 닉네임", "변경 후 유저 닉네임"})
+    private String nickname;
+
     @Schema(description = "이메일", example = "kakao@email.com")
     private String email;
 
@@ -26,12 +29,17 @@ public class UserResponseDto {
     @Schema(description = "이미지 동기화 여부", examples = {"true", "false"})
     private boolean profileImageDisable;
 
+    @Schema(description = "최초 로그인 여부", examples = {"true", "false"})
+    private boolean isFirstLogin;
+
     public static UserResponseDto of(User user) {
         return UserResponseDto.builder()
                 .userId(user.getId().toString())
+                .nickname(user.getNickname())
                 .email(user.getEmail())
                 .preference(user.getPreference())
                 .profileImageDisable(user.isSynced())
+                .isFirstLogin(user.getNickname().equals("임시 닉네임"))
                 .build();
     }
 }
