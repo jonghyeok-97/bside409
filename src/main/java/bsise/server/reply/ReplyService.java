@@ -3,6 +3,8 @@ package bsise.server.reply;
 import bsise.server.clovar.ClovaResponseDto;
 import bsise.server.clovar.ClovaService;
 import bsise.server.clovar.TwoTypeMessage;
+import bsise.server.error.LetterNotFoundException;
+import bsise.server.error.UserNotFoundException;
 import bsise.server.letter.Letter;
 import bsise.server.letter.LetterResponseDto;
 import bsise.server.letter.LetterService;
@@ -56,7 +58,7 @@ public class ReplyService {
     public ReplyResponseDto findReply(UUID letterId) {
         Letter letter = letterService.findLetter(letterId);
         Reply reply = replyRepository.findByLetter(letter)
-                .orElseThrow(() -> new NoSuchElementException("letter not found: " + letterId.toString()));
+                .orElseThrow(() -> new LetterNotFoundException("letter not found: " + letterId.toString()));
 
         return ReplyResponseDto.of(reply);
     }
@@ -94,7 +96,7 @@ public class ReplyService {
 
     private void validateUserId(UUID userId) {
         if (!userRepository.existsUserById(userId)) {
-            throw new NoSuchElementException("user not found");
+            throw new UserNotFoundException("user not found");
         }
     }
 

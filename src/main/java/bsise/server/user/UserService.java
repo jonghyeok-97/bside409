@@ -1,6 +1,6 @@
 package bsise.server.user;
 
-import java.util.NoSuchElementException;
+import bsise.server.error.UserNotFoundException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ public class UserService {
 
     public UserResponseDto changeUserInfo(UUID userId, UserChangeRequestDto changeDto) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         user.changeNickname(changeDto.getNickname());
         user.changePreference(changeDto.getPreference());
@@ -29,7 +29,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserResponseDto getUser(UUID userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         return UserResponseDto.of(user);
     }

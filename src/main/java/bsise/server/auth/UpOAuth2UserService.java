@@ -1,5 +1,6 @@
 package bsise.server.auth;
 
+import bsise.server.error.UserNotFoundException;
 import bsise.server.user.User;
 import bsise.server.user.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -61,7 +62,7 @@ public class UpOAuth2UserService extends DefaultOAuth2UserService {
 
     public UserDetails loadUserByUsername(String userId) throws OAuth2AuthenticationException {
         User user = userRepository.findById(UUID.fromString(userId))
-                .orElseThrow(() -> new NoSuchElementException("no user found with userId: " + userId));
+                .orElseThrow(() -> new UserNotFoundException("no user found with userId: " + userId));
 
         return new UpUserDetails(user);
     }

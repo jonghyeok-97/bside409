@@ -1,5 +1,7 @@
 package bsise.server.letter;
 
+import bsise.server.error.LetterNotFoundException;
+import bsise.server.error.UserNotFoundException;
 import bsise.server.limiter.RateLimitException;
 import bsise.server.limiter.RateLimitService;
 import bsise.server.user.User;
@@ -25,7 +27,7 @@ public class LetterService {
             throw new RateLimitException("요청 제한 횟수 초과");
         }
         User user = userRepository.findById(UUID.fromString(letterDto.getUserId()))
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + letterDto.getUserId()));
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + letterDto.getUserId()));
 
         Letter letter = letterDto.toLetterWithoutUser();
         letter.setUser(user);
@@ -39,7 +41,7 @@ public class LetterService {
     @Transactional(readOnly = true)
     public Letter findLetter(UUID letterId) {
         return letterRepository.findById(letterId)
-                .orElseThrow(() -> new NoSuchElementException("Letter not found: " + letterId));
+                .orElseThrow(() -> new LetterNotFoundException("Letter not found: " + letterId));
     }
 
     public void deleteLetter(UUID letterId) {
