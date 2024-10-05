@@ -2,7 +2,6 @@ package bsise.server.common;
 
 import bsise.server.limiter.RateLimitException;
 import jakarta.persistence.EntityNotFoundException;
-import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
@@ -18,8 +17,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 @RequiredArgsConstructor
 public class RestApiControllerAdvice {
-
-    private final MessageSource messageSource;
 
     @ExceptionHandler
     public ResponseEntity<?> handleBadCredentialsException(BadCredentialsException exception) {
@@ -53,9 +50,9 @@ public class RestApiControllerAdvice {
 
     private ResponseEntity<?> createErrorResponse(Exception exception, HttpStatus status, String messageKey) {
         log.error("An error occurred: ", exception);
-        String message = messageSource.getMessage(messageKey, null, Locale.KOREAN);
+//        String message = messageSource.getMessage(messageKey, null, Locale.KOREA);
         ErrorResponse errorResponse = ErrorResponse.builder(exception,
-                ProblemDetail.forStatusAndDetail(status, message)).build();
+                ProblemDetail.forStatusAndDetail(status, messageKey)).build();
         return ResponseEntity.status(status).body(errorResponse);
     }
 }
