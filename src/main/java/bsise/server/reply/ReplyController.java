@@ -41,7 +41,7 @@ public class ReplyController {
     }
 
     @Operation(summary = "유저의 편지함 목록을 반환하는 API", description = "유저가 최근 작성한 편지와 답변들을 제공합니다.")
-    @GetMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/users/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public List<ReplyResponseDto> findMyLetters(
             @PathVariable("userId") String userId,
