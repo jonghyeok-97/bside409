@@ -47,17 +47,17 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable);
 
         // cors
-        http.cors(config -> config.configurationSource(request -> {
-            CorsConfiguration corsConfig = new CorsConfiguration();
-            corsConfig.setAllowedOrigins(Collections.singletonList(baseUrl));
-            corsConfig.setAllowedMethods(Arrays.asList("HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"));
-            corsConfig.setAllowedHeaders(Collections.singletonList("*"));
-            corsConfig.setAllowCredentials(true);
-            corsConfig.setExposedHeaders(
-                    Arrays.asList(HttpHeaders.AUTHORIZATION, X_REFRESH_TOKEN, "Cache-Control", "Content-Type"));
-            corsConfig.setMaxAge(3600L);
-            return corsConfig;
-        }));
+//        http.cors(config -> config.configurationSource(request -> {
+//            CorsConfiguration corsConfig = new CorsConfiguration();
+//            corsConfig.setAllowedOrigins(Collections.singletonList(baseUrl));
+//            corsConfig.setAllowedMethods(Arrays.asList("HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"));
+//            corsConfig.setAllowedHeaders(Collections.singletonList("*"));
+//            corsConfig.setAllowCredentials(true);
+//            corsConfig.setExposedHeaders(
+//                    Arrays.asList(HttpHeaders.AUTHORIZATION, X_REFRESH_TOKEN, "Cache-Control", "Content-Type"));
+//            corsConfig.setMaxAge(3600L);
+//            return corsConfig;
+//        }));
 
         // filter
         http.addFilterAfter(jwtGeneratorFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
