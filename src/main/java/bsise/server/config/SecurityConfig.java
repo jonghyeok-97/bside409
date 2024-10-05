@@ -1,5 +1,7 @@
 package bsise.server.config;
 
+import static bsise.server.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
+
 import bsise.server.auth.CookieEncodingFilter;
 import bsise.server.auth.OAuth2SuccessHandler;
 import bsise.server.auth.UpOAuth2UserService;
@@ -7,11 +9,14 @@ import bsise.server.auth.jwt.JwtAuthenticationEntryPoint;
 import bsise.server.auth.jwt.JwtGeneratorFilter;
 import bsise.server.auth.jwt.JwtService;
 import bsise.server.auth.jwt.JwtValidatorFilter;
+import java.util.Arrays;
+import java.util.Collections;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -21,6 +26,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.web.cors.CorsConfiguration;
 
 @EnableWebSecurity(debug = true)
 @Configuration
@@ -43,17 +49,17 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable);
 
         // cors
-//        http.cors(config -> config.configurationSource(request -> {
-//            CorsConfiguration corsConfig = new CorsConfiguration();
-//            corsConfig.setAllowedOrigins(Collections.singletonList(baseUrl));
-//            corsConfig.setAllowedMethods(Arrays.asList("HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"));
-//            corsConfig.setAllowedHeaders(Collections.singletonList("*"));
-//            corsConfig.setAllowCredentials(true);
-//            corsConfig.setExposedHeaders(
-//                    Arrays.asList(HttpHeaders.AUTHORIZATION, X_REFRESH_TOKEN, "Cache-Control", "Content-Type"));
-//            corsConfig.setMaxAge(3600L);
-//            return corsConfig;
-//        }));
+        http.cors(config -> config.configurationSource(request -> {
+            CorsConfiguration corsConfig = new CorsConfiguration();
+            corsConfig.setAllowedOrigins(Collections.singletonList(baseUrl));
+            corsConfig.setAllowedMethods(Arrays.asList("HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"));
+            corsConfig.setAllowedHeaders(Collections.singletonList("*"));
+            corsConfig.setAllowCredentials(true);
+            corsConfig.setExposedHeaders(
+                    Arrays.asList(HttpHeaders.AUTHORIZATION, X_REFRESH_TOKEN, "Cache-Control", "Content-Type"));
+            corsConfig.setMaxAge(3600L);
+            return corsConfig;
+        }));
 
         // filter
         http.addFilterAfter(jwtGeneratorFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
