@@ -26,6 +26,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
 
 @EnableWebSecurity(debug = true)
@@ -64,7 +66,7 @@ public class SecurityConfig {
         // filter
         http.addFilterAfter(jwtGeneratorFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
         http.addFilterAfter(jwtValidatorFilter(jwtService), LogoutFilter.class);
-        http.addFilterBefore(new CookieEncodingFilter("nickname", "--user-data"), CsrfFilter.class);
+        http.addFilterBefore(new CookieEncodingFilter("nickname", "--user-data"), UsernamePasswordAuthenticationFilter.class);
 
         // url pattern
         http.authorizeHttpRequests(requests -> requests
@@ -116,5 +118,18 @@ public class SecurityConfig {
     @Bean
     public JwtValidatorFilter jwtValidatorFilter(JwtService jwtService) {
         return new JwtValidatorFilter(jwtService);
+    }
+
+    @Bean
+    public HttpFirewall allowUrlEncodedSlashHttpFirewall() {
+        StrictHttpFirewall firewall = new StrictHttpFirewall();
+        firewall.setAllowSemicolon(true);
+        firewall.setAllowUrlEncodedSlash(true);
+        firewall.setAllowUrlEncodedPercent(true);
+        firewall.setAllowUrlEncodedPeriod(true);
+        firewall.setAllowBackSlash(true);
+        firewall.setAllowedHeaderNames((header) -> true);  // 모든 헤더 이름 허용
+        firewall.setAllowedHeaderValues((header) -> true); // 모든 헤더 값 허용
+        return firewall;
     }
 }

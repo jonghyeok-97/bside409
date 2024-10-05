@@ -27,15 +27,13 @@ public class CookieEncodingFilter extends OncePerRequestFilter {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (Arrays.asList(cookiesToEncode).contains(cookie.getName())) {
-                    try {
-                        String encodedValue = encodeCookieValue(cookie.getValue());
-                        Cookie newCookie = new Cookie(cookie.getName(), encodedValue);
-                        newCookie.setPath("/");
-                        response.addCookie(newCookie);
-                    } catch (Exception e) {
-                        logger.warn("Failed to encode cookie: " + cookie.getName(), e);
-                    }
+                try {
+                    String encodedValue = encodeCookieValue(cookie.getValue());
+                    Cookie newCookie = new Cookie(cookie.getName(), encodedValue);
+                    newCookie.setPath("/");
+                    response.addCookie(newCookie);
+                } catch (Exception e) {
+                    logger.warn("Failed to encode cookie: " + cookie.getName(), e);
                 }
             }
         }
