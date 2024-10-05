@@ -54,7 +54,7 @@ public class JwtGeneratorFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         return Stream.of(
-                "/login", "/oauth2", "/error", "/swagger-", "/v3/api-docs", "/api-docs", "/api/v1/users"
+                "/error", "/swagger-", "/v3/api-docs", "/api-docs"
         ).noneMatch(uri -> request.getServletPath().startsWith(uri));
     }
 }
