@@ -1,21 +1,17 @@
 package bsise.server.config;
 
-import static bsise.server.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
-
+import bsise.server.auth.CookieEncodingFilter;
 import bsise.server.auth.OAuth2SuccessHandler;
 import bsise.server.auth.UpOAuth2UserService;
 import bsise.server.auth.jwt.JwtAuthenticationEntryPoint;
 import bsise.server.auth.jwt.JwtGeneratorFilter;
 import bsise.server.auth.jwt.JwtService;
 import bsise.server.auth.jwt.JwtValidatorFilter;
-import java.util.Arrays;
-import java.util.Collections;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -24,7 +20,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
-import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.security.web.csrf.CsrfFilter;
 
 @EnableWebSecurity(debug = true)
 @Configuration
@@ -62,6 +58,7 @@ public class SecurityConfig {
         // filter
         http.addFilterAfter(jwtGeneratorFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
         http.addFilterAfter(jwtValidatorFilter(jwtService), LogoutFilter.class);
+        http.addFilterBefore(new CookieEncodingFilter("nickname", "--user-data"), CsrfFilter.class);
 
         // url pattern
         http.authorizeHttpRequests(requests -> requests
@@ -93,10 +90,10 @@ public class SecurityConfig {
 //                        .defaultSuccessUrl(baseUrl + "/")
 //                )
                 .oauth2Login(oauth2 -> oauth2 // OAuth2 로그인
-                        .loginPage(baseUrl + "/login")
+                                .loginPage(baseUrl + "/login")
 //                        .defaultSuccessUrl(baseUrl + "/")
-                        .userInfoEndpoint(config -> config.userService(upOAuth2UserService))
-                        .successHandler(oAuth2SuccessHandler)
+                                .userInfoEndpoint(config -> config.userService(upOAuth2UserService))
+                                .successHandler(oAuth2SuccessHandler)
                 )
 
                 .logout(LogoutConfigurer::permitAll)
