@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Slf4j
-@Service
+//@Service
 public class UpGuestUserService implements UserDetailsService {
 
     // guest 유저에 대한 로그인 처리(인증 처리)
