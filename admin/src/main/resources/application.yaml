@@ -8,3 +8,5 @@ spring:
     user:
       name: ${ADMIN_NAME}
       password: ${ADMIN_PASSWD}
+server:
+  port: 8090

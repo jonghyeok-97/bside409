@@ -4,9 +4,9 @@ services:
     restart: always
     container_name: bside-backend-admin
     env_file:
-      - ../.env
+      - .env
     ports:
-      - '8090:8080'
+      - '8090:8090'
     networks:
       - bside_bside-network
 networks:
