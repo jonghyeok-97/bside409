@@ -1,0 +1,17 @@
+services:
+  backend-admin:
+    build: .
+    restart: always
+    container_name: bside-backend-admin
+    env_file:
+      - ../.env
+    ports:
+      - '8090:8080'
+    networks:
+      - bside_bside-network
+networks:
+  bside_bside-network:
+    external: true
+
+volumes:
+  data:

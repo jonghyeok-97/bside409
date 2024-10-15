@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: admin-server
+  profiles:
+    group:
+      dev: dev, common
+  security:
+    user:
+      name: ${ADMIN_NAME}
+      password: ${ADMIN_PASSWD}
