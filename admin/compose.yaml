@@ -8,10 +8,7 @@ services:
     ports:
       - '8090:8090'
     networks:
-      - bside_bside-network
+      - backend_bside-network
 networks:
-  bside_bside-network:
+  backend_bside-network:
     external: true
-
-volumes:
-  data:
