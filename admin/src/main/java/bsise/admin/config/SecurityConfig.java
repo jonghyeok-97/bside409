@@ -35,12 +35,12 @@ public class SecurityConfig {
 
         // login
         http.formLogin(form -> form.loginPage(baseUrl + "/login")
-                .loginProcessingUrl("/login")
+                .loginProcessingUrl("/api/v1/admin/login")
                 .defaultSuccessUrl(baseUrl + "/")
         );
 
         // logout
-        http.logout(form -> form.logoutUrl("/logout")
+        http.logout(form -> form.logoutUrl("/api/v1/admin/logout")
                 .logoutSuccessUrl(baseUrl + "/login")
                 .deleteCookies("JSESSIONID")
         );
