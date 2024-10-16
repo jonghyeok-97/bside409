@@ -4,9 +4,10 @@ spring:
   profiles:
     group:
       dev: dev, common
+      prod: prod, common
   security:
     user:
       name: ${ADMIN_NAME}
       password: ${ADMIN_PASSWD}
 server:
-  port: 8090
+  port: ${SERVER_PORT}
