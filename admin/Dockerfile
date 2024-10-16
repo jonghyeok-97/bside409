@@ -9,4 +9,4 @@ WORKDIR /app
 
 COPY --from=build /home/gradle/src/build/libs/*SNAPSHOT.jar bside-backend-admin.jar
 
-ENTRYPOINT ["java", "-Dspring.profiles.active=dev", "-Duser.timezone=Asia/Seoul", "-jar", "bside-backend-admin.jar"]
+ENTRYPOINT ["java", "-Dspring.profiles.active=prod", "-Duser.timezone=Asia/Seoul", "-jar", "bside-backend-admin.jar"]
