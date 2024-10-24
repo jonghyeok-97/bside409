@@ -6,7 +6,7 @@ import static bsise.server.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
 
 import bsise.server.auth.UpOAuth2UserService;
 import bsise.server.auth.UpUserDetails;
-import bsise.server.user.User;
+import bsise.server.user.domain.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;

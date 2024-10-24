@@ -1,6 +1,6 @@
 package bsise.server.clovar;
 
-import static bsise.server.user.Preference.*;
+import static bsise.server.user.domain.Preference.*;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

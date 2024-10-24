@@ -1,7 +1,7 @@
 package bsise.server.reply;
 
 import bsise.server.clovar.TwoTypeMessage;
-import bsise.server.user.Preference;
+import bsise.server.user.domain.Preference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;

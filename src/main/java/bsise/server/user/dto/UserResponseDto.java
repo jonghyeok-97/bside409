@@ -1,5 +1,7 @@
-package bsise.server.user;
+package bsise.server.user.dto;
 
+import bsise.server.user.domain.Preference;
+import bsise.server.user.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

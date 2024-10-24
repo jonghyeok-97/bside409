@@ -1,4 +1,4 @@
-package bsise.server.user;
+package bsise.server.user.domain;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

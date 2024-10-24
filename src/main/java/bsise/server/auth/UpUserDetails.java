@@ -1,7 +1,7 @@
 package bsise.server.auth;
 
-import bsise.server.user.Role;
-import bsise.server.user.User;
+import bsise.server.user.domain.Role;
+import bsise.server.user.domain.User;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;

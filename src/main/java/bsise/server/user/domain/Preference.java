@@ -1,4 +1,4 @@
-package bsise.server.user;
+package bsise.server.user.domain;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import java.util.Arrays;

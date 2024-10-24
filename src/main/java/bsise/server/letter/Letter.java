@@ -1,8 +1,8 @@
 package bsise.server.letter;
 
 import bsise.server.common.BaseTimeEntity;
-import bsise.server.user.Preference;
-import bsise.server.user.User;
+import bsise.server.user.domain.Preference;
+import bsise.server.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

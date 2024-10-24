@@ -8,7 +8,7 @@ import bsise.server.error.UserNotFoundException;
 import bsise.server.letter.Letter;
 import bsise.server.letter.LetterResponseDto;
 import bsise.server.letter.LetterService;
-import bsise.server.user.UserRepository;
+import bsise.server.user.repository.UserRepository;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

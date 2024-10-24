@@ -1,6 +1,6 @@
 package bsise.server.letter;
 
-import bsise.server.user.Preference;
+import bsise.server.user.domain.Preference;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.NotBlank;

@@ -1,8 +1,8 @@
 package bsise.server.clovar;
 
-import static bsise.server.user.Preference.F;
+import static bsise.server.user.domain.Preference.F;
 
-import bsise.server.user.Preference;
+import bsise.server.user.domain.Preference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
