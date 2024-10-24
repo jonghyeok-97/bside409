@@ -1,5 +1,6 @@
 package bsise.admin.retrieve.user;
 
+import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,6 +19,7 @@ public class UserRetrieveService {
 
         List<UserRetrieveResult> content = users.stream()
                 .map(UserRetrieveResult::of)
+                .sorted(Comparator.comparing(UserRetrieveResult::getCreatedAt).reversed())
                 .toList();
 
         return new PageImpl<>(content, pageable, users.getTotalElements());
