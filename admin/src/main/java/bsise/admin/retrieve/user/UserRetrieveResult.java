@@ -15,6 +15,8 @@ public class UserRetrieveResult {
     private String preference;
     private String provider;
     private LocalDateTime createdAt;
+    private boolean dormant;
+    private LocalDateTime dormantAt;
 
     public static UserRetrieveResult of(User user) {
         return UserRetrieveResult.builder()
@@ -24,6 +26,8 @@ public class UserRetrieveResult {
                 .preference(user.getPreference())
                 .provider(user.getProvider())
                 .createdAt(user.getCreatedAt())
+                .dormant(user.getIsDormant())
+                .dormantAt(user.getDormantAt())
                 .build();
     }
 }
