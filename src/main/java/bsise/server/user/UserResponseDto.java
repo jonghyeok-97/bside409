@@ -27,7 +27,10 @@ public class UserResponseDto {
     private Preference preference;
 
     @Schema(description = "이미지 동기화 여부", examples = {"true", "false"})
-    private boolean profileImageDisable;
+    private boolean profileImageEnabled;
+
+    @Schema(description = "광고 이메일 수신 여부", examples = {"true", "false"})
+    private boolean isEmailAdsConsented;
 
     @Schema(description = "최초 로그인 여부", examples = {"true", "false"})
     private boolean isFirstLogin;
@@ -38,7 +41,8 @@ public class UserResponseDto {
                 .nickname(user.getNickname())
                 .email(user.getEmail())
                 .preference(user.getPreference())
-                .profileImageDisable(user.isSynced())
+                .profileImageEnabled(user.isSynced())
+                .isEmailAdsConsented(user.isEmailAdsConsented())
                 .isFirstLogin(user.getNickname().equals("임시 닉네임"))
                 .build();
     }

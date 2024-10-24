@@ -50,6 +50,9 @@ public class User extends BaseTimeEntity {
     @Column(name = "profile_image_url")
     private String profileImageUrl;
 
+    @Column(name = "is_email_ads_consented")
+    private boolean isEmailAdsConsented = true;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "oauth2_provider", nullable = false)
     private OAuth2Provider provider;
@@ -60,13 +63,14 @@ public class User extends BaseTimeEntity {
 
     @Builder
     public User(String username, String email, String nickname, Preference preference, boolean isSynced,
-                String profileImageUrl, OAuth2Provider provider, Role role) {
+                String profileImageUrl, boolean isEmailAdsConsented, OAuth2Provider provider, Role role) {
         this.username = username;
         this.email = email;
         this.nickname = nickname;
         this.preference = preference;
         this.isSynced = isSynced;
         this.profileImageUrl = profileImageUrl;
+        this.isEmailAdsConsented = isEmailAdsConsented;
         this.provider = provider;
         this.role = role;
     }
@@ -80,6 +84,7 @@ public class User extends BaseTimeEntity {
                 .isSynced(false)
                 .profileImageUrl(oAuth2UserInfo.getProfileImage())
                 .provider(OAuth2Provider.fromString(oAuth2UserInfo.getProvider()))
+                .isEmailAdsConsented(true)
                 .role(Role.OAUTH)
                 .build();
     }
@@ -107,5 +112,9 @@ public class User extends BaseTimeEntity {
 
     public void changeSynced(boolean isSynced) {
         this.isSynced = isSynced;
+    }
+
+    public void changeEmailAdsConsent(boolean isConsented) {
+        this.isEmailAdsConsented = isConsented;
     }
 }

@@ -21,7 +21,8 @@ public class UserService {
 
         user.changeNickname(changeDto.getNickname());
         user.changePreference(changeDto.getPreference());
-        user.changeSynced(changeDto.isProfileImageDisable());
+        user.changeSynced(changeDto.isProfileImageEnabled());
+        user.changeEmailAdsConsent(changeDto.isEmailAdsConsented());
 
         return UserResponseDto.of(user);
     }
