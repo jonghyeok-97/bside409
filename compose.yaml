@@ -27,14 +27,29 @@ services:
       - '6379:6379'
     networks:
       - bside-network
-  backend:
-    image: 'yeriimii/upup-radio-backend:latest'
+  backend-blue:
+    build: .
     restart: always
-    container_name: bside-backend
+    container_name: bside-backend-blue
     env_file:
       - .env
     ports:
       - '8080:8080'
+    depends_on:
+      mysql:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    networks:
+      - bside-network
+  backend-green:
+    image: 'yeriimii/upup-radio-backend:latest'
+    restart: always
+    container_name: bside-backend-green
+    env_file:
+      - .env
+    ports:
+      - '8081:8080'
     depends_on:
       mysql:
         condition: service_started
