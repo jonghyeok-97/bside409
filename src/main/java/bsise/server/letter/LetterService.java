@@ -1,13 +1,12 @@
 package bsise.server.letter;
 
 import bsise.server.error.LetterNotFoundException;
+import bsise.server.error.RateLimitException;
 import bsise.server.error.UserNotFoundException;
-import bsise.server.limiter.RateLimitException;
 import bsise.server.limiter.RateLimitService;
 import bsise.server.user.User;
 import bsise.server.user.UserRepository;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

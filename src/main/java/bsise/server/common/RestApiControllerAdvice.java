@@ -1,10 +1,9 @@
 package bsise.server.common;
 
-import bsise.server.limiter.RateLimitException;
+import bsise.server.error.RateLimitException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;

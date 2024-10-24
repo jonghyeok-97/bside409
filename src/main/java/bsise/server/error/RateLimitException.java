@@ -1,4 +1,4 @@
-package bsise.server.limiter;
+package bsise.server.error;
 
 public class RateLimitException extends RuntimeException {
 
