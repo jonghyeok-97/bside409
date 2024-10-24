@@ -18,10 +18,10 @@ public class RateLimitService {
     private static final String USER_KEY_REMAINING = "user:%s:remaining";
 
     @Value("${redis.limit}")
-    private long REQUEST_LIMIT;
+    private long BASIC_REQUEST_LIMIT;
 
     @Value("${redis.expire}")
-    private long EXPIRE_TIME;
+    private long BASIC_EXPIRE_TIME;
 
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -60,5 +60,18 @@ public class RateLimitService {
 
     private String getKey(String userId) {
         return String.format(USER_KEY_REMAINING, userId);
+    }
+
+    private Long getCurrentPolicy(RateLimitPolicy policy) {
+        String currentPolicy = redisTemplate.opsForValue().get(policy.getRedisKey());
+        if (StringUtils.hasText(currentPolicy)) {
+            return Long.parseLong(currentPolicy);
+        }
+
+        // 정책이 없는 경우 (null) 기본값 반환
+        if (policy == TTL) {
+            return BASIC_EXPIRE_TIME;
+        }
+        return BASIC_REQUEST_LIMIT;
     }
 }

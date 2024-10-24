@@ -1,5 +1,7 @@
 package bsise.server.user;
 
+import bsise.server.limiter.RateLimitService;
+import bsise.server.limiter.UserUsageResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
+    private final RateLimitService limitService;
 
     @Operation(summary = "유저 정보 변경 API", description = "유저의 정보를 변경합니다.")
     @PatchMapping("/{userId}")
@@ -39,5 +42,11 @@ public class UserController {
     public UserResponseDto testGetUserInfo(@PathVariable("userId") String userId) {
         log.info("Get user info by user id {}", userId);
         return new UserResponseDto(userId, "임시 닉네임", "test@test.com", Preference.F, false, true);
+    }
+
+    @Operation(summary = "유저 사용량 조회 API", description = "유저의 편지 쓰기 횟수 및 초기화까지 남은 시간을 조회합니다.")
+    @GetMapping("/{userId}/usage")
+    public UserUsageResponseDto getUserUsage(@PathVariable("userId") String userId) {
+        return limitService.getUsageByUserId(userId);
     }
 }
