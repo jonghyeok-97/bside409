@@ -28,7 +28,7 @@ services:
     networks:
       - bside-network
   backend:
-    build: .
+    image: 'yeriimii/upup-radio-backend:latest'
     restart: always
     container_name: bside-backend
     env_file:
@@ -42,9 +42,25 @@ services:
         condition: service_healthy
     networks:
       - bside-network
+  backend-admin:
+    image: 'yeriimii/upup-radio-admin:latest'
+    restart: always
+    container_name: bside-backend-admin
+    env_file:
+      - ./admin/.env
+    ports:
+      - '8090:8090'
+    depends_on:
+      mysql:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    networks:
+      - bside-network
 
 networks:
   bside-network:
+    name: bside-network
     driver: bridge
 
 volumes:
