@@ -25,12 +25,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
-import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
 
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity(debug = false)
 @Configuration
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class SecurityConfig {
@@ -86,22 +85,14 @@ public class SecurityConfig {
                                 "/js/**",
                                 "/images/**",
                                 "/api/v1/users/**"
-//                                "/api/v1/letters",
-//                                "/api/v1/letters/**"
                         ).permitAll()
                         .requestMatchers("/api/v1/replies**").authenticated()
                         .requestMatchers("/api/v1/replies/**").authenticated()
                         .anyRequest().authenticated())
-//                .formLogin(form -> form // 게스트 로그인
-//                        .loginPage(baseUrl + "/login")
-//                        .loginProcessingUrl("/login")
-//                        .defaultSuccessUrl(baseUrl + "/")
-//                )
                 .oauth2Login(oauth2 -> oauth2 // OAuth2 로그인
-                                .loginPage(baseUrl + "/login")
-//                        .defaultSuccessUrl(baseUrl + "/")
-                                .userInfoEndpoint(config -> config.userService(upOAuth2UserService))
-                                .successHandler(oAuth2SuccessHandler)
+                        .loginPage(baseUrl + "/login")
+                        .userInfoEndpoint(config -> config.userService(upOAuth2UserService))
+                        .successHandler(oAuth2SuccessHandler)
                 )
 
                 .logout(LogoutConfigurer::permitAll)
