@@ -4,14 +4,12 @@ import bsise.server.user.domain.WithdrawalReason;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.util.StringUtils;
 
-@Tag(name = "user")
 @Schema(description = "회원 탈퇴 요청 DTO")
 @Getter
 @AllArgsConstructor
@@ -28,6 +26,7 @@ public class UserDeleteRequestDto {
     @Schema(description = "유저가 입력한 상세 탈퇴 사유. 입력이 없으면 해당 필드를 포함시키지 않는다.", requiredMode = RequiredMode.NOT_REQUIRED)
     private String detailReason;
 
+    @Schema(hidden = true)
     public WithdrawalReason getWithdrawalReason() {
         return WithdrawalReason.of(selectedNumber);
     }
