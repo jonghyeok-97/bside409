@@ -1,11 +1,11 @@
 package bsise.server.auth;
 
+import bsise.server.error.DormantUserLoginException;
 import bsise.server.error.UserNotFoundException;
-import bsise.server.user.User;
-import bsise.server.user.UserRepository;
+import bsise.server.user.domain.User;
+import bsise.server.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.AccessLevel;
@@ -48,9 +48,15 @@ public class UpOAuth2UserService extends DefaultOAuth2UserService {
             return new UpUserDetails(newUser, oAuth2User.getAttributes());
         }
 
+        // 휴면 유저 또는 탈퇴 중인 유저 => 복구 페이지로 redirection
+        User user = optionalUser.get();
+        if (user.isDormant()) {
+            log.info("--- 휴면 유저 로그인 시도: {} ---", user.getId());
+            request.setAttribute("userId", user.getId().toString());
+            throw new DormantUserLoginException("dormant exception: 탈퇴 진행 중인 계정입니다.");
+        }
 
         // 기존 유저 => UserDetails 반환
-        User user = optionalUser.get();
         request.setAttribute("userId", user.getId());
         log.info("--- 기존 OAuth2 유저 ID: {} ---", user.getId());
         return new UpUserDetails(user, oAuth2User.getAttributes());

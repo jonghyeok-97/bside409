@@ -1,5 +1,6 @@
 package bsise.server.common;
 
+import bsise.server.error.DormantUserLoginException;
 import bsise.server.error.RateLimitException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,11 @@ public class RestApiControllerAdvice {
         return createErrorResponse(exception, HttpStatus.TOO_MANY_REQUESTS, "error.rate.limit");
     }
 
+    @ExceptionHandler(DormantUserLoginException.class)
+    public ResponseEntity<?> handleDormantUserLoginError(DormantUserLoginException exception) {
+        return createErrorResponse(exception, HttpStatus.CONFLICT, "error.dormantuser.login:" + exception.getMessage());
+    }
+
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<?> handleRateLimitException(RuntimeException exception) {
         return createErrorResponse(exception, HttpStatus.INTERNAL_SERVER_ERROR, "error.rate.limit");
@@ -49,7 +55,6 @@ public class RestApiControllerAdvice {
 
     private ResponseEntity<?> createErrorResponse(Exception exception, HttpStatus status, String messageKey) {
         log.error("An error occurred: ", exception);
-//        String message = messageSource.getMessage(messageKey, null, Locale.KOREA);
         ErrorResponse errorResponse = ErrorResponse.builder(exception,
                 ProblemDetail.forStatusAndDetail(status, messageKey)).build();
         return ResponseEntity.status(status).body(errorResponse);

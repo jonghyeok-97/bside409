@@ -1,4 +1,4 @@
-package bsise.server.user;
+package bsise.server.user.domain;
 
 import bsise.server.auth.OAuth2Provider;
 import bsise.server.auth.OAuth2UserInfo;
@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -61,6 +62,12 @@ public class User extends BaseTimeEntity {
     @Column(name = "role", nullable = false)
     private Role role;
 
+    @Column(name = "isDormant")
+    private boolean isDormant = false;
+
+    @Column(name = "dormant_at")
+    private LocalDateTime dormantAt;
+
     @Builder
     public User(String username, String email, String nickname, Preference preference, boolean isSynced,
                 String profileImageUrl, boolean isEmailAdsConsented, OAuth2Provider provider, Role role) {
@@ -71,6 +78,7 @@ public class User extends BaseTimeEntity {
         this.isSynced = isSynced;
         this.profileImageUrl = profileImageUrl;
         this.isEmailAdsConsented = isEmailAdsConsented;
+        this.isDormant = false;
         this.provider = provider;
         this.role = role;
     }
@@ -116,5 +124,10 @@ public class User extends BaseTimeEntity {
 
     public void changeEmailAdsConsent(boolean isConsented) {
         this.isEmailAdsConsented = isConsented;
+    }
+
+    public void changeToDormantAccount() {
+        this.isDormant = true;
+        this.dormantAt = LocalDateTime.now();
     }
 }

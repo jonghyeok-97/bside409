@@ -1,12 +1,18 @@
-package bsise.server.user;
+package bsise.server.user.controller;
 
 import bsise.server.limiter.RateLimitService;
 import bsise.server.limiter.UserUsageResponseDto;
+import bsise.server.user.dto.UserChangeRequestDto;
+import bsise.server.user.dto.UserDeleteRequestDto;
+import bsise.server.user.dto.UserDeleteResponseDto;
+import bsise.server.user.dto.UserResponseDto;
+import bsise.server.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,5 +47,12 @@ public class UserController {
     @GetMapping("/{userId}/usage")
     public UserUsageResponseDto getUserUsage(@PathVariable("userId") String userId) {
         return limitService.getUsageByUserId(userId);
+    }
+
+    @Operation(summary = "회원 탈퇴 API", description = "요청한 회원의 탈퇴를 처리합니다.")
+    @DeleteMapping("/{userId}")
+    public UserDeleteResponseDto deleteUser(@PathVariable("userId") String userId,
+                                            @RequestBody UserDeleteRequestDto deleteDto) {
+        return userService.deleteUser(UUID.fromString(userId), deleteDto);
     }
 }
