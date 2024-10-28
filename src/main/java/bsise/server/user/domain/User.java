@@ -142,6 +142,11 @@ public class User extends BaseTimeEntity {
         this.dormantAt = LocalDateTime.now();
     }
 
+    public void recoverFromDormantAccount() {
+        this.isDormant = false;
+        this.dormantAt = null;
+    }
+
     public void changeAgreeToTerms(boolean agreeToTerms) {
         this.agreeToTerms = agreeToTerms;
     }

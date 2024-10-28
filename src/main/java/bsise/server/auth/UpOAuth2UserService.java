@@ -3,8 +3,11 @@ package bsise.server.auth;
 import bsise.server.error.DormantUserLoginException;
 import bsise.server.error.UserNotFoundException;
 import bsise.server.user.domain.User;
+import bsise.server.user.domain.WithdrawalUser;
 import bsise.server.user.repository.UserRepository;
+import bsise.server.user.repository.WithdrawalRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,7 +28,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class UpOAuth2UserService extends DefaultOAuth2UserService {
 
+    private static final int ALLOWED_RECOVERY_DAY = 14;
     private final UserRepository userRepository;
+    private final WithdrawalRepository withdrawalRepository;
     private final HttpServletRequest request;
 
     @Override
@@ -52,14 +57,27 @@ public class UpOAuth2UserService extends DefaultOAuth2UserService {
         User user = optionalUser.get();
         if (user.isDormant()) {
             log.info("--- 휴면 유저 로그인 시도: {} ---", user.getId());
-            request.setAttribute("userId", user.getId().toString());
-            throw new DormantUserLoginException("dormant exception: 탈퇴 진행 중인 계정입니다.");
+            WithdrawalUser withdrawalUser = withdrawalRepository.findByUser(user)
+                    .orElseThrow(() -> new UserNotFoundException("no user found with userId: " + user.getId()));
+
+            // 복구 허용 범위가 아니면 이미 삭제되야 하는 계정(삭제 진행 중일 수도 있음)
+            if (isOutOfRecoveryRange(user.getDormantAt())) {
+                throw new DormantUserLoginException("dormant exception: 탈퇴 진행 중인 계정입니다. 재시도를 해보세요.");
+            }
+
+            // 휴면 계정으로부터 계정을 복구
+            withdrawalRepository.delete(withdrawalUser);
+            user.recoverFromDormantAccount();
         }
 
         // 기존 유저 => UserDetails 반환
         request.setAttribute("userId", user.getId());
         log.info("--- 기존 OAuth2 유저 ID: {} ---", user.getId());
         return new UpUserDetails(user, oAuth2User.getAttributes());
+    }
+
+    private boolean isOutOfRecoveryRange(LocalDateTime createdAt) {
+        return LocalDateTime.now().isBefore(createdAt.plusDays(ALLOWED_RECOVERY_DAY));
     }
 
     public boolean isOAuth2User(String userId) {
