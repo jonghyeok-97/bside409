@@ -54,6 +54,12 @@ public class User extends BaseTimeEntity {
     @Column(name = "is_email_ads_consented")
     private boolean isEmailAdsConsented = true;
 
+    @Column(name = "agree_to_terms")
+    private boolean agreeToTerms = false;
+
+    @Column(name = "agree_to_privacy_policy")
+    private boolean agreeToPrivacyPolicy = false;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "oauth2_provider", nullable = false)
     private OAuth2Provider provider;
@@ -70,7 +76,8 @@ public class User extends BaseTimeEntity {
 
     @Builder
     public User(String username, String email, String nickname, Preference preference, boolean isSynced,
-                String profileImageUrl, boolean isEmailAdsConsented, OAuth2Provider provider, Role role) {
+                String profileImageUrl, boolean isEmailAdsConsented, boolean agreeToTerms, boolean agreeToPrivacyPolicy,
+                OAuth2Provider provider, Role role) {
         this.username = username;
         this.email = email;
         this.nickname = nickname;
@@ -78,6 +85,8 @@ public class User extends BaseTimeEntity {
         this.isSynced = isSynced;
         this.profileImageUrl = profileImageUrl;
         this.isEmailAdsConsented = isEmailAdsConsented;
+        this.agreeToTerms = agreeToTerms;
+        this.agreeToPrivacyPolicy = agreeToPrivacyPolicy;
         this.isDormant = false;
         this.provider = provider;
         this.role = role;
@@ -93,6 +102,8 @@ public class User extends BaseTimeEntity {
                 .profileImageUrl(oAuth2UserInfo.getProfileImage())
                 .provider(OAuth2Provider.fromString(oAuth2UserInfo.getProvider()))
                 .isEmailAdsConsented(true)
+                .agreeToTerms(false)
+                .agreeToPrivacyPolicy(false)
                 .role(Role.OAUTH)
                 .build();
     }
@@ -129,5 +140,13 @@ public class User extends BaseTimeEntity {
     public void changeToDormantAccount() {
         this.isDormant = true;
         this.dormantAt = LocalDateTime.now();
+    }
+
+    public void changeAgreeToTerms(boolean agreeToTerms) {
+        this.agreeToTerms = agreeToTerms;
+    }
+
+    public void changeAgreeToPrivacyPolicy(boolean agreeToPrivacyPolicy) {
+        this.agreeToPrivacyPolicy = agreeToPrivacyPolicy;
     }
 }

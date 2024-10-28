@@ -38,6 +38,8 @@ public class UserService {
         user.changePreference(changeDto.getPreference());
         user.changeSynced(changeDto.isProfileImageEnabled());
         user.changeEmailAdsConsent(changeDto.isEmailAdsConsented());
+        user.changeAgreeToTerms(changeDto.isAgreeToTerms());
+        user.changeAgreeToPrivacyPolicy(changeDto.isAgreeToPrivacyPolicy());
 
         return UserResponseDto.of(user);
     }

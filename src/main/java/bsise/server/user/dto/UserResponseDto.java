@@ -34,6 +34,12 @@ public class UserResponseDto {
     @Schema(description = "광고 이메일 수신 여부", examples = {"true", "false"})
     private boolean emailAdsConsented;
 
+    @Schema(description = "이용 약관 동의 여부", examples = {"true", "false"})
+    private boolean agreeToTerms;
+
+    @Schema(description = "개인정보 처리 방침 동의 여부", examples = {"true", "false"})
+    private boolean agreeToPrivacyPolicy;
+
     @Schema(description = "최초 로그인 여부", examples = {"true", "false"})
     private boolean isFirstLogin;
 
@@ -46,6 +52,8 @@ public class UserResponseDto {
                 .profileImageEnabled(user.isSynced())
                 .emailAdsConsented(user.isEmailAdsConsented())
                 .isFirstLogin(user.getNickname().equals("임시 닉네임"))
+                .agreeToTerms(user.isAgreeToTerms())
+                .agreeToPrivacyPolicy(user.isAgreeToPrivacyPolicy())
                 .build();
     }
 }
