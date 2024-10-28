@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class KakaoUserInfo implements OAuth2UserInfo {
 
+    public static final String DELIMITER = "@";
     private final String id;
     private final Map<String, Object> attributes;
 
@@ -22,7 +23,7 @@ public class KakaoUserInfo implements OAuth2UserInfo {
 
     @Override
     public String getUserName() {
-        return id + "@" + OAuth2Provider.KAKAO.getName();
+        return id + DELIMITER + OAuth2Provider.KAKAO.getName();
     }
 
     @Override

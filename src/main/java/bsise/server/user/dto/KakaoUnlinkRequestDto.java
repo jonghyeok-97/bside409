@@ -1,5 +1,6 @@
 package bsise.server.user.dto;
 
+import bsise.server.auth.KakaoUserInfo;
 import bsise.server.user.domain.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -9,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class KakaoUnlinkRequestDto {
 
+    public static final int KAKAO_ID_POSITION = 0;
+
     @JsonProperty(value = "target_id_type")
     private String targetIdType = "user_id";
 
@@ -16,6 +19,10 @@ public class KakaoUnlinkRequestDto {
     private final Long targetId;
 
     public static KakaoUnlinkRequestDto of(User user) {
-        return new KakaoUnlinkRequestDto(Long.parseLong(user.getUsername()));
+        return new KakaoUnlinkRequestDto(extractKakaoIdByUsername(user.getUsername()));
+    }
+
+    public static Long extractKakaoIdByUsername(String username) {
+        return Long.parseLong(username.split(KakaoUserInfo.DELIMITER)[KAKAO_ID_POSITION]);
     }
 }
