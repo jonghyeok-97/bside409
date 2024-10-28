@@ -15,7 +15,7 @@ public class UserRetrieveService {
     private final UserRepository userRepository;
 
     public Page<UserRetrieveResult> retrieveUsers(Pageable pageable) {
-        Page<User> users = userRepository.findAll(pageable);
+        Page<User> users = userRepository.findAllByOrderByCreatedAtDesc(pageable);
 
         List<UserRetrieveResult> content = users.stream()
                 .map(UserRetrieveResult::of)
