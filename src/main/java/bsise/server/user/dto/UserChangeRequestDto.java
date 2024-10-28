@@ -27,5 +27,5 @@ public class UserChangeRequestDto {
 
     @Schema(description = "광고 이메일 수신 여부", allowableValues = {"true", "false"})
     @NotNull
-    private boolean isEmailAdsConsented;
+    private boolean emailAdsConsented;
 }

@@ -32,7 +32,7 @@ public class UserResponseDto {
     private boolean profileImageEnabled;
 
     @Schema(description = "광고 이메일 수신 여부", examples = {"true", "false"})
-    private boolean isEmailAdsConsented;
+    private boolean emailAdsConsented;
 
     @Schema(description = "최초 로그인 여부", examples = {"true", "false"})
     private boolean isFirstLogin;
@@ -44,7 +44,7 @@ public class UserResponseDto {
                 .email(user.getEmail())
                 .preference(user.getPreference())
                 .profileImageEnabled(user.isSynced())
-                .isEmailAdsConsented(user.isEmailAdsConsented())
+                .emailAdsConsented(user.isEmailAdsConsented())
                 .isFirstLogin(user.getNickname().equals("임시 닉네임"))
                 .build();
     }
