@@ -68,6 +68,7 @@ public class UpOAuth2UserService extends DefaultOAuth2UserService {
             // 휴면 계정으로부터 계정을 복구
             withdrawalRepository.delete(withdrawalUser);
             user.recoverFromDormantAccount();
+            log.info("--- 휴면 유저 복구 처리 완료: {} ---", user.getId());
         }
 
         // 기존 유저 => UserDetails 반환
@@ -76,8 +77,14 @@ public class UpOAuth2UserService extends DefaultOAuth2UserService {
         return new UpUserDetails(user, oAuth2User.getAttributes());
     }
 
-    private boolean isOutOfRecoveryRange(LocalDateTime createdAt) {
-        return LocalDateTime.now().isBefore(createdAt.plusDays(ALLOWED_RECOVERY_DAY));
+    /**
+     * {@code 휴면 시작일 + 복구 허용일 < 현재 시간} 이면 이미 복구 허용일이 지났으므로 복구 범위를 벗어난 것으로 판별합니다.
+     *
+     * @param dormantAt 휴면 시작일
+     * @return 복구 범위 초과 여부
+     */
+    private boolean isOutOfRecoveryRange(LocalDateTime dormantAt) {
+        return LocalDateTime.now().isAfter(dormantAt.plusDays(ALLOWED_RECOVERY_DAY));
     }
 
     public boolean isOAuth2User(String userId) {

@@ -2,7 +2,6 @@ package bsise.server.auth;
 
 import static bsise.server.auth.jwt.JwtConstant.ACCESS_VALID_MILLIS;
 import static bsise.server.auth.jwt.JwtConstant.REFRESH_VALID_MILLIS;
-import static bsise.server.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
 
 import bsise.server.auth.jwt.JwtService;
 import io.jsonwebtoken.Claims;
