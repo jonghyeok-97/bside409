@@ -27,7 +27,7 @@ public class UserService {
     private final WithdrawalRepository withdrawalRepository;
     private final KakaoOAuth2Client client;
 
-    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
+    @Value("${security.kakao-admin-key}")
     private String kakaoAdminKey;
 
     public UserResponseDto changeUserInfo(UUID userId, UserChangeRequestDto changeDto) {
@@ -60,9 +60,10 @@ public class UserService {
         user.changeToDormantAccount();
         WithdrawalUser withdrawalUser = WithdrawalUser.toWithdrawalUser(user, deleteRequestDto);
         withdrawalRepository.save(withdrawalUser);
+        KakaoUnlinkRequestDto dto = KakaoUnlinkRequestDto.of(user);
 
         /* kakao oauth2 서버에 unlink 요청 전송 */
-        client.requestUnlinkByUser(kakaoAdminKey, KakaoUnlinkRequestDto.of(user));
+        client.requestUnlinkByUser(kakaoAdminKey, dto.getTargetIdType(), dto.getTargetId());
 
         return UserDeleteResponseDto.of(user);
     }

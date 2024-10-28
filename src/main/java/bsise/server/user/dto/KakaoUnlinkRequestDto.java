@@ -16,13 +16,13 @@ public class KakaoUnlinkRequestDto {
     private String targetIdType = "user_id";
 
     @JsonProperty(value = "target_id")
-    private final Long targetId;
+    private final String targetId;
 
     public static KakaoUnlinkRequestDto of(User user) {
         return new KakaoUnlinkRequestDto(extractKakaoIdByUsername(user.getUsername()));
     }
 
-    public static Long extractKakaoIdByUsername(String username) {
-        return Long.parseLong(username.split(KakaoUserInfo.DELIMITER)[KAKAO_ID_POSITION]);
+    public static String extractKakaoIdByUsername(String username) {
+        return username.split(KakaoUserInfo.DELIMITER)[KAKAO_ID_POSITION];
     }
 }
