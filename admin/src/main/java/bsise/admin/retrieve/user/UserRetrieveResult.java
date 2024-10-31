@@ -2,10 +2,15 @@ package bsise.admin.retrieve.user;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class UserRetrieveResult {
 
@@ -26,7 +31,7 @@ public class UserRetrieveResult {
                 .preference(user.getPreference())
                 .provider(user.getProvider())
                 .createdAt(user.getCreatedAt())
-                .dormant(user.getIsDormant())
+                .dormant(user.isDormant())
                 .dormantAt(user.getDormantAt())
                 .build();
     }

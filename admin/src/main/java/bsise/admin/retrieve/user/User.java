@@ -36,19 +36,25 @@ public class User {
     private String preference;
 
     @Column(name = "is_synced")
-    private Boolean isSynced = false;
+    private boolean isSynced = false;
 
     @Column(name = "profile_image_url")
     private String profileImageUrl;
 
     @Column(name = "is_email_ads_consented")
-    private Boolean isEmailAdsConsented = true;
+    private boolean isEmailAdsConsented = true;
 
-    @Column(name = "isDormant")
-    private Boolean isDormant = false;
+    @Column(name = "isDormant") // TODO: column 이름 변경
+    private boolean isDormant = false;
 
     @Column(name = "dormant_at")
     private LocalDateTime dormantAt;
+
+    @Column(name = "agree_to_terms")
+    private boolean agreeToTerms = false;
+
+    @Column(name = "agree_to_privacy_policy")
+    private boolean agreeToPrivacyPolicy = false;
 
     @Column(name = "oauth2_provider", nullable = false)
     private String provider;
