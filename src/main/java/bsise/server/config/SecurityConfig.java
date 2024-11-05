@@ -2,6 +2,7 @@ package bsise.server.config;
 
 import static bsise.server.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
 
+import bsise.server.auth.CookieEncodingFilter;
 import bsise.server.auth.OAuth2SuccessHandler;
 import bsise.server.auth.UpOAuth2UserService;
 import bsise.server.auth.jwt.JwtAuthenticationEntryPoint;
@@ -24,6 +25,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
 
 @EnableWebSecurity(debug = false)
@@ -62,6 +65,7 @@ public class SecurityConfig {
         // filter
         http.addFilterAfter(jwtGeneratorFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
         http.addFilterAfter(jwtValidatorFilter(jwtService), LogoutFilter.class);
+        http.addFilterBefore(new CookieEncodingFilter("nickname", "--user-data"), UsernamePasswordAuthenticationFilter.class);
 
         // url pattern
         http.authorizeHttpRequests(requests -> requests
@@ -105,5 +109,18 @@ public class SecurityConfig {
     @Bean
     public JwtValidatorFilter jwtValidatorFilter(JwtService jwtService) {
         return new JwtValidatorFilter(jwtService);
+    }
+
+    @Bean
+    public HttpFirewall allowUrlEncodedSlashHttpFirewall() {
+        StrictHttpFirewall firewall = new StrictHttpFirewall();
+        firewall.setAllowSemicolon(true);
+        firewall.setAllowUrlEncodedSlash(true);
+        firewall.setAllowUrlEncodedPercent(true);
+        firewall.setAllowUrlEncodedPeriod(true);
+        firewall.setAllowBackSlash(true);
+        firewall.setAllowedHeaderNames((header) -> true);  // 모든 헤더 이름 허용
+        firewall.setAllowedHeaderValues((header) -> true); // 모든 헤더 값 허용
+        return firewall;
     }
 }
