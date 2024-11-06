@@ -20,10 +20,11 @@ spring:
         in-tests: false
   data:
     redis:
-      host: bside-redis
+      host: localhost
       port: 6379
 logging:
   level:
+    bsise.server: debug
     org:
       hibernate:
         SQL: debug
