@@ -27,25 +27,12 @@ services:
       - '6379:6379'
     networks:
       - bside-network
-  backend-blue:
-    build: .
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
     restart: always
-    container_name: bside-backend-blue
-    env_file:
-      - .env
-    ports:
-      - '8080:8080'
-    depends_on:
-      mysql:
-        condition: service_started
-      redis:
-        condition: service_healthy
-    networks:
-      - bside-network
-  backend-green:
-    image: 'yeriimii/upup-radio-backend:latest'
-    restart: always
-    container_name: bside-backend-green
+    container_name: backend
     env_file:
       - .env
     ports:
@@ -57,19 +44,14 @@ services:
         condition: service_healthy
     networks:
       - bside-network
-  backend-admin:
-    image: 'yeriimii/upup-radio-admin:latest'
+  prometheus:
+    image: prom/prometheus-linux-arm64
     restart: always
-    container_name: bside-backend-admin
-    env_file:
-      - ./admin/.env
+    container_name: prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
-      - '8090:8090'
-    depends_on:
-      mysql:
-        condition: service_started
-      redis:
-        condition: service_healthy
+      - '9090:9090'
     networks:
       - bside-network
 
