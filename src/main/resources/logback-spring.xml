@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- 스프링부트 로그백 기본 설정값 사용 -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <!-- File Appender 설정-->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/upup-radio.log</file>
+        <prudent>true</prudent> <!-- logs 폴더가 자동 생성됨 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 파일 롤링 규칙: 날짜와 파일 크기 기반으로 롤링 - 시간은 하루, 용량은 10MB 기반으로 롤링 -->
+            <fileNamePattern>logs/upup-radio.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize> <!-- 로그 파일 최대 크기 (10MB) -->
+            <maxHistory>30</maxHistory>      <!-- 로그 보관 기간 (30일) -->
+            <totalSizeCap>1GB</totalSizeCap>  <!-- 전체 로그 파일 크기 제한 (1GB) -->
+        </rollingPolicy>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <withJansi>false</withJansi> <!-- 색상 코드 포함 x -->
+        </encoder>
+    </appender>
+
+    <!-- Console Appender 설정-->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>
