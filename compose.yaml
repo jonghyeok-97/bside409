@@ -33,6 +33,8 @@ services:
       dockerfile: Dockerfile-dev
     restart: always
     container_name: backend
+    volumes:
+      - ./logs:/app/logs
     env_file:
       - .env
     ports:
@@ -139,10 +141,7 @@ services:
         ELASTIC_VERSION: ${ELASTIC_VERSION}
     command: filebeat -e -strict.perms=false
     volumes:
-      - type: bind
-        source: ./logs
-        target: /var/logs
-        read_only: true
+      - ./logs:/var/logs
       - type: bind
         source: ./elk/filebeat/config/filebeat.yml
         target: /usr/share/filebeat/filebeat.yml
