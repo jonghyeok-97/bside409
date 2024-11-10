@@ -46,7 +46,6 @@ services:
         condition: service_healthy
     networks:
       - bside-network
-      - elk-network
   prometheus:
     image: prom/prometheus-linux-arm64
     restart: always
@@ -59,15 +58,13 @@ services:
       - bside-network
 
   elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION:-8.15.3}
     container_name: elasticsearch
-    build:
-      context: ./elk/elasticsearch
-      args:
-        ELASTIC_VERSION: ${ELASTIC_VERSION}
+    command: >
+      sh -c "elasticsearch-plugin install analysis-nori && /usr/local/bin/docker-entrypoint.sh"
     volumes:
-      - type: volume
-        source: elasticsearch
-        target: /usr/share/elasticsearch/data
+      - elasticsearch:/usr/share/elasticsearch/data
+      - ./elk/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     ports:
       - '9200:9200'
       - '9300:9300'
@@ -75,26 +72,18 @@ services:
       - .env
     environment:
       discovery.type: single-node
+      ELASTIC_VERSION: ${ELASTIC_VERSION}
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
     networks:
-      - elk-network
+      - bside-network
 
   logstash:
+    image: docker.elastic.co/logstash/logstash:${ELASTIC_VERSION:-8.15.3}
     container_name: logstash
-    build:
-      context: ./elk/logstash/
-      args:
-        ELASTIC_VERSION: ${ELASTIC_VERSION}
     volumes:
-      - type: bind
-        source: ./elk/logstash/config/logstash.yml
-        target: /usr/share/logstash/config/logstash.yml
-        read_only: true
-      - type: bind
-        source: ./elk/logstash/pipeline
-        target: /usr/share/logstash/pipeline
-        read_only: true
+      - ./elk/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./elk/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
     ports:
       - "5044:5044"
       - "50000:50000/tcp"
@@ -103,51 +92,44 @@ services:
     env_file:
       - .env
     environment:
+      ELASTIC_VERSION: ${ELASTIC_VERSION}
       LOGSTASH_INTERNAL_USERNAME: ${LOGSTASH_INTERNAL_USERNAME}
       LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD}
     depends_on:
       - elasticsearch
     networks:
-      - elk-network
+      - bside-network
 
   kibana:
+    image: docker.elastic.co/kibana/kibana:${ELASTIC_VERSION:-8.15.3}
     container_name: kibana
-    build:
-      context: ./elk/kibana/
-      args:
-        ELASTIC_VERSION: ${ELASTIC_VERSION}
     volumes:
-      - type: bind
-        source: ./elk/kibana/config/kibana.yml
-        target: /usr/share/kibana/config/kibana.yml
-        read_only: true
+      - ./elk/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
     ports:
       - '5601:5601'
     env_file:
       - .env
     environment:
+      ELASTIC_VERSION: ${ELASTIC_VERSION}
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
     depends_on:
       - elasticsearch
     networks:
-      - elk-network
+      - bside-network
 
   filebeat:
+    image: docker.elastic.co/beats/filebeat:${ELASTIC_VERSION:-8.15.3}
     container_name: filebeat
-    build:
-      context: ./elk/filebeat/
-      args:
-        ELASTIC_VERSION: ${ELASTIC_VERSION}
-    command: filebeat -e -strict.perms=false
+    user: root
+    command: >
+      sh -c "mkdir -p /var/logs && chown -R root /usr/share/filebeat && filebeat -e -strict.perms=false"
+    env_file:
+      - .env
     volumes:
       - ./logs:/var/logs
-      - type: bind
-        source: ./elk/filebeat/config/filebeat.yml
-        target: /usr/share/filebeat/filebeat.yml
-        read_only: true
+      - ./elk/filebeat.yml:/usr/share/filebeat/filebeat.yml
     networks:
-      - elk-network
       - bside-network
     depends_on:
       - logstash
@@ -155,9 +137,6 @@ services:
 networks:
   bside-network:
     name: bside-network
-    driver: bridge
-  elk-network:
-    name: elk-network
     driver: bridge
 
 volumes:
