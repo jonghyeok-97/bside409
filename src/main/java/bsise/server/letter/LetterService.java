@@ -49,7 +49,7 @@ public class LetterService {
 
     @Transactional(readOnly = true)
     public List<LetterResponseDto> getLatestLetters() {
-        List<Letter> top10Letters = letterRepository.findTop10ByOrderByCreatedAtDesc();
+        List<Letter> top10Letters = letterRepository.findTop10ByPublishedIsTrueOrderByCreatedAtDesc();
 
         return top10Letters.stream()
                 .map(LetterResponseDto::fromLetter)
