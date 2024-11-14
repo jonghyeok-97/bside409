@@ -72,6 +72,7 @@ services:
       - .env
     environment:
       discovery.type: single-node
+      ES_JAVA_OPTS: "-Xms2g -Xmx2g"
       ELASTIC_VERSION: ${ELASTIC_VERSION}
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
