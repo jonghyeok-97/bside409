@@ -44,6 +44,9 @@ public class Letter extends BaseTimeEntity {
     @Column(name = "preference")
     private Preference preference;
 
+    @Column(name = "published")
+    private boolean published;
+
     @Column(name = "like_t")
     private Long likeT;
 
@@ -51,10 +54,11 @@ public class Letter extends BaseTimeEntity {
     private Long likeF;
 
     @Builder
-    public Letter(User user, String message, Preference preference) {
+    public Letter(User user, String message, Preference preference, boolean published) {
         this.user = user;
         this.message = message;
         this.preference = preference;
+        this.published = published;
         this.likeT = 0L;
         this.likeF = 0L;
     }

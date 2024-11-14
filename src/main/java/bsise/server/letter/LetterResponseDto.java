@@ -29,6 +29,9 @@ public class LetterResponseDto {
     @Schema(description = "편지 내용")
     private String content;
 
+    @Schema(description = "공개 여부")
+    private boolean published;
+
     @Schema(description = "편지가 저장된 시각")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime createdAt;
@@ -38,6 +41,7 @@ public class LetterResponseDto {
                 .letterId(letter.getId())
                 .preference(letter.getPreference())
                 .content(letter.getMessage())
+                .published(letter.isPublished())
                 .createdAt(letter.getCreatedAt())
                 .build();
     }
