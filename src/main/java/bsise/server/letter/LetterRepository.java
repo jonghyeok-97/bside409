@@ -11,5 +11,5 @@ import org.springframework.stereotype.Repository;
 public interface LetterRepository extends JpaRepository<Letter, UUID> {
 
     Page<Letter> findLettersByUserId(UUID userId, Pageable pageable);
-    List<Letter> findTop10ByOrderByCreatedAtDesc();
+    List<Letter> findTop10ByPublishedIsTrueOrderByCreatedAtDesc();
 }

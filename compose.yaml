@@ -56,6 +56,14 @@ services:
       - '9090:9090'
     networks:
       - bside-network
+  grafana:
+    image: grafana/grafana
+    restart: always
+    container_name: grafana
+    volumes:
+      - grafana_data:/var/lib/grafana
+    ports:
+      - '3000:3000'
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION:-8.15.3}
@@ -139,4 +147,5 @@ networks:
 
 volumes:
   data:
+  grafana_data:
   elasticsearch:

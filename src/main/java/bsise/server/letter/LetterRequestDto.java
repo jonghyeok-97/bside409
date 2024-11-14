@@ -25,10 +25,14 @@ public class LetterRequestDto {
     @NotNull(message = "선호하는 답변 유형이 없습니다.")
     private final Preference preference;
 
+    @Schema(description = "편지 공개 여부", allowableValues = {"true", "false"}, requiredMode = RequiredMode.REQUIRED)
+    private final boolean published;
+
     public Letter toLetterWithoutUser() {
         return Letter.builder()
                 .message(message)
                 .preference(preference)
+                .published(published)
                 .build();
     }
 }
