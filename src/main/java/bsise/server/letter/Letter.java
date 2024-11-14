@@ -1,6 +1,7 @@
 package bsise.server.letter;
 
 import bsise.server.common.BaseTimeEntity;
+import bsise.server.report.DailyReport;
 import bsise.server.user.domain.Preference;
 import bsise.server.user.domain.User;
 import jakarta.persistence.Column;
@@ -36,6 +37,10 @@ public class Letter extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "daily_report_id")
+    private DailyReport dailyReport;
 
     @Column(name = "message")
     private String message;
