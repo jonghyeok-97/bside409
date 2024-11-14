@@ -33,6 +33,8 @@ services:
       dockerfile: Dockerfile-dev
     restart: always
     container_name: backend
+    volumes:
+      - ./logs:/app/logs
     env_file:
       - .env
     ports:
@@ -63,6 +65,81 @@ services:
     ports:
       - '3000:3000'
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION:-8.15.3}
+    container_name: elasticsearch
+    command: >
+      sh -c "elasticsearch-plugin install analysis-nori && /usr/local/bin/docker-entrypoint.sh"
+    volumes:
+      - elasticsearch:/usr/share/elasticsearch/data
+      - ./elk/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    ports:
+      - '9200:9200'
+      - '9300:9300'
+    env_file:
+      - .env
+    environment:
+      discovery.type: single-node
+      ES_JAVA_OPTS: "-Xms2g -Xmx2g"
+      ELASTIC_VERSION: ${ELASTIC_VERSION}
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+    networks:
+      - bside-network
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:${ELASTIC_VERSION:-8.15.3}
+    container_name: logstash
+    volumes:
+      - ./elk/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./elk/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+    ports:
+      - "5044:5044"
+    env_file:
+      - .env
+    environment:
+      ELASTIC_VERSION: ${ELASTIC_VERSION}
+      LOGSTASH_INTERNAL_USERNAME: ${LOGSTASH_INTERNAL_USERNAME}
+      LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD}
+    depends_on:
+      - elasticsearch
+    networks:
+      - bside-network
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:${ELASTIC_VERSION:-8.15.3}
+    container_name: kibana
+    volumes:
+      - ./elk/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+    ports:
+      - '5601:5601'
+    env_file:
+      - .env
+    environment:
+      ELASTIC_VERSION: ${ELASTIC_VERSION}
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+    depends_on:
+      - elasticsearch
+    networks:
+      - bside-network
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:${ELASTIC_VERSION:-8.15.3}
+    container_name: filebeat
+    user: root
+    command: >
+      sh -c "mkdir -p /var/logs && chown -R root /usr/share/filebeat && filebeat -e -strict.perms=false"
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/var/logs
+      - ./elk/filebeat.yml:/usr/share/filebeat/filebeat.yml
+    networks:
+      - bside-network
+    depends_on:
+      - logstash
+
 networks:
   bside-network:
     name: bside-network
@@ -71,3 +148,4 @@ networks:
 volumes:
   data:
   grafana_data:
+  elasticsearch:

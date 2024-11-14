@@ -1,0 +1,20 @@
+## Filebeat configuration
+## https://github.com/elastic/beats/blob/main/deploy/docker/filebeat.docker.yml
+#
+
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /var/logs/*.log
+    scan_frequency: 10s # 파일 변경 감지 주기 10초
+    ignore_older: 24h # 24시간 동안 변경되지 않은 파일은 무시
+    close_inactive: 5m # 비활성 상태가 5분 지속될 경우 파일 핸들 닫기
+    clean_inactive: 48h # 48 시간 이후의 파일 삭제 (옵션)
+    multiline:
+      pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}[+-]\d{2}:\d{2}'
+      negate: true
+      match: after
+
+output.logstash:
+  hosts: ["logstash:5044"]

@@ -13,7 +13,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        highlight_sql: true
+        highlight_sql: false #true
   docker:
     compose:
       skip:
