@@ -1,0 +1,111 @@
+server {
+    listen 80;
+    server_name upup-radio.site www.upup-radio.site;
+
+    if ($host = upup-radio.site) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    if ($host = www.upup-radio.site) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    return 404; # managed by Certbot
+}
+
+server {
+    listen 443 ssl http2;
+    ssl_certificate /etc/letsencrypt/live/admin.upup-radio.site/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/admin.upup-radio.site/privkey.pem; # managed by Certbot
+    # include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_ciphers EECDH+CHACHA20:EECDH+AES128:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+    server_name admin.upup-radio.site;
+
+    location ~ ^(/api/) {
+        proxy_pass http://127.0.0.1:8090;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Port $server_port;
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:4173;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+server {
+    listen 443 ssl http2;
+
+    ssl_certificate /etc/letsencrypt/live/upup-radio.site/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/upup-radio.site/privkey.pem; # managed by Certbot
+    # include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_ciphers EECDH+CHACHA20:EECDH+AES128:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+    server_name upup-radio.site www.upup-radio.site;
+    root /var/www/upup-radio.site/html;
+    index index.html index.htm;
+
+    proxy_buffers 4 32k;  # 백엔드 서버로부터의 응답 데이터를 읽는 데 사용할 버퍼의 수와 크기를 설정
+    proxy_buffer_size 16k;  # 백엔드 서버 응답의 첫 부분을 읽기 위한 버퍼 크기를 설정하며, 여기에는 주로 간단한 헤더 데이터가 포함됩니다.
+    proxy_busy_buffers_size 64k;  # 백엔드에서 수신되는 데이터가 버퍼에 쌓이다가 이 지시어로 지정한 값을 초과하면 데이터를 클라이언트로 보내고 버퍼를 비웁니다.
+
+    location ~ ^(/api/|/login/|/oauth2/) {
+            # rewrite ^/api/(.*)$ $1?$args break;
+            proxy_pass http://backend; # 포워딩되는 주소
+            proxy_http_version 1.1; # 웹 소켓 사용하려면 HTTP/1.1 사용 (default HTTP/1.0)
+
+           # proxy_set_header Upgrade $http_upgrade; # 응용프로그램이 웹 소켓을 사용하는 경우 헤더 필드가 필요
+           # proxy_set_header Connection "upgrade"; # 응용프로그램이 웹 소켓을 사용하는 경우 헤더 필드가 필요
+            proxy_set_header Host $host; # 다음 우선 순위의 $host 변수에는 요청 라인의 호스트 이름 또는 호스트 요청
+            # 헤더 필드의 호스트 이름 또는 요청과 일치하는 서버 이름이 포함
+            proxy_set_header X-Real-IP $remote_addr; # 실제 방문자 원격 IP 주소를 프록시 서버로 전달
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme; # HTTPS 서버 블록 내에서 사용할 경우 프록시 서버의 각 HTTP 응답이 HTTPS로 다시 작성
+            proxy_set_header X-Forwarded-Host $host; # 클라이언트가 요청한 원래 호스트를 정의
+            proxy_set_header X-Forwarded-Port $server_port; # 클라이언트가 요청한 원래 포트를 정의
+    }
+
+    location ~ ^/(swagger|webjars|configuration|swagger-resources|v2|v3|csrf) {
+            proxy_pass http://backend;
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location / {
+#           root /var/www/upup-radio.site/html;
+#            index index.html index.htm;
+            try_files $uri $uri/ /index.html;
+    }
+
+    location ~* \.(?:jpg|jpeg|gif|png|ico|cur|gz|svg|svgz|mp4|ogg|ogv|webm|htc)$ {
+         expires 1M;
+         access_log off;
+         add_header Cache-Control "public, max-age=86400";
+    }
+
+    location /static/media/ {
+        alias /var/www/upup-radio.site/html/static/media/;
+        expires 30d;
+        add_header Cache-Control "public, max-age=86400";
+    }
+
+    location ~* \.(?:jpg|jpeg|gif|png|ico|cur|gz|svg|svgz|mp4|ogg|ogv|webm|htc)$ {
+         expires 1M;
+         access_log off;
+         add_header Cache-Control "public, max-age=86400";
+    }
+}
