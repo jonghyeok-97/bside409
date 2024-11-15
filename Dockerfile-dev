@@ -1,12 +1,7 @@
-FROM gradle:7.6-jdk17 AS builder
-WORKDIR /app
-COPY . .
-RUN gradle build --no-daemon -x test
-
 FROM openjdk:17-slim
 
 WORKDIR /app
 
-COPY --from=builder /app/build/libs/*SNAPSHOT.jar bside-backend.jar
+COPY /build/libs/*SNAPSHOT.jar bside-backend.jar
 
 ENTRYPOINT ["java", "-Dspring.profiles.active=dev", "-Duser.timezone=Asia/Seoul", "-jar", "bside-backend.jar"]
