@@ -6,7 +6,8 @@ filebeat.inputs:
   - type: log
     enabled: true
     paths:
-      - /var/logs/*.log
+      - /var/logs/info/*.log
+      - /var/logs/error/*.log
     scan_frequency: 10s # 파일 변경 감지 주기 10초
     ignore_older: 24h # 24시간 동안 변경되지 않은 파일은 무시
     close_inactive: 5m # 비활성 상태가 5분 지속될 경우 파일 핸들 닫기
