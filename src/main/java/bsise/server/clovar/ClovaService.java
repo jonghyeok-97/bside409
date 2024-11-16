@@ -22,7 +22,15 @@ public class ClovaService {
     private final ClovaFeignClient client;
 
     public ClovaResponseDto send(String message) {
-        ClovaResponseDto response = client.sendToClova(apiKey, apigwKey, requestId, ClovaRequestDto.from(message));
+        return sendRequestToClova(ClovaLetterReplyRequestDto.from(message));
+    }
+
+    public ClovaResponseDto sendDailyReportRequest(String message) {
+        return sendRequestToClova(ClovaDailyReportRequestDto.from(message));
+    }
+
+    private ClovaResponseDto sendRequestToClova(ClovaRequestDto clovaRequestDto) {
+        ClovaResponseDto response = client.sendToClova(apiKey, apigwKey, requestId, clovaRequestDto);
 
         if (response.hasErrorCode()) {
             throw new IllegalStateException("클로바 응답에 문제가 생겼습니다. 잠시 후 다시 시도하세요.");
