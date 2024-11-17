@@ -1,5 +1,12 @@
 package bsise.server.report;
 
+import java.util.Arrays;
+
 public enum CoreEmotion {
-    기쁨, 슬쁨, 분노, 두려움, 놀라움, 혐오, 열망, 수용
+    기쁨, 슬쁨, 분노, 두려움, 놀라움, 혐오, 열망, 수용, 중립;
+
+    public static boolean isAbsent(String emotion) {
+        return Arrays.stream(values())
+                .noneMatch(coreEmotion -> coreEmotion.name().equals(emotion));
+    }
 }
