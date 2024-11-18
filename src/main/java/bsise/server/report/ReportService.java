@@ -106,7 +106,7 @@ public class ReportService {
     private List<LetterAnalysis> buildLetterAnalyses(List<Letter> letters, AnalysisResult analysisResult) {
         return analysisResult.getLetterAnalyses().stream()
                 .map(analysis -> {
-                    int index = analysisResult.getLetterAnalyses().indexOf(analysis) - 1;
+                    int index = analysisResult.getLetterAnalyses().indexOf(analysis);
                     Letter letter = letters.get(index); // 순서대로 letter 매핑
 
                     return LetterAnalysis.builder()

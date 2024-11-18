@@ -18,7 +18,7 @@ public class DailyReportResponseDto {
     private final String dailyCoreEmotion;
     private final String description;
 
-    @Getter(AccessLevel.PRIVATE)
+    @Getter
     @Builder(access = AccessLevel.PRIVATE)
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     public static class LetterAnalysisResult {
