@@ -1,11 +1,10 @@
-package bsise.server.report.dto;
+package bsise.server.report.weekly.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.util.UUID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -16,7 +15,7 @@ public class WeeklyReportRequestDto {
 
     @Schema(description = "유저의 아이디", requiredMode = RequiredMode.REQUIRED)
     @NotBlank(message = "유저의 아이디가 존재하지 않습니다.")
-    private final UUID userId;
+    private final String userId;
 
     @Schema(description = "유저가 주간 분석을 받을 주차의 시작 날짜",
             requiredMode = RequiredMode.REQUIRED)

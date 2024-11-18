@@ -45,12 +45,6 @@ public class WeeklyTest {
         int monthValue = middleOfWeek.getMonthValue();
         int weekValue = middleOfWeek.get(WeekFields.ISO.weekOfMonth());
 
-        System.out.println("target.get(WeekFields.ISO.weekOfMonth()) = " + target.get(WeekFields.ISO.weekOfMonth()));
-        System.out.println("target.get(WeekFields.ISO.weekOfYear()) = " + target.get(WeekFields.ISO.weekOfYear()));
-        System.out.println("target.get(WeekFields.ISO.dayOfWeek()) = " + target.get(WeekFields.ISO.dayOfWeek()));
-        System.out.println("target.get(WeekFields.ISO.weekOfWeekBasedYear()) = " + target.get(
-                WeekFields.ISO.weekOfWeekBasedYear()));
-
         //then
         Assertions.assertThat(startOfWeek).isEqualTo(LocalDate.of(2024, 12, 30));
         Assertions.assertThat(endOfWeek).isEqualTo(LocalDate.of(2025, 1, 5));
@@ -62,7 +56,8 @@ public class WeeklyTest {
         System.out.println("해당 날짜의 몇 월: " + monthValue);        // 1월
         System.out.println("해당 날짜의 몇 주차: " + weekValue);    // 1주차
 
-        System.out.println(target.get(WeekFields.ISO.weekOfWeekBasedYear()));
+        System.out.println(target.get(WeekFields.ISO.weekOfWeekBasedYear())); // ISO 기준
+        System.out.println(target.get(WeekFields.ISO.weekOfYear()));          // ISO 기준 X
     }
 
     @DisplayName("24년 11월 16일 기준으로 4주차의 날짜를 구한다.")
