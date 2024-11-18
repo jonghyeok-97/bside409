@@ -17,13 +17,11 @@ class JsonStringToAnalysisResultTest {
                 {
                     "letterAnalyses": [
                         {
-                            "letterIndex": 1,
-                            "coreEmotions": ["슬픔", "지침"],
+                            "coreEmotions": ["슬픔", "분노"],
                             "sensitiveEmotions": [],
                             "topic": "과도한 학업에의 부담"
                         },
                         {
-                            "letterIndex": 2,
                             "coreEmotions": ["중립"],
                             "sensitiveEmotions": [],
                             "topic": "식사 기록"
@@ -43,14 +41,12 @@ class JsonStringToAnalysisResultTest {
         Assertions.assertThat(analysisResult.getLetterAnalyses()).hasSize(2);
 
         // 첫 번째 letterAnalyses 검증
-        Assertions.assertThat(analysisResult.getLetterAnalyses().get(0).getLetterIndex()).isEqualTo(1);
         Assertions.assertThat(analysisResult.getLetterAnalyses().get(0).getCoreEmotions())
-                .containsExactlyInAnyOrder("슬픔", "지침");
+                .containsExactlyInAnyOrder("슬픔", "분노");
         Assertions.assertThat(analysisResult.getLetterAnalyses().get(0).getTopic())
                 .isEqualTo("과도한 학업에의 부담");
 
         // 두 번째 letterAnalyses 검증
-        Assertions.assertThat(analysisResult.getLetterAnalyses().get(1).getLetterIndex()).isEqualTo(2);
         Assertions.assertThat(analysisResult.getLetterAnalyses().get(1).getCoreEmotions())
                 .containsExactly("중립");
         Assertions.assertThat(analysisResult.getLetterAnalyses().get(1).getTopic())

@@ -21,8 +21,6 @@ public class AnalysisResult {
     @Getter
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class LetterAnalysis {
-        @JsonProperty(value = "letterIndex")
-        private int letterIndex;
 
         @JsonProperty(value = "coreEmotions")
         private List<String> coreEmotions;
