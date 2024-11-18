@@ -4,6 +4,7 @@ import bsise.server.clovar.AnalysisResult;
 import bsise.server.clovar.ClovaResponseDto;
 import bsise.server.clovar.ClovaService;
 import bsise.server.clovar.DailyReportExtractor;
+import bsise.server.error.DailyReportNotFoundException;
 import bsise.server.error.DuplicateDailyReportException;
 import bsise.server.error.LetterNotFoundException;
 import bsise.server.letter.Letter;
@@ -59,6 +60,15 @@ public class ReportService {
         List<LetterAnalysis> letterAnalyses = buildLetterAnalyses(letters, analysisResult);
         letterAnalyses.forEach(analysis -> analysis.getLetter().setDailyReport(dailyReport));
         letterAnalysisRepository.saveAll(letterAnalyses);
+
+        return DailyReportResponseDto.of(dailyReport, letterAnalyses);
+    }
+
+    public DailyReportResponseDto getDailyReport(String userId, LocalDate targetDate) {
+        DailyReport dailyReport = dailyReportRepository.findByUserAndTargetDate(UUID.fromString(userId), targetDate)
+                .orElseThrow(() -> new DailyReportNotFoundException("Daily Report not found. targetDate: " + targetDate));
+
+        List<LetterAnalysis> letterAnalyses = letterAnalysisRepository.findByDailyReportId(dailyReport.getId());
 
         return DailyReportResponseDto.of(dailyReport, letterAnalyses);
     }
