@@ -1,4 +1,4 @@
-package bsise.server.report;
+package bsise.server.report.daily;
 
 import bsise.server.validation.constraints.WithinLastMonth;
 import jakarta.validation.constraints.NotBlank;

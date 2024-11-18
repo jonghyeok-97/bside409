@@ -1,5 +1,6 @@
-package bsise.server.report;
+package bsise.server.report.daily;
 
+import bsise.server.report.LetterAnalysis;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

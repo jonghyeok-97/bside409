@@ -1,14 +1,15 @@
 package bsise.server.report;
 
-import bsise.server.clovar.AnalysisResult;
+import bsise.server.clovar.dailyReport.AnalysisResult;
 import bsise.server.clovar.ClovaResponseDto;
 import bsise.server.clovar.ClovaService;
-import bsise.server.clovar.DailyReportExtractor;
+import bsise.server.clovar.dailyReport.DailyReportExtractor;
 import bsise.server.error.DailyReportNotFoundException;
 import bsise.server.error.DuplicateDailyReportException;
 import bsise.server.error.LetterNotFoundException;
 import bsise.server.letter.Letter;
 import bsise.server.letter.LetterRepository;
+import bsise.server.report.daily.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,5 +1,8 @@
 package bsise.server.report;
 
+import bsise.server.report.daily.DailyReportGetRequest;
+import bsise.server.report.daily.DailyReportRequestDto;
+import bsise.server.report.daily.DailyReportResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
