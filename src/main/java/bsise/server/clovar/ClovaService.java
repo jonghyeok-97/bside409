@@ -2,6 +2,7 @@ package bsise.server.clovar;
 
 import static bsise.server.user.domain.Preference.*;
 
+import bsise.server.report.weekly.dto.ClovaWeeklyReportRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,10 @@ public class ClovaService {
 
     public ClovaResponseDto sendDailyReportRequest(String message) {
         return sendRequestToClova(ClovaDailyReportRequestDto.from(message));
+    }
+
+    public ClovaResponseDto sendWeeklyReport(ClovaWeeklyReportRequestDto dto) {
+        return sendRequestToClova(dto);
     }
 
     private ClovaResponseDto sendRequestToClova(ClovaRequestDto clovaRequestDto) {
