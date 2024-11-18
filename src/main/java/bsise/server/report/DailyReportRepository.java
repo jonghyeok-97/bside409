@@ -1,5 +1,6 @@
 package bsise.server.report;
 
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -20,4 +21,6 @@ public interface DailyReportRepository extends JpaRepository<DailyReport, UUID> 
             "JOIN Letter l ON d.id = l.dailyReport.id " +
             "WHERE d.targetDate = :targetDate AND l.user.id = :userId")
     Optional<DailyReport> findByUserAndTargetDate(UUID userId, LocalDate targetDate);
+
+    List<DailyReport> findDailyReportsByTargetDateIn(List<LocalDate> dates);
 }
