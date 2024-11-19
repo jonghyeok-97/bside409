@@ -23,14 +23,20 @@ public class WeeklyDataManager {
         return target.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
     }
 
-    public int getWeekOfYear() {
+    public int getWeekOfWeekBasedYear() {
         return target.get(WeekFields.ISO.weekOfWeekBasedYear());
     }
 
-    public String getWeeklyName() {
-        LocalDate mondayOfWeek = getMondayOfWeek();
-        LocalDate middleOfWeek = mondayOfWeek.plusDays(MID_OF_WEEK);
+    public int getMonthValue() {
+        return getMiddleOfWeek().getMonthValue();
+    }
 
-        return middleOfWeek.getMonthValue() + "월 " + target.get(WeekFields.ISO.weekOfMonth()) + "주차";
+    public int getWeekOfMonth() {
+        return getMiddleOfWeek().get(WeekFields.ISO.weekOfMonth());
+    }
+
+    private LocalDate getMiddleOfWeek() {
+        LocalDate mondayOfWeek = getMondayOfWeek();
+        return mondayOfWeek.plusDays(MID_OF_WEEK);
     }
 }

@@ -40,10 +40,10 @@ public class WeeklyReportResponseDto {
 
     public static WeeklyReportResponseDto from(WeeklyReport weeklyReport, WeeklyDataManager manager) {
         return WeeklyReportResponseDto.builder()
-                .weekOfYear(manager.getWeekOfYear())
-                .week_name(weeklyReport.getWeeklyName())
-                .startDate(manager.getMondayOfWeek())
-                .endDate(manager.getSundayOfWeek())
+                .weekOfYear(weeklyReport.getWeekOfYear())
+                .week_name(manager.getMonthValue() + "월 " + manager.getWeekOfMonth() + "주차")
+                .startDate(weeklyReport.getStartDate())
+                .endDate(weeklyReport.getEndDate())
                 .frequency(WeeklyFrequencyDto.of(weeklyReport.getPublishedCount(), weeklyReport.getUnpublishedCount()))
                 // TODO: 요일별 추이
                 .cheerUp(weeklyReport.getCheerUp())

@@ -11,7 +11,6 @@ import bsise.server.error.LetterNotFoundException;
 import bsise.server.letter.Letter;
 import bsise.server.letter.LetterRepository;
 import bsise.server.report.weekly.dto.ClovaWeeklyReportRequestDto;
-import bsise.server.report.weekly.dto.WeeklyReportGetRequestDto;
 import bsise.server.report.weekly.dto.WeeklyReportRequestDto;
 import bsise.server.report.weekly.dto.WeeklyReportResponseDto;
 import java.time.LocalDate;
@@ -220,7 +219,9 @@ public class ReportService {
         WeeklyDataManager manager = new WeeklyDataManager(weeklyReportRequestDto.getStartDate());
 
         WeeklyReport weeklyReport = WeeklyReport.builder()
-                .weeklyName(manager.getWeeklyName())
+                .weekOfYear(manager.getWeekOfWeekBasedYear())
+                .startDate(manager.getMondayOfWeek())
+                .endDate(manager.getSundayOfWeek())
                 .cheerUp("위로한마디")
 //                .publishedCount()
 //                .unpublishedCount()
