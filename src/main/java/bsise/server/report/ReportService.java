@@ -29,6 +29,7 @@ public class ReportService {
     private final LetterRepository letterRepository;
     private final LetterAnalysisRepository letterAnalysisRepository;
     private final ClovaService clovaService;
+    private final WeeklyReportRepository weeklyReportRepository;
 
     /**
      * <ol> 이 메서드는 순차대로 아래 작업을 수행합니다.
