@@ -18,6 +18,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Entity
@@ -30,6 +31,7 @@ public class DailyReport extends BaseTimeEntity {
     @Column(name = "daily_report_id", columnDefinition = "BINARY(16)")
     private UUID id;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "weekly_report_id")
     private WeeklyReport weeklyReport;
