@@ -168,13 +168,13 @@ public class ReportService {
                 ));
 
         // 편지 3개에 대한 분석을 Clova에게 요청해서 받은 결과물들
-        Map<AnalysisResult, List<Letter>> lettersByAnalysisResult = latestThreeLettersByDate.entrySet().stream()
+        Map<AnalysisResult, List<Letter>> lettersByAnalysisResult = latestThreeLettersByDate.values().stream()
                 .collect(Collectors.toMap(
-                        entry -> DailyReportExtractor.extract(requestClovaAnalysis(entry.getValue())),
-                        Entry::getValue
+                        letters -> DailyReportExtractor.extract(requestClovaAnalysis(letters)),
+                        letters -> letters
                 ));
 
-        // 분석결과와 편지들을 가지고 데일리리포트 생성
+        // 분석결과와 편지들을 가지고 데일리 리포트 생성
         Map<DailyReport, List<Letter>> lettersByDailyReport = lettersByAnalysisResult.entrySet().stream()
                 .collect(Collectors.toMap(
                         entry -> buildDailyReport(LocalDate.now(), entry.getKey()),
@@ -182,16 +182,16 @@ public class ReportService {
                 ));
         dailyReportRepository.saveAll(lettersByDailyReport.keySet());
 
-        // 편지와 분석결과를 가지고 편지분석엔티티들 생성
-        List<LetterAnalysis> letterAnalyses = lettersByAnalysisResult.entrySet().stream()
-                .flatMap(entry -> buildLetterAnalyses(entry.getValue(), entry.getKey()).stream())
-                .toList();
-
-        // 편지들에 알맞는 데일리리포트들을 setter 주입
+        // 편지들에 알맞는 데일리 리포트를 setter 주입
         lettersByDailyReport.forEach((key, value) ->
                 value.forEach(
                         letter -> letter.setDailyReport(key)
                 ));
+
+        // 편지와 분석결과를 가지고 편지분석엔티티들 생성 및 저장
+        List<LetterAnalysis> letterAnalyses = lettersByAnalysisResult.entrySet().stream()
+                .flatMap(entry -> buildLetterAnalyses(entry.getValue(), entry.getKey()).stream())
+                .toList();
         letterAnalysisRepository.saveAll(letterAnalyses);
 
         // startDate 로 부터 1주일 날짜 구하기
@@ -211,12 +211,11 @@ public class ReportService {
                 .map(CoreEmotion::name)
                 .collect(Collectors.joining());
 
+        // TODO: DailyReportExtractor 에서 클로바 response 읽기 후 저장
         ClovaResponseDto clovaResponseDto = clovaService.sendWeeklyReport(
                 ClovaWeeklyReportRequestDto.from(descriptions, coreEmotions));
+        // ----
 
-        // TODO: DailyReportExtractor 에서 클로바 response 읽기 후 저장
-
-        // TODO: 응답 내리기
         WeeklyDataManager manager = new WeeklyDataManager(weeklyReportRequestDto.getStartDate());
 
         WeeklyReport weeklyReport = WeeklyReport.builder()
