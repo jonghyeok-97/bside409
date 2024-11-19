@@ -7,6 +7,7 @@ import bsise.server.clovar.DailyReportExtractor;
 import bsise.server.common.BaseTimeEntity;
 import bsise.server.error.DailyReportNotFoundException;
 import bsise.server.error.DuplicateDailyReportException;
+import bsise.server.error.DuplicationWeeklyReportException;
 import bsise.server.error.LetterNotFoundException;
 import bsise.server.letter.Letter;
 import bsise.server.letter.LetterRepository;
@@ -145,6 +146,11 @@ public class ReportService {
     - 일요일 자정(00:00)을 넘으면 주간 분석 요청 버튼 활성화 및 주간 분석 요청 가능
      */
     public WeeklyReportResponseDto createWeeklyReport(WeeklyReportRequestDto weeklyReportRequestDto) {
+        weeklyReportRepository.findWeeklyReportByStartDateIsAndEndDateIs(
+                weeklyReportRequestDto.getStartDate(),
+                weeklyReportRequestDto.getStartDate().plusDays(6)
+        ).ifPresent(report -> {throw new DuplicationWeeklyReportException("주간 분석이 이미 존재합니다");});
+
         // dailyReport 가 없는 편지들 찾기
         LocalDateTime start = weeklyReportRequestDto.getStartDate().atStartOfDay();
         LocalDateTime end = start.plusDays(7);
