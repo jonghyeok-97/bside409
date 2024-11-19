@@ -37,7 +37,7 @@ public class ReportController {
     }
 
     @PostMapping("/weekly")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     public WeeklyReportResponseDto createWeeklyReport(@Valid @RequestBody WeeklyReportRequestDto weeklyReportRequestDto) {
         return reportService.createWeeklyReport(weeklyReportRequestDto);
     }
