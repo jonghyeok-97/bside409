@@ -4,20 +4,27 @@ import bsise.server.clovar.AnalysisResult;
 import bsise.server.clovar.ClovaResponseDto;
 import bsise.server.clovar.ClovaService;
 import bsise.server.clovar.DailyReportExtractor;
+import bsise.server.common.BaseTimeEntity;
 import bsise.server.error.DailyReportNotFoundException;
 import bsise.server.error.DuplicateDailyReportException;
 import bsise.server.error.LetterNotFoundException;
 import bsise.server.letter.Letter;
 import bsise.server.letter.LetterRepository;
+import bsise.server.report.weekly.dto.ClovaWeeklyReportRequestDto;
+import bsise.server.report.weekly.dto.WeeklyReportRequestDto;
+import bsise.server.report.weekly.dto.WeeklyReportResponseDto;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -131,5 +138,101 @@ public class ReportService {
                 })
                 .collect(Collectors.toList());
     }
-}
 
+    /*
+    - 분석 날짜, 작성빈도, 요일 ⛧ 감정 변화 추이, 위로 메세지, + 데일리의 각 편지 대표 감정
+    - 일요일 자정(00:00)을 넘으면 주간 분석 요청 버튼 활성화 및 주간 분석 요청 가능
+     */
+    public WeeklyReportResponseDto createWeeklyReport(WeeklyReportRequestDto weeklyReportRequestDto) {
+        // dailyReport 가 없는 편지들 찾기
+        LocalDateTime start = weeklyReportRequestDto.getStartDate().atStartOfDay();
+        LocalDateTime end = start.plusDays(7);
+
+        List<Letter> lettersWithoutDailyReport = letterRepository.findLettersByDailyReportIsNullAndUserIdAndCreatedAtBetween(
+                UUID.fromString(weeklyReportRequestDto.getUserId()),
+                start,
+                end
+        );
+
+        // 날짜별로 최신 편지들을 3개씩 묶기
+        Map<LocalDate, List<Letter>> latestThreeLettersByDate = lettersWithoutDailyReport.stream()
+                .collect(Collectors.groupingBy(
+                        letter -> letter.getCreatedAt().toLocalDate(),
+                        Collectors.collectingAndThen(
+                                Collectors.toList(),
+                                list -> list.stream()
+                                        .sorted(Comparator.comparing(BaseTimeEntity::getCreatedAt).reversed())
+                                        .limit(3)
+                                        .toList()
+                        )
+                ));
+
+        // 편지 3개에 대한 분석을 Clova에게 요청해서 받은 결과물들
+        Map<AnalysisResult, List<Letter>> lettersByAnalysisResult = latestThreeLettersByDate.entrySet().stream()
+                .collect(Collectors.toMap(
+                        entry -> DailyReportExtractor.extract(requestClovaAnalysis(entry.getValue())),
+                        Entry::getValue
+                ));
+
+        // 분석결과와 편지들을 가지고 데일리리포트 생성
+        Map<DailyReport, List<Letter>> lettersByDailyReport = lettersByAnalysisResult.entrySet().stream()
+                .collect(Collectors.toMap(
+                        entry -> buildDailyReport(LocalDate.now(), entry.getKey()),
+                        Entry::getValue
+                ));
+        dailyReportRepository.saveAll(lettersByDailyReport.keySet());
+
+        // 편지와 분석결과를 가지고 편지분석엔티티들 생성
+        List<LetterAnalysis> letterAnalyses = lettersByAnalysisResult.entrySet().stream()
+                .flatMap(entry -> buildLetterAnalyses(entry.getValue(), entry.getKey()).stream())
+                .toList();
+
+        // 편지들에 알맞는 데일리리포트들을 setter 주입
+        lettersByDailyReport.forEach((key, value) ->
+                value.forEach(
+                        letter -> letter.setDailyReport(key)
+                ));
+        letterAnalysisRepository.saveAll(letterAnalyses);
+
+        // startDate 로 부터 1주일 날짜 구하기
+        List<LocalDate> oneWeekDates = createOneWeek(weeklyReportRequestDto.getStartDate());
+
+        // 1주일에 해당하는 데일리 리포트 찾기
+        List<DailyReport> dailyReports = dailyReportRepository.findDailyReportsByTargetDateIn(oneWeekDates);
+
+        //dailyReport 에서 설명 합치기
+        String descriptions = dailyReports.stream()
+                .map(DailyReport::getDescription)
+                .collect(Collectors.joining());
+
+        // dailyReport 에서 감정 합치기
+        String coreEmotions = dailyReports.stream()
+                .map(DailyReport::getCoreEmotion)
+                .map(CoreEmotion::name)
+                .collect(Collectors.joining());
+
+        ClovaResponseDto clovaResponseDto = clovaService.sendWeeklyReport(
+                ClovaWeeklyReportRequestDto.from(descriptions, coreEmotions));
+
+        // TODO: DailyReportExtractor 에서 클로바 response 읽기 후 저장
+
+        // TODO: 응답 내리기
+        WeeklyDataManager manager = new WeeklyDataManager(weeklyReportRequestDto.getStartDate());
+
+        WeeklyReport weeklyReport = WeeklyReport.builder()
+                .weeklyName(manager.getWeeklyName())
+                .cheerUp("위로한마디")
+//                .publishedCount()
+//                .unpublishedCount()
+                .build();
+        weeklyReportRepository.save(weeklyReport);
+
+        return WeeklyReportResponseDto.from(weeklyReport, manager);
+    }
+
+    private List<LocalDate> createOneWeek(LocalDate startDate) {
+        return IntStream.range(0, 7)
+                .mapToObj(startDate::plusDays)
+                .toList();
+    }
+}
