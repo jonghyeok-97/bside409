@@ -204,13 +204,13 @@ public class ReportService {
         //dailyReport 에서 설명 합치기
         String descriptions = dailyReports.stream()
                 .map(DailyReport::getDescription)
-                .collect(Collectors.joining());
+                .collect(Collectors.joining(", "));
 
         // dailyReport 에서 감정 합치기
         String coreEmotions = dailyReports.stream()
                 .map(DailyReport::getCoreEmotion)
                 .map(CoreEmotion::name)
-                .collect(Collectors.joining());
+                .collect(Collectors.joining(", "));
 
         // TODO: DailyReportExtractor 에서 클로바 response 읽기 후 저장
         ClovaResponseDto clovaResponseDto = clovaService.sendWeeklyReport(
