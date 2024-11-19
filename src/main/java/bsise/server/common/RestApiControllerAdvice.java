@@ -3,6 +3,7 @@ package bsise.server.common;
 import bsise.server.error.DormantUserLoginException;
 import bsise.server.error.RateLimitException;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 @RequiredArgsConstructor
 public class RestApiControllerAdvice {
+
+    @ExceptionHandler
+    public ResponseEntity<?> handleNoSuchElementException(NoSuchElementException exception) {
+        return createErrorResponse(exception, HttpStatus.BAD_REQUEST, "error.illegal.argument");
+    }
 
     @ExceptionHandler
     public ResponseEntity<?> handleBadCredentialsException(BadCredentialsException exception) {

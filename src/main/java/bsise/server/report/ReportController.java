@@ -41,4 +41,10 @@ public class ReportController {
     public WeeklyReportResponseDto createWeeklyReport(@Valid @RequestBody WeeklyReportRequestDto weeklyReportRequestDto) {
         return reportService.createWeeklyReport(weeklyReportRequestDto);
     }
+
+    @GetMapping("/weekly")
+    @ResponseStatus(HttpStatus.OK)
+    public WeeklyReportResponseDto getWeeklyReport(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
+        return reportService.getWeeklyReport(startDate, endDate);
+    }
 }

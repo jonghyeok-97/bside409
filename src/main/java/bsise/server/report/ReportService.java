@@ -19,6 +19,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -236,5 +237,13 @@ public class ReportService {
         return IntStream.range(0, 7)
                 .mapToObj(startDate::plusDays)
                 .toList();
+    }
+
+    public WeeklyReportResponseDto getWeeklyReport(LocalDate startDate, LocalDate endDate) {
+        WeeklyReport weeklyReport = weeklyReportRepository.findWeeklyReportByStartDateIsAndEndDateIs(startDate,
+                        endDate)
+                .orElseThrow(() -> new NoSuchElementException("주간분석이 존재하지 않습니다"));
+
+        return WeeklyReportResponseDto.from(weeklyReport);
     }
 }

@@ -49,4 +49,18 @@ public class WeeklyReportResponseDto {
                 .cheerUp(weeklyReport.getCheerUp())
                 .build();
     }
+
+    public static WeeklyReportResponseDto from(WeeklyReport weeklyReport) {
+        WeeklyDataManager manager = new WeeklyDataManager(weeklyReport.getStartDate());
+
+        return WeeklyReportResponseDto.builder()
+                .weekOfYear(weeklyReport.getWeekOfYear())
+                .week_name(manager.getMonthValue() + "월 " + manager.getWeekOfMonth() + "주차")
+                .startDate(weeklyReport.getStartDate())
+                .endDate(weeklyReport.getEndDate())
+                .frequency(WeeklyFrequencyDto.of(weeklyReport.getPublishedCount(), weeklyReport.getUnpublishedCount()))
+                // TODO: 요일별 추이
+                .cheerUp(weeklyReport.getCheerUp())
+                .build();
+    }
 }
