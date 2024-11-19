@@ -30,7 +30,7 @@ public class ClovaService {
         return sendRequestToClova(ClovaDailyReportRequestDto.from(message));
     }
 
-    public ClovaResponseDto sendWeeklyReport(ClovaWeeklyReportRequestDto dto) {
+    public ClovaResponseDto sendWeeklyReportRequest(ClovaWeeklyReportRequestDto dto) {
         return sendRequestToClova(dto);
     }
 

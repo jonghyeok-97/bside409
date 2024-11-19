@@ -213,7 +213,7 @@ public class ReportService {
                 .collect(Collectors.joining(", "));
 
         // TODO: DailyReportExtractor 에서 클로바 response 읽기 후 저장
-        ClovaResponseDto clovaResponseDto = clovaService.sendWeeklyReport(
+        ClovaResponseDto clovaResponseDto = clovaService.sendWeeklyReportRequest(
                 ClovaWeeklyReportRequestDto.from(descriptions, coreEmotions));
         // ----
 
