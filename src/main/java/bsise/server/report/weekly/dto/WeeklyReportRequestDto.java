@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@Schema(description = "주간 분석 요청 DTO")
+@Schema(description = "주간 분석 생성 DTO")
 @Getter
 @RequiredArgsConstructor
 public class WeeklyReportRequestDto {

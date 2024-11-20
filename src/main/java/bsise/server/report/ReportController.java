@@ -1,9 +1,11 @@
 package bsise.server.report;
 
+import bsise.server.report.weekly.dto.WeeklyReportGetRequestDto;
 import bsise.server.report.weekly.dto.WeeklyReportRequestDto;
 import bsise.server.report.weekly.dto.WeeklyReportResponseDto;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,19 +34,23 @@ public class ReportController {
     @GetMapping(value = "/daily", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public DailyReportResponseDto getDailyReport(
-            @RequestParam LocalDate date, @Validated(DailyReportGetRequest.class) @RequestBody DailyReportRequestDto dailyReportDto) {
+            @RequestParam LocalDate date,
+            @Validated(DailyReportGetRequest.class) @RequestBody DailyReportRequestDto dailyReportDto) {
         return reportService.getDailyReport(dailyReportDto.getUserId(), date);
     }
 
     @PostMapping("/weekly")
     @ResponseStatus(HttpStatus.CREATED)
-    public WeeklyReportResponseDto createWeeklyReport(@Valid @RequestBody WeeklyReportRequestDto weeklyReportRequestDto) {
+    public WeeklyReportResponseDto createWeeklyReport(
+            @Valid @RequestBody WeeklyReportRequestDto weeklyReportRequestDto) {
         return reportService.createWeeklyReport(weeklyReportRequestDto);
     }
 
     @GetMapping("/weekly")
     @ResponseStatus(HttpStatus.OK)
-    public WeeklyReportResponseDto getWeeklyReport(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
-        return reportService.getWeeklyReport(startDate, endDate);
+    public WeeklyReportResponseDto getWeeklyReport(@RequestParam LocalDate startDate,
+                                                   @RequestParam LocalDate endDate,
+                                                   @Valid @RequestBody WeeklyReportGetRequestDto dto) {
+        return reportService.getWeeklyReport(UUID.fromString(dto.getUserId()), startDate, endDate);
     }
 }

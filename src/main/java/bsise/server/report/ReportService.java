@@ -144,10 +144,13 @@ public class ReportService {
     - 일요일 자정(00:00)을 넘으면 주간 분석 요청 버튼 활성화 및 주간 분석 요청 가능
      */
     public WeeklyReportResponseDto createWeeklyReport(WeeklyReportRequestDto weeklyReportRequestDto) {
-        weeklyReportRepository.findByStartDateIsAndEndDateIs(
+        weeklyReportRepository.findDailyReportBy(
+                UUID.fromString(weeklyReportRequestDto.getUserId()),
                 weeklyReportRequestDto.getStartDate(),
                 weeklyReportRequestDto.getStartDate().plusDays(6)
-        ).ifPresent(report -> {throw new DuplicationWeeklyReportException("주간 분석이 이미 존재합니다");});
+        ).ifPresent(report -> {
+            throw new DuplicationWeeklyReportException("주간 분석이 이미 존재합니다");
+        });
 
         // dailyReport 가 없는 편지들 찾기
         LocalDateTime start = weeklyReportRequestDto.getStartDate().atStartOfDay();
@@ -235,9 +238,8 @@ public class ReportService {
                 .toList();
     }
 
-    public WeeklyReportResponseDto getWeeklyReport(LocalDate startDate, LocalDate endDate) {
-        WeeklyReport weeklyReport = weeklyReportRepository.findByStartDateIsAndEndDateIs(startDate,
-                        endDate)
+    public WeeklyReportResponseDto getWeeklyReport(UUID userId, LocalDate startDate, LocalDate endDate) {
+        WeeklyReport weeklyReport = weeklyReportRepository.findDailyReportBy(userId, startDate, endDate)
                 .orElseThrow(() -> new NoSuchElementException("주간분석이 존재하지 않습니다"));
 
         return WeeklyReportResponseDto.from(weeklyReport);
