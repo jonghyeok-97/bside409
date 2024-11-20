@@ -7,7 +7,7 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AnalysisResult {
+public class ClovaDailyAnalysisResult {
 
     @JsonProperty(value = "letterAnalyses")
     private List<LetterAnalysis> letterAnalyses;

@@ -1,6 +1,6 @@
 package bsise.server.report;
 
-import bsise.server.clovar.dailyReport.AnalysisResult;
+import bsise.server.clovar.dailyReport.ClovaDailyAnalysisResult;
 import bsise.server.clovar.ClovaResponseDto;
 import bsise.server.clovar.ClovaService;
 import bsise.server.clovar.dailyReport.DailyReportExtractor;
@@ -54,11 +54,11 @@ public class ReportService {
 
         ClovaResponseDto clovaResponse = requestClovaAnalysis(letters);
 
-        AnalysisResult analysisResult = DailyReportExtractor.extract(clovaResponse);
-        DailyReport dailyReport = buildDailyReport(targetDate, analysisResult);
+        ClovaDailyAnalysisResult clovaDailyAnalysisResult = DailyReportExtractor.extract(clovaResponse);
+        DailyReport dailyReport = buildDailyReport(targetDate, clovaDailyAnalysisResult);
         dailyReportRepository.save(dailyReport);
 
-        List<LetterAnalysis> letterAnalyses = buildLetterAnalyses(letters, analysisResult);
+        List<LetterAnalysis> letterAnalyses = buildLetterAnalyses(letters, clovaDailyAnalysisResult);
         letterAnalyses.forEach(analysis -> analysis.getLetter().setDailyReport(dailyReport));
         letterAnalysisRepository.saveAll(letterAnalyses);
 
@@ -106,18 +106,18 @@ public class ReportService {
         return clovaService.sendDailyReportRequest(formattedMessages);
     }
 
-    private DailyReport buildDailyReport(LocalDate targetDate, AnalysisResult analysisResult) {
+    private DailyReport buildDailyReport(LocalDate targetDate, ClovaDailyAnalysisResult clovaDailyAnalysisResult) {
         return DailyReport.builder()
                 .targetDate(targetDate)
-                .coreEmotion(CoreEmotion.valueOf(analysisResult.getDailyCoreEmotion()))
-                .description(analysisResult.getDescription())
+                .coreEmotion(CoreEmotion.valueOf(clovaDailyAnalysisResult.getDailyCoreEmotion()))
+                .description(clovaDailyAnalysisResult.getDescription())
                 .build();
     }
 
-    private List<LetterAnalysis> buildLetterAnalyses(List<Letter> letters, AnalysisResult analysisResult) {
-        return analysisResult.getLetterAnalyses().stream()
+    private List<LetterAnalysis> buildLetterAnalyses(List<Letter> letters, ClovaDailyAnalysisResult clovaDailyAnalysisResult) {
+        return clovaDailyAnalysisResult.getLetterAnalyses().stream()
                 .map(analysis -> {
-                    int index = analysisResult.getLetterAnalyses().indexOf(analysis);
+                    int index = clovaDailyAnalysisResult.getLetterAnalyses().indexOf(analysis);
                     Letter letter = letters.get(index); // 순서대로 letter 매핑
 
                     return LetterAnalysis.builder()
