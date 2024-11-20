@@ -17,13 +17,13 @@ public class ReportController {
 
     private final ReportService reportService;
 
-    @PostMapping(value = "/daily", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping("/daily")
     @ResponseStatus(HttpStatus.CREATED)
     public DailyReportResponseDto createDailyReport(@Valid @RequestBody DailyReportDto.CreateRequest dailyReportDto) {
         return reportService.createDailyReport(dailyReportDto);
     }
 
-    @GetMapping(value = "/daily", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/daily")
     @ResponseStatus(HttpStatus.OK)
     public DailyReportResponseDto getDailyReport(
             @RequestParam LocalDate date, @Valid @RequestBody DailyReportDto.GetRequest dailyReportDto) {

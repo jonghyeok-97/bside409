@@ -11,8 +11,10 @@ import java.util.UUID;
 @Repository
 public interface LetterAnalysisRepository extends JpaRepository<LetterAnalysis, Long> {
 
-    @Query(value = "SELECT la FROM LetterAnalysis la " +
-            "JOIN Letter l ON la.letter.id = l.id " +
-            "WHERE l.dailyReport.id = :dailyReportId")
+    @Query("""
+            SELECT la FROM LetterAnalysis la
+            JOIN Letter l ON la.letter.id = l.id
+            WHERE l.dailyReport.id = :dailyReportId
+            """)
     List<LetterAnalysis> findByDailyReportId(UUID dailyReportId);
 }

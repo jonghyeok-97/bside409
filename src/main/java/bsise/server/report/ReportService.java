@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -86,10 +87,9 @@ public class ReportService {
     private List<Letter> findRecentLetters(UUID userId, LocalDate targetDate) {
         LocalDateTime endTime = targetDate.isEqual(LocalDate.now())
                 ? LocalDateTime.now()
-                : targetDate.atTime(23, 59, 59, 999_999_999);
+                : targetDate.atTime(LocalTime.MAX);
 
-        List<Letter> letters = letterRepository.find3RecentLetters(
-                userId, targetDate.atStartOfDay(), endTime);
+        List<Letter> letters = letterRepository.find3RecentLetters(userId, targetDate.atStartOfDay(), endTime);
 
         if (letters.isEmpty()) {
             throw new LetterNotFoundException("Letters for daily analysis not found.");

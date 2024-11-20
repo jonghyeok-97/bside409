@@ -16,9 +16,12 @@ public interface LetterRepository extends JpaRepository<Letter, UUID> {
     Page<Letter> findLettersByUserId(UUID userId, Pageable pageable);
     List<Letter> findTop10ByPublishedIsTrueOrderByCreatedAtDesc();
 
-    @Query(value = "SELECT * FROM letter " +
-                   "WHERE user_id = :userId AND created_at BETWEEN :startTime AND :endTime " +
-                   "ORDER BY created_at DESC LIMIT 3", nativeQuery = true)
+    @Query(value = """
+            SELECT * FROM letter
+            WHERE user_id = :userId AND created_at BETWEEN :startTime AND :endTime
+            ORDER BY created_at DESC LIMIT 3
+            """,
+            nativeQuery = true)
     List<Letter> find3RecentLetters(
             @Param("userId") UUID userId,
             @Param("startTime") LocalDateTime startTime,
