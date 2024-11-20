@@ -21,7 +21,7 @@ public class ReportStatusRetrieveController {
 
     private final ReportStatusRetrieveService reportStatusRetrieveService;
 
-    @GetMapping(value = "/api/v1/daily/status")
+    @GetMapping(value = "/api/v1/reports/daily/status")
     @ResponseStatus(HttpStatus.OK)
     public List<DailyReportStatusResponseDto> retrieveDailyReportStatus(
             @Valid @RequestBody ReportStatusRequestDto requestDto
@@ -30,7 +30,7 @@ public class ReportStatusRetrieveController {
         return reportStatusRetrieveService.findDailyReportStatus(UUID.fromString(requestDto.getUserId()), now, now);
     }
 
-    @GetMapping(value = "/api/v1/weekly/status")
+    @GetMapping(value = "/api/v1/reports/weekly/status")
     @ResponseStatus(HttpStatus.OK)
     public List<WeeklyReportStatusResponseDto> retrieveWeeklyReportStatus(
             @Valid @RequestBody ReportStatusRequestDto requestDto
