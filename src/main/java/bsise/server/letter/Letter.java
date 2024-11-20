@@ -38,6 +38,7 @@ public class Letter extends BaseTimeEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "daily_report_id")
     private DailyReport dailyReport;
