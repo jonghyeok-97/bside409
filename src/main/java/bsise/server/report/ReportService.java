@@ -4,7 +4,6 @@ import bsise.server.clovar.AnalysisResult;
 import bsise.server.clovar.ClovaResponseDto;
 import bsise.server.clovar.ClovaService;
 import bsise.server.clovar.DailyReportExtractor;
-import bsise.server.common.BaseTimeEntity;
 import bsise.server.error.DailyReportNotFoundException;
 import bsise.server.error.DuplicateDailyReportException;
 import bsise.server.error.DuplicationWeeklyReportException;
@@ -16,7 +15,6 @@ import bsise.server.report.weekly.dto.WeeklyReportRequestDto;
 import bsise.server.report.weekly.dto.WeeklyReportResponseDto;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -146,7 +144,7 @@ public class ReportService {
     - 일요일 자정(00:00)을 넘으면 주간 분석 요청 버튼 활성화 및 주간 분석 요청 가능
      */
     public WeeklyReportResponseDto createWeeklyReport(WeeklyReportRequestDto weeklyReportRequestDto) {
-        weeklyReportRepository.findWeeklyReportByStartDateIsAndEndDateIs(
+        weeklyReportRepository.findByStartDateIsAndEndDateIs(
                 weeklyReportRequestDto.getStartDate(),
                 weeklyReportRequestDto.getStartDate().plusDays(6)
         ).ifPresent(report -> {throw new DuplicationWeeklyReportException("주간 분석이 이미 존재합니다");});
@@ -155,7 +153,7 @@ public class ReportService {
         LocalDateTime start = weeklyReportRequestDto.getStartDate().atStartOfDay();
         LocalDateTime end = start.plusDays(7);
 
-        List<Letter> lettersWithoutDailyReport = letterRepository.findLettersByDailyReportIsNullAndUserIdAndCreatedAtBetween(
+        List<Letter> lettersWithoutDailyReport = letterRepository.findThreeLettersWithoutDailyReport(
                 UUID.fromString(weeklyReportRequestDto.getUserId()),
                 start,
                 end
@@ -164,15 +162,7 @@ public class ReportService {
         // 날짜별로 최신 편지들을 3개씩 묶기
         Map<LocalDate, List<Letter>> latestThreeLettersByDate = lettersWithoutDailyReport.stream()
                 .collect(Collectors.groupingBy(
-                        letter -> letter.getCreatedAt().toLocalDate(),
-                        Collectors.collectingAndThen(
-                                Collectors.toList(),
-                                list -> list.stream()
-                                        .sorted(Comparator.comparing(BaseTimeEntity::getCreatedAt).reversed())
-                                        .limit(3)
-                                        .toList()
-                        )
-                ));
+                        letter -> letter.getCreatedAt().toLocalDate()));
 
         // 편지 3개에 대한 분석을 Clova에게 요청해서 받은 결과물들
         Map<AnalysisResult, List<Letter>> lettersByAnalysisResult = latestThreeLettersByDate.values().stream()
@@ -246,7 +236,7 @@ public class ReportService {
     }
 
     public WeeklyReportResponseDto getWeeklyReport(LocalDate startDate, LocalDate endDate) {
-        WeeklyReport weeklyReport = weeklyReportRepository.findWeeklyReportByStartDateIsAndEndDateIs(startDate,
+        WeeklyReport weeklyReport = weeklyReportRepository.findByStartDateIsAndEndDateIs(startDate,
                         endDate)
                 .orElseThrow(() -> new NoSuchElementException("주간분석이 존재하지 않습니다"));
 

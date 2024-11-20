@@ -25,5 +25,16 @@ public interface LetterRepository extends JpaRepository<Letter, UUID> {
             @Param("endTime") LocalDateTime endTime
     );
 
-    List<Letter> findLettersByDailyReportIsNullAndUserIdAndCreatedAtBetween(UUID userId, LocalDateTime start, LocalDateTime end);
+    @Query(
+            value = """
+                SELECT l
+                FROM Letter l
+                WHERE l.dailyReport.id IS NULL 
+                        AND l.id = :userId
+                        AND l.createdAt >= :start
+                        AND l.createdAt < :end
+                ORDER BY l.createdAt DESC
+                LIMIT 3     
+            """)
+    List<Letter> findThreeLettersWithoutDailyReport(UUID userId, LocalDateTime start, LocalDateTime end);
 }

@@ -61,13 +61,13 @@ class LetterRepositoryTest {
         LocalDateTime start = LocalDate.of(2024, 11, 16).atStartOfDay();
         LocalDateTime end = start.plusDays(7);
 
-        List<Letter> letters = letterRepository.findLettersByDailyReportIsNullAndUserIdAndCreatedAtBetween(
+        List<Letter> letters = letterRepository.findThreeLettersWithoutDailyReport(
                 user1.getId(),
                 start,
                 end);
 
         // then
-        assertThat(letters).containsExactlyInAnyOrder(
+        assertThat(letters).containsExactly(
                 letter1, letter2, letter3, letter4
         );
     }
