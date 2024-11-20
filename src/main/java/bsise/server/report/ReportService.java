@@ -157,24 +157,24 @@ public class ReportService {
         LocalDateTime start = weeklyReportRequestDto.getStartDate().atStartOfDay();
         LocalDateTime end = start.plusDays(7);
 
-        List<Letter> userLettersByCreatedAtDesc = letterRepository.findByCreatedAtDesc(
+        List<Letter> userLettersByLatest = letterRepository.findByCreatedAtDesc(
                 UUID.fromString(weeklyReportRequestDto.getUserId()),
                 start,
                 end
         );
 
         // 날짜별로 편지들을 3개씩 묶기
-        Map<LocalDate, List<Letter>> lettersByDate = userLettersByCreatedAtDesc.stream()
+        Map<LocalDate, List<Letter>> latestLettersByDate = userLettersByLatest.stream()
                 .collect(Collectors.groupingBy(
                         letter -> letter.getCreatedAt().toLocalDate()));
 
         // 한 날짜에 해당하는 여러 편지중에서 1개라도 dailyReport 가 있으면 해당 날짜의 모든 편지 제거
-        lettersByDate.values().removeIf(
+        latestLettersByDate.values().removeIf(
                 letters -> letters.stream().anyMatch(letter -> letter.getDailyReport() != null)
         );
 
         // 날짜당 편지 3개로 제한
-        Map<LocalDate, List<Letter>> threeLettersByDate = lettersByDate.entrySet().stream()
+        Map<LocalDate, List<Letter>> latestThreeLettersByDate = latestLettersByDate.entrySet().stream()
                 .collect(Collectors.toMap(
                         Entry::getKey,
                         entry -> entry.getValue().stream()
@@ -183,7 +183,7 @@ public class ReportService {
                 ));
 
         // 편지 3개에 대한 분석을 Clova에게 요청해서 받은 결과물들
-        Map<AnalysisResult, List<Letter>> lettersByAnalysisResult = threeLettersByDate.values().stream()
+        Map<AnalysisResult, List<Letter>> lettersByAnalysisResult = latestThreeLettersByDate.values().stream()
                 .collect(Collectors.toMap(
                         letters -> DailyReportExtractor.extract(requestClovaAnalysis(letters)),
                         letters -> letters
