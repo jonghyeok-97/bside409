@@ -2,6 +2,9 @@ package bsise.server.report.weekly.dto;
 
 import bsise.server.report.WeeklyDataManager;
 import bsise.server.report.WeeklyReport;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 import lombok.AccessLevel;
@@ -25,9 +28,11 @@ public class WeeklyReportResponseDto {
     private String week_name;
 
     @Schema(description = "N월 N주차의 시작 날짜")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private LocalDate startDate;
 
     @Schema(description = "N월 N주차의 마지막 날짜")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private LocalDate endDate;
 
     @Schema(description = "주간 분석에 사용된 편지 개수와 일기 개수")
