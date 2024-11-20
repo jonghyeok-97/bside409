@@ -144,6 +144,7 @@ public class ReportService {
     - 일요일 자정(00:00)을 넘으면 주간 분석 요청 버튼 활성화 및 주간 분석 요청 가능
      */
     public WeeklyReportResponseDto createWeeklyReport(WeeklyReportRequestDto weeklyReportRequestDto) {
+        // 주간 분석 생성할 수 있는지 검증
         weeklyReportRepository.findDailyReportBy(
                 UUID.fromString(weeklyReportRequestDto.getUserId()),
                 weeklyReportRequestDto.getStartDate(),
@@ -152,23 +153,37 @@ public class ReportService {
             throw new DuplicationWeeklyReportException("주간 분석이 이미 존재합니다");
         });
 
-        // dailyReport 가 없는 편지들 찾기
+        // 주간분석을 요청한 기간 동안 사용자가 작성한 편지들 찾기
         LocalDateTime start = weeklyReportRequestDto.getStartDate().atStartOfDay();
         LocalDateTime end = start.plusDays(7);
 
-        List<Letter> lettersWithoutDailyReport = letterRepository.findThreeLettersWithoutDailyReport(
+        List<Letter> userLettersByCreatedAtDesc = letterRepository.findByCreatedAtDesc(
                 UUID.fromString(weeklyReportRequestDto.getUserId()),
                 start,
                 end
         );
 
-        // 날짜별로 최신 편지들을 3개씩 묶기
-        Map<LocalDate, List<Letter>> latestThreeLettersByDate = lettersWithoutDailyReport.stream()
+        // 날짜별로 편지들을 3개씩 묶기
+        Map<LocalDate, List<Letter>> lettersByDate = userLettersByCreatedAtDesc.stream()
                 .collect(Collectors.groupingBy(
                         letter -> letter.getCreatedAt().toLocalDate()));
 
+        // 한 날짜에 해당하는 여러 편지중에서 1개라도 dailyReport 가 있으면 해당 날짜의 모든 편지 제거
+        lettersByDate.values().removeIf(
+                letters -> letters.stream().anyMatch(letter -> letter.getDailyReport() != null)
+        );
+
+        // 날짜당 편지 3개로 제한
+        Map<LocalDate, List<Letter>> threeLettersByDate = lettersByDate.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Entry::getKey,
+                        entry -> entry.getValue().stream()
+                                .limit(3)
+                                .collect(Collectors.toList())
+                ));
+
         // 편지 3개에 대한 분석을 Clova에게 요청해서 받은 결과물들
-        Map<AnalysisResult, List<Letter>> lettersByAnalysisResult = latestThreeLettersByDate.values().stream()
+        Map<AnalysisResult, List<Letter>> lettersByAnalysisResult = threeLettersByDate.values().stream()
                 .collect(Collectors.toMap(
                         letters -> DailyReportExtractor.extract(requestClovaAnalysis(letters)),
                         letters -> letters
@@ -177,7 +192,7 @@ public class ReportService {
         // 분석결과와 편지들을 가지고 데일리 리포트 생성
         Map<DailyReport, List<Letter>> lettersByDailyReport = lettersByAnalysisResult.entrySet().stream()
                 .collect(Collectors.toMap(
-                        entry -> buildDailyReport(LocalDate.now(), entry.getKey()),
+                        entry -> buildDailyReport(entry.getValue().get(0).getCreatedAt().toLocalDate(), entry.getKey()),
                         Entry::getValue
                 ));
         dailyReportRepository.saveAll(lettersByDailyReport.keySet());

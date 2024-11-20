@@ -29,12 +29,10 @@ public interface LetterRepository extends JpaRepository<Letter, UUID> {
             value = """
                 SELECT l
                 FROM Letter l
-                WHERE l.dailyReport.id IS NULL 
-                        AND l.id = :userId
-                        AND l.createdAt >= :start
-                        AND l.createdAt < :end
-                ORDER BY l.createdAt DESC
-                LIMIT 3     
+                WHERE l.id = :userId AND
+                      l.createdAt >= :start AND
+                      l.createdAt < :end
+                ORDER BY l.createdAt DESC   
             """)
-    List<Letter> findThreeLettersWithoutDailyReport(UUID userId, LocalDateTime start, LocalDateTime end);
+    List<Letter> findByCreatedAtDesc(UUID userId, LocalDateTime start, LocalDateTime end);
 }
