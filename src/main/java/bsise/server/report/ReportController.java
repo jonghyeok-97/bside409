@@ -1,13 +1,11 @@
 package bsise.server.report;
 
-import bsise.server.report.daily.DailyReportGetRequest;
-import bsise.server.report.daily.DailyReportRequestDto;
+import bsise.server.report.daily.DailyReportDto;
 import bsise.server.report.daily.DailyReportResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -21,14 +19,14 @@ public class ReportController {
 
     @PostMapping(value = "/daily", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public DailyReportResponseDto createDailyReport(@Valid @RequestBody DailyReportRequestDto dailyReportDto) {
+    public DailyReportResponseDto createDailyReport(@Valid @RequestBody DailyReportDto.CreateRequest dailyReportDto) {
         return reportService.createDailyReport(dailyReportDto);
     }
 
     @GetMapping(value = "/daily", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public DailyReportResponseDto getDailyReport(
-            @RequestParam LocalDate date, @Validated(DailyReportGetRequest.class) @RequestBody DailyReportRequestDto dailyReportDto) {
+            @RequestParam LocalDate date, @Valid @RequestBody DailyReportDto.GetRequest dailyReportDto) {
         return reportService.getDailyReport(dailyReportDto.getUserId(), date);
     }
 }

@@ -42,7 +42,7 @@ public class ReportService {
      * @param dailyReportDto 일일 리포트 생성 요청 DTO
      * @return 생성된 일일 리포트에 대한 응답 DTO
      */
-    public DailyReportResponseDto createDailyReport(DailyReportRequestDto dailyReportDto) {
+    public DailyReportResponseDto createDailyReport(DailyReportDto.CreateRequest dailyReportDto) {
         UUID userId = UUID.fromString(dailyReportDto.getUserId());
         LocalDate targetDate = dailyReportDto.getDate();
 
