@@ -5,13 +5,12 @@ import bsise.server.report.daily.DailyReportResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
 @RestController
-@RequestMapping(path = "/api/v1/reports", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = "/api/v1/reports")
 @RequiredArgsConstructor
 public class ReportController {
 
