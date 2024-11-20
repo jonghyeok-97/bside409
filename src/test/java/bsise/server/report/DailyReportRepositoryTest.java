@@ -2,6 +2,13 @@ package bsise.server.report;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import bsise.server.auth.OAuth2Provider;
+import bsise.server.letter.Letter;
+import bsise.server.letter.LetterRepository;
+import bsise.server.user.domain.Preference;
+import bsise.server.user.domain.Role;
+import bsise.server.user.domain.User;
+import bsise.server.user.repository.UserRepository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +26,12 @@ class DailyReportRepositoryTest {
 
     @Autowired
     private DailyReportRepository dailyReportRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private LetterRepository letterRepository;
 
     @AfterEach
     void tearDown() {
@@ -53,7 +66,7 @@ class DailyReportRepositoryTest {
                 .mapToObj(startDate::plusDays)
                 .collect(Collectors.toList());
 
-        List<DailyReport> reports = dailyReportRepository.findDailyReportsByTargetDateIn(oneWeekDates);
+        List<DailyReport> reports = dailyReportRepository.findByTargetDateIn(oneWeekDates);
 
         // thn
         assertThat(reports).hasSize(2);
@@ -61,5 +74,65 @@ class DailyReportRepositoryTest {
                 LocalDate.of(2024,11,13),
                 LocalDate.of(2024,11,15)
         );
+    }
+
+    @DisplayName("일일분석에 사용된 편지의 총 개수를 구한다.")
+    @Test
+    void test1() {
+        // given
+        LocalDate start = LocalDate.of(2024, 11, 15);
+        User user = createUser("사용자이름1", "이메일1", "닉네임1");
+        userRepository.save(user);
+
+        DailyReport dailyReport = DailyReport.builder()
+                .coreEmotion(CoreEmotion.기쁨)
+                .targetDate(LocalDate.of(2024, 11, 16))
+                .description("해석1")
+                .build();
+        dailyReportRepository.save(dailyReport);
+
+        Letter letter1 = createPublishedLetter(user);
+        letter1.setDailyReport(dailyReport);
+        Letter letter2 = createPublishedLetter(user);
+        letter2.setDailyReport(dailyReport);
+        Letter letter3 = createPublishedLetter(user);
+        letter3.setDailyReport(dailyReport);
+        Letter letter4 = createPublishedLetter(user);
+        letter4.setDailyReport(dailyReport);
+        letterRepository.saveAll(List.of(letter1, letter2, letter3, letter4));
+
+        // when
+        int publishedCount = dailyReportRepository.findPublishedCount(
+                IntStream.rangeClosed(0, 6)
+                        .mapToObj(start::plusDays)
+                        .toList());
+
+        // then
+        System.out.println(publishedCount); // createPublishedLetter의 개수
+    }
+
+    private Letter createPublishedLetter(User user) {
+        return Letter.builder()
+                .user(user)
+                .published(true)
+                .build();
+    }
+
+    private Letter createUnPublishedLetter(User user) {
+        return Letter.builder()
+                .user(user)
+                .published(false)
+                .build();
+    }
+
+    private User createUser(String username, String email, String nickname) {
+        return User.builder()
+                .username(username)
+                .email(email)
+                .nickname(nickname)
+                .preference(Preference.T)
+                .provider(OAuth2Provider.UNKNOWN)
+                .role(Role.GUEST)
+                .build();
     }
 }

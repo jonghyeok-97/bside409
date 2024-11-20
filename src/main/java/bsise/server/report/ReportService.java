@@ -198,7 +198,7 @@ public class ReportService {
         List<LocalDate> oneWeekDates = createOneWeek(weeklyReportRequestDto.getStartDate());
 
         // 1주일에 해당하는 데일리 리포트 찾기
-        List<DailyReport> dailyReports = dailyReportRepository.findDailyReportsByTargetDateIn(oneWeekDates);
+        List<DailyReport> dailyReports = dailyReportRepository.findByTargetDateIn(oneWeekDates);
 
         //dailyReport 에서 설명 합치기
         String descriptions = dailyReports.stream()
@@ -218,12 +218,15 @@ public class ReportService {
 
         WeeklyDataManager manager = new WeeklyDataManager(weeklyReportRequestDto.getStartDate());
 
+        // TODO: DailyReport 가져올 때, publishedCount도 같이 조회하면 좋을 거 같음 -> Projection 학습 후 적용해봄
+        int publishedCount = dailyReportRepository.findPublishedCount(oneWeekDates);
+
         WeeklyReport weeklyReport = WeeklyReport.builder()
                 .weekOfYear(manager.getWeekOfWeekBasedYear())
                 .startDate(manager.getMondayOfWeek())
                 .endDate(manager.getSundayOfWeek())
                 .cheerUp("위로한마디")
-//                .publishedCount()
+                .publishedCount(publishedCount)
 //                .unpublishedCount()
                 .build();
         weeklyReportRepository.save(weeklyReport);
