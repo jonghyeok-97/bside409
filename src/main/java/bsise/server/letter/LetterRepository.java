@@ -1,5 +1,7 @@
 package bsise.server.letter;
 
+import bsise.server.report.retrieve.dto.DailyReportDto;
+import bsise.server.report.retrieve.dto.WeeklyReportDto;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -17,14 +19,40 @@ public interface LetterRepository extends JpaRepository<Letter, UUID> {
     List<Letter> findTop10ByPublishedIsTrueOrderByCreatedAtDesc();
 
     @Query(value = """
-            SELECT * FROM letter
-            WHERE user_id = :userId AND created_at BETWEEN :startTime AND :endTime
-            ORDER BY created_at DESC LIMIT 3
+               SELECT *
+               FROM letter
+               WHERE user_id = :userId AND created_at BETWEEN :startTime AND :endTime
+               ORDER BY created_at DESC
+               LIMIT 3
             """,
             nativeQuery = true)
-    List<Letter> find3RecentLetters(
-            @Param("userId") UUID userId,
-            @Param("startTime") LocalDateTime startTime,
-            @Param("endTime") LocalDateTime endTime
-    );
+    List<Letter> find3RecentLetters(UUID userId, LocalDateTime startTime, LocalDateTime endTime);
+
+    @Query(
+            value = """
+                SELECT
+                    daily_report_id AS dailyReportId,
+                    created_at AS createdAt
+                FROM letter
+                WHERE user_id = :userId
+                    AND created_at >= :startDate
+                    AND created_at <= :endDate
+            """,
+            nativeQuery = true
+    )
+    List<DailyReportDto> findDailyReportIdByDateRange(UUID userId, LocalDateTime startDate, LocalDateTime endDate);
+
+    @Query(
+            value = """
+                SELECT
+                    d.weekly_report_id AS weeklyReportId,
+                    l.created_at AS letterCreatedAt
+                FROM letter l
+                LEFT JOIN daily_report d ON d.daily_report_id = l.daily_report_id
+                    AND l.user_id = :userId
+                WHERE l.created_at >= :startDate AND l.created_at <= :endDate
+            """,
+            nativeQuery = true
+    )
+    List<WeeklyReportDto> findWeeklyReportIdByDateRange(UUID userId, LocalDateTime startDate, LocalDateTime endDate);
 }

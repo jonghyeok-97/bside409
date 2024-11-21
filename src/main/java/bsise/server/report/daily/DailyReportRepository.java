@@ -13,14 +13,16 @@ import java.util.UUID;
 public interface DailyReportRepository extends JpaRepository<DailyReport, UUID> {
 
     @Query("""
-            SELECT COUNT(d) > 0 FROM DailyReport d
+            SELECT COUNT(d) > 0
+            FROM DailyReport d
             JOIN Letter l ON d.id = l.dailyReport.id
             WHERE d.targetDate = :targetDate AND l.user.id = :userId
             """)
     boolean existsByUserAndTargetDate(UUID userId, LocalDate targetDate);
 
     @Query("""
-            SELECT d FROM DailyReport d
+            SELECT d
+            FROM DailyReport d
             JOIN Letter l ON d.id = l.dailyReport.id
             WHERE d.targetDate = :targetDate AND l.user.id = :userId
             """)
