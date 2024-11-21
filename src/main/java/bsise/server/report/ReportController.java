@@ -1,5 +1,7 @@
 package bsise.server.report;
 
+import bsise.server.report.daily.DailyReportDto;
+import bsise.server.report.daily.DailyReportResponseDto;
 import bsise.server.report.weekly.dto.WeeklyReportGetRequestDto;
 import bsise.server.report.weekly.dto.WeeklyReportRequestDto;
 import bsise.server.report.weekly.dto.WeeklyReportResponseDto;
@@ -8,8 +10,6 @@ import java.time.LocalDate;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,23 +19,22 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(path = "/api/v1/reports", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = "/api/v1/reports")
 @RequiredArgsConstructor
 public class ReportController {
 
     private final ReportService reportService;
 
-    @PostMapping(value = "/daily", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping("/daily")
     @ResponseStatus(HttpStatus.CREATED)
-    public DailyReportResponseDto createDailyReport(@Valid @RequestBody DailyReportRequestDto dailyReportDto) {
+    public DailyReportResponseDto createDailyReport(@Valid @RequestBody DailyReportDto.CreateRequest dailyReportDto) {
         return reportService.createDailyReport(dailyReportDto);
     }
 
-    @GetMapping(value = "/daily", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/daily")
     @ResponseStatus(HttpStatus.OK)
     public DailyReportResponseDto getDailyReport(
-            @RequestParam LocalDate date,
-            @Validated(DailyReportGetRequest.class) @RequestBody DailyReportRequestDto dailyReportDto) {
+            @RequestParam LocalDate date, @Valid @RequestBody DailyReportDto.GetRequest dailyReportDto) {
         return reportService.getDailyReport(dailyReportDto.getUserId(), date);
     }
 

@@ -1,20 +1,25 @@
 package bsise.server.report;
 
-import bsise.server.clovar.AnalysisResult;
 import bsise.server.clovar.ClovaResponseDto;
 import bsise.server.clovar.ClovaService;
-import bsise.server.clovar.DailyReportExtractor;
+import bsise.server.clovar.dailyReport.ClovaDailyAnalysisResult;
+import bsise.server.clovar.dailyReport.DailyReportExtractor;
 import bsise.server.error.DailyReportNotFoundException;
 import bsise.server.error.DuplicateDailyReportException;
 import bsise.server.error.DuplicationWeeklyReportException;
 import bsise.server.error.LetterNotFoundException;
 import bsise.server.letter.Letter;
 import bsise.server.letter.LetterRepository;
+import bsise.server.report.daily.DailyReportDto;
+import bsise.server.report.daily.DailyReportRepository;
+import bsise.server.report.daily.DailyReportResponseDto;
+import bsise.server.report.daily.LetterAnalysisRepository;
 import bsise.server.report.weekly.dto.ClovaWeeklyReportRequestDto;
 import bsise.server.report.weekly.dto.WeeklyReportRequestDto;
 import bsise.server.report.weekly.dto.WeeklyReportResponseDto;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -49,7 +54,7 @@ public class ReportService {
      * @param dailyReportDto 일일 리포트 생성 요청 DTO
      * @return 생성된 일일 리포트에 대한 응답 DTO
      */
-    public DailyReportResponseDto createDailyReport(DailyReportRequestDto dailyReportDto) {
+    public DailyReportResponseDto createDailyReport(DailyReportDto.CreateRequest dailyReportDto) {
         UUID userId = UUID.fromString(dailyReportDto.getUserId());
         LocalDate targetDate = dailyReportDto.getDate();
 
@@ -61,11 +66,11 @@ public class ReportService {
 
         ClovaResponseDto clovaResponse = requestClovaAnalysis(letters);
 
-        AnalysisResult analysisResult = DailyReportExtractor.extract(clovaResponse);
-        DailyReport dailyReport = buildDailyReport(targetDate, analysisResult);
+        ClovaDailyAnalysisResult clovaDailyAnalysisResult = DailyReportExtractor.extract(clovaResponse);
+        DailyReport dailyReport = buildDailyReport(targetDate, clovaDailyAnalysisResult);
         dailyReportRepository.save(dailyReport);
 
-        List<LetterAnalysis> letterAnalyses = buildLetterAnalyses(letters, analysisResult);
+        List<LetterAnalysis> letterAnalyses = buildLetterAnalyses(letters, clovaDailyAnalysisResult);
         letterAnalyses.forEach(analysis -> analysis.getLetter().setDailyReport(dailyReport));
         letterAnalysisRepository.saveAll(letterAnalyses);
 
@@ -74,7 +79,8 @@ public class ReportService {
 
     public DailyReportResponseDto getDailyReport(String userId, LocalDate targetDate) {
         DailyReport dailyReport = dailyReportRepository.findByUserAndTargetDate(UUID.fromString(userId), targetDate)
-                .orElseThrow(() -> new DailyReportNotFoundException("Daily Report not found. targetDate: " + targetDate));
+                .orElseThrow(
+                        () -> new DailyReportNotFoundException("Daily Report not found. targetDate: " + targetDate));
 
         List<LetterAnalysis> letterAnalyses = letterAnalysisRepository.findByDailyReportId(dailyReport.getId());
 
@@ -86,17 +92,17 @@ public class ReportService {
      *     <li>만약 오늘이라면, 현재 시점 기준 가장 최근 3건</li>
      *     <li>만약 오늘 이전이라면, 해당 날짜의 가장 마지막 3건</li>
      * </ol>
-     * @param userId 일일분석 요청하는 사용자 아이디
+     *
+     * @param userId     일일분석 요청하는 사용자 아이디
      * @param targetDate 일일분석 요청할 날짜
      * @return 편지 3건 리스트
      */
     private List<Letter> findRecentLetters(UUID userId, LocalDate targetDate) {
         LocalDateTime endTime = targetDate.isEqual(LocalDate.now())
                 ? LocalDateTime.now()
-                : targetDate.atTime(23, 59, 59, 999_999_999);
+                : targetDate.atTime(LocalTime.MAX);
 
-        List<Letter> letters = letterRepository.find3RecentLetters(
-                userId, targetDate.atStartOfDay(), endTime);
+        List<Letter> letters = letterRepository.find3RecentLetters(userId, targetDate.atStartOfDay(), endTime);
 
         if (letters.isEmpty()) {
             throw new LetterNotFoundException("Letters for daily analysis not found.");
@@ -113,18 +119,19 @@ public class ReportService {
         return clovaService.sendDailyReportRequest(formattedMessages);
     }
 
-    private DailyReport buildDailyReport(LocalDate targetDate, AnalysisResult analysisResult) {
+    private DailyReport buildDailyReport(LocalDate targetDate, ClovaDailyAnalysisResult clovaDailyAnalysisResult) {
         return DailyReport.builder()
                 .targetDate(targetDate)
-                .coreEmotion(CoreEmotion.valueOf(analysisResult.getDailyCoreEmotion()))
-                .description(analysisResult.getDescription())
+                .coreEmotion(CoreEmotion.valueOf(clovaDailyAnalysisResult.getDailyCoreEmotion()))
+                .description(clovaDailyAnalysisResult.getDescription())
                 .build();
     }
 
-    private List<LetterAnalysis> buildLetterAnalyses(List<Letter> letters, AnalysisResult analysisResult) {
-        return analysisResult.getLetterAnalyses().stream()
+    private List<LetterAnalysis> buildLetterAnalyses(List<Letter> letters,
+                                                     ClovaDailyAnalysisResult clovaDailyAnalysisResult) {
+        return clovaDailyAnalysisResult.getLetterAnalyses().stream()
                 .map(analysis -> {
-                    int index = analysisResult.getLetterAnalyses().indexOf(analysis);
+                    int index = clovaDailyAnalysisResult.getLetterAnalyses().indexOf(analysis);
                     Letter letter = letters.get(index); // 순서대로 letter 매핑
 
                     return LetterAnalysis.builder()
@@ -183,7 +190,7 @@ public class ReportService {
                 ));
 
         // 편지 3개에 대한 분석을 Clova에게 요청해서 받은 결과물들
-        Map<AnalysisResult, List<Letter>> lettersByAnalysisResult = threeLettersByDate.values().stream()
+        Map<ClovaDailyAnalysisResult, List<Letter>> lettersByAnalysisResult = threeLettersByDate.values().stream()
                 .collect(Collectors.toMap(
                         letters -> DailyReportExtractor.extract(requestClovaAnalysis(letters)),
                         letters -> letters

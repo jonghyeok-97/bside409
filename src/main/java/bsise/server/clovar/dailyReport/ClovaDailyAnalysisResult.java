@@ -1,4 +1,4 @@
-package bsise.server.clovar;
+package bsise.server.clovar.dailyReport;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -7,7 +7,7 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AnalysisResult {
+public class ClovaDailyAnalysisResult {
 
     @JsonProperty(value = "letterAnalyses")
     private List<LetterAnalysis> letterAnalyses;

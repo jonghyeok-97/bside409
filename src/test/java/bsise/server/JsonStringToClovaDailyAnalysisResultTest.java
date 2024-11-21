@@ -1,12 +1,12 @@
 package bsise.server;
 
-import bsise.server.clovar.AnalysisResult;
+import bsise.server.clovar.dailyReport.ClovaDailyAnalysisResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class JsonStringToAnalysisResultTest {
+class JsonStringToClovaDailyAnalysisResultTest {
 
     @Test
     void readValue_validResponse_success() throws JsonProcessingException {
@@ -33,23 +33,23 @@ class JsonStringToAnalysisResultTest {
                 """;
 
         // When
-        AnalysisResult analysisResult = objectMapper.readValue(validResponseJson, AnalysisResult.class);
+        ClovaDailyAnalysisResult clovaDailyAnalysisResult = objectMapper.readValue(validResponseJson, ClovaDailyAnalysisResult.class);
 
         // Then
-        Assertions.assertThat(analysisResult).isNotNull();
-        Assertions.assertThat(analysisResult.getDailyCoreEmotion()).isEqualTo("슬픔");
-        Assertions.assertThat(analysisResult.getLetterAnalyses()).hasSize(2);
+        Assertions.assertThat(clovaDailyAnalysisResult).isNotNull();
+        Assertions.assertThat(clovaDailyAnalysisResult.getDailyCoreEmotion()).isEqualTo("슬픔");
+        Assertions.assertThat(clovaDailyAnalysisResult.getLetterAnalyses()).hasSize(2);
 
         // 첫 번째 letterAnalyses 검증
-        Assertions.assertThat(analysisResult.getLetterAnalyses().get(0).getCoreEmotions())
+        Assertions.assertThat(clovaDailyAnalysisResult.getLetterAnalyses().get(0).getCoreEmotions())
                 .containsExactlyInAnyOrder("슬픔", "분노");
-        Assertions.assertThat(analysisResult.getLetterAnalyses().get(0).getTopic())
+        Assertions.assertThat(clovaDailyAnalysisResult.getLetterAnalyses().get(0).getTopic())
                 .isEqualTo("과도한 학업에의 부담");
 
         // 두 번째 letterAnalyses 검증
-        Assertions.assertThat(analysisResult.getLetterAnalyses().get(1).getCoreEmotions())
+        Assertions.assertThat(clovaDailyAnalysisResult.getLetterAnalyses().get(1).getCoreEmotions())
                 .containsExactly("중립");
-        Assertions.assertThat(analysisResult.getLetterAnalyses().get(1).getTopic())
+        Assertions.assertThat(clovaDailyAnalysisResult.getLetterAnalyses().get(1).getTopic())
                 .isEqualTo("식사 기록");
     }
 }

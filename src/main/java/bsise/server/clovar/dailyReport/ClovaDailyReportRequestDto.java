@@ -1,5 +1,7 @@
-package bsise.server.clovar;
+package bsise.server.clovar.dailyReport;
 
+import bsise.server.clovar.ClovaMessageFormat;
+import bsise.server.clovar.ClovaRequestDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,7 +16,7 @@ import static bsise.server.clovar.ClovaRole.*;
  */
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ClovaDailyReportRequestDto implements ClovaRequestDto{
+public class ClovaDailyReportRequestDto implements ClovaRequestDto {
 
     private List<ClovaMessageFormat> messages;
 
