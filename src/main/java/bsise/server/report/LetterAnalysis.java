@@ -2,22 +2,15 @@ package bsise.server.report;
 
 import bsise.server.common.BaseTimeEntity;
 import bsise.server.letter.Letter;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import io.hypersistence.utils.hibernate.type.json.JsonType;
+import jakarta.persistence.*;
+
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 
 @Getter
 @Entity
@@ -34,8 +27,9 @@ public class LetterAnalysis extends BaseTimeEntity {
     @JoinColumn(name = "letter_id")
     private Letter letter;
 
-    // TODO: JSON타입
-    // private sensitiveEmotion;
+    @Type(JsonType.class)
+    @Column(name = "sensitive_emotions", columnDefinition = "json")
+    private List<String> sensitiveEmotions;
 
     @Column(name = "topic", nullable = false)
     private String topic;
@@ -44,11 +38,13 @@ public class LetterAnalysis extends BaseTimeEntity {
     @CollectionTable(name = "letter_core_emotions",
             joinColumns = @JoinColumn(name = "letter_analysis_id"))
     @Column(name = "core_emotion", nullable = false)
+    @Enumerated(EnumType.STRING)
     private List<CoreEmotion> coreEmotions;
 
     @Builder
-    public LetterAnalysis(Letter letter, String topic, List<CoreEmotion> coreEmotions) {
+    public LetterAnalysis(Letter letter, List<String> sensitiveEmotions, String topic, List<CoreEmotion> coreEmotions) {
         this.letter = letter;
+        this.sensitiveEmotions = sensitiveEmotions;
         this.topic = topic;
         this.coreEmotions = coreEmotions;
     }
