@@ -7,7 +7,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.time.LocalDate;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -25,14 +24,8 @@ public class WeeklyReport extends BaseTimeEntity {
     @Column(name = "weekly_report_id", columnDefinition = "BINARY(16)")
     private UUID id;
 
-    @Column(name = "week_of_year", nullable = false)
-    private int weekOfYear;
-
-    @Column(name = "start_date", nullable = false)
-    private LocalDate startDate;
-
-    @Column(name = "end_date", nullable = false)
-    private LocalDate endDate;
+    @Column(name = "weekly_name", nullable = false)
+    private String weeklyName;
 
     @Column(name = "published_count", nullable = false)
     private int publishedCount;
@@ -44,10 +37,8 @@ public class WeeklyReport extends BaseTimeEntity {
     private String cheerUp;
 
     @Builder
-    public WeeklyReport(int weekOfYear, LocalDate startDate, LocalDate endDate, int publishedCount, int unpublishedCount, String cheerUp) {
-        this.weekOfYear = weekOfYear;
-        this.startDate = startDate;
-        this.endDate = endDate;
+    public WeeklyReport(String weeklyName, int publishedCount, int unpublishedCount, String cheerUp) {
+        this.weeklyName = weeklyName;
         this.publishedCount = publishedCount;
         this.unpublishedCount = unpublishedCount;
         this.cheerUp = cheerUp;
