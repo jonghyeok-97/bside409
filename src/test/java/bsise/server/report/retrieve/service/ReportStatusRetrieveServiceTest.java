@@ -222,7 +222,6 @@ class ReportStatusRetrieveServiceTest {
 
         WeeklyReport weeklyReport = WeeklyReport.builder()
                 .cheerUp("test")
-                .weeklyName("test")
                 .publishedCount(0)
                 .unpublishedCount(0)
                 .build();
