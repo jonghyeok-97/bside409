@@ -9,7 +9,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -27,6 +26,17 @@ public interface LetterRepository extends JpaRepository<Letter, UUID> {
             """,
             nativeQuery = true)
     List<Letter> find3RecentLetters(UUID userId, LocalDateTime startTime, LocalDateTime endTime);
+
+    @Query(
+            value = """
+                SELECT l
+                FROM Letter l
+                WHERE l.id = :userId
+                    AND l.createdAt >= :start
+                    AND l.createdAt < :end
+                ORDER BY l.createdAt DESC
+            """)
+    List<Letter> findByCreatedAtDesc(UUID userId, LocalDateTime start, LocalDateTime end);
 
     @Query(
             value = """
