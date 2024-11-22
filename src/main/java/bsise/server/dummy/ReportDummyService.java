@@ -1,7 +1,6 @@
 package bsise.server.dummy;
 
 import bsise.server.clovar.ClovaResponseDto;
-import bsise.server.clovar.ClovaService;
 import bsise.server.clovar.dailyReport.ClovaDailyAnalysisResult;
 import bsise.server.clovar.dailyReport.DailyReportExtractor;
 import bsise.server.error.DailyReportNotFoundException;
@@ -46,7 +45,7 @@ public class ReportDummyService {
     private final DailyReportRepository dailyReportRepository;
     private final LetterRepository letterRepository;
     private final LetterAnalysisRepository letterAnalysisRepository;
-    private final ClovaService clovaService;
+    private final ClovaDummyService clovaDummyService;
     private final WeeklyReportRepository weeklyReportRepository;
 
     /**
@@ -122,7 +121,7 @@ public class ReportDummyService {
                 .map(msg -> "\"" + msg + "\"")
                 .collect(Collectors.joining(", "));
 
-        return clovaService.sendDailyReportRequest(formattedMessages);
+        return clovaDummyService.sendDailyReportRequest(formattedMessages);
     }
 
     private DailyReport buildDailyReport(LocalDate targetDate, ClovaDailyAnalysisResult clovaDailyAnalysisResult) {
@@ -240,7 +239,7 @@ public class ReportDummyService {
                 .collect(Collectors.joining(", "));
 
         // TODO: DailyReportExtractor 에서 클로바 response 읽기 후 저장
-        ClovaResponseDto clovaResponseDto = clovaService.sendWeeklyReportRequest(
+        ClovaResponseDto clovaResponseDto = clovaDummyService.sendWeeklyReportRequest(
                 ClovaWeeklyReportRequestDto.from(descriptions, coreEmotions));
         // ----
 
