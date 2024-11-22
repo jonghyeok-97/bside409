@@ -1,4 +1,4 @@
-package bsise.server.report;
+package bsise.server.dummy;
 
 import bsise.server.clovar.ClovaResponseDto;
 import bsise.server.clovar.ClovaService;
@@ -11,6 +11,12 @@ import bsise.server.error.LetterNotFoundException;
 import bsise.server.error.WeeklyReportNotFoundException;
 import bsise.server.letter.Letter;
 import bsise.server.letter.LetterRepository;
+import bsise.server.report.CoreEmotion;
+import bsise.server.report.DailyReport;
+import bsise.server.report.LetterAnalysis;
+import bsise.server.report.WeeklyDataManager;
+import bsise.server.report.WeeklyReport;
+import bsise.server.report.WeeklyReportRepository;
 import bsise.server.report.daily.DailyReportDto;
 import bsise.server.report.daily.DailyReportRepository;
 import bsise.server.report.daily.DailyReportResponseDto;
@@ -35,7 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class ReportService {
+public class ReportDummyService {
 
     private final DailyReportRepository dailyReportRepository;
     private final LetterRepository letterRepository;
@@ -270,3 +276,4 @@ public class ReportService {
         return WeeklyReportResponseDto.from(weeklyReport);
     }
 }
+
