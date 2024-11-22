@@ -3,6 +3,8 @@ package bsise.server.report;
 import bsise.server.auth.OAuth2Provider;
 import bsise.server.letter.Letter;
 import bsise.server.letter.LetterRepository;
+import bsise.server.report.daily.DailyReportRepository;
+import bsise.server.report.weekly.WeeklyReportRepository;
 import bsise.server.user.domain.Preference;
 import bsise.server.user.domain.Role;
 import bsise.server.user.domain.User;
@@ -91,6 +93,4 @@ class WeeklyReportRepositoryTest {
                 .role(Role.GUEST)
                 .build();
     }
-
-
 }
