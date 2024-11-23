@@ -1,3 +1,4 @@
+from createDailyReports import CreateDailyReports
 from createLetters import CreateLetters
 from createUsers import CreateUsers
 
@@ -16,7 +17,9 @@ def __main__():
     letter_created_at_start_time = '9h'
     letter_created_at_time_frequency = '3h'
 
+    daily_report_filename = './csv/daily_report.csv'
     daily_report_cnt = 1_500_000
+    daily_report_generation_time = '23h'
 
     # user 100k 생성
     userGenerator = CreateUsers(
@@ -28,7 +31,7 @@ def __main__():
     )
     userGenerator.create_users()
 
-    # letter 1500k 생성
+    # letter 15m 생성
     letterGenerator = CreateLetters(
         letter_filename=letter_filename,
         user_filename=user_filename,
@@ -43,6 +46,20 @@ def __main__():
         time_frequency=letter_created_at_time_frequency,
     )
     letterGenerator.create_letters()
+
+    # dailyReport 1.5m 생성
+    dailyReportGenerator = CreateDailyReports(
+        daily_report_filename=daily_report_filename,
+        user_filename=user_filename,
+        letter_filename=letter_filename,
+        user_cnt=user_cnt,
+        letter_cnt=letter_cnt,
+        daily_report_cnt=daily_report_cnt,
+        start_date=letter_created_at_start_date,
+        end_date=letter_created_at_end_date,
+        generation_time=daily_report_generation_time,
+    )
+    dailyReportGenerator.create_daily_reports()
 
 
 if __name__ == "__main__":
