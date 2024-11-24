@@ -1,4 +1,4 @@
-package bsise.server.clovar;
+package bsise.server.clova.dto;
 
 public interface ClovaRequestDto {
 }

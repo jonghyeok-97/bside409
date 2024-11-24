@@ -1,7 +1,7 @@
-package bsise.server.clovar.dailyReport;
+package bsise.server.clova.dailyReport;
 
-import bsise.server.clovar.ClovaResponseDto;
-import bsise.server.report.CoreEmotion;
+import bsise.server.clova.dto.ClovaResponseDto;
+import bsise.server.report.daily.domain.CoreEmotion;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

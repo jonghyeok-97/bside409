@@ -1,4 +1,4 @@
-package bsise.server.clovar;
+package bsise.server.clova.dto;
 
 import bsise.server.reply.Reply;
 import com.fasterxml.jackson.annotation.JsonProperty;

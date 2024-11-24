@@ -1,6 +1,6 @@
-package bsise.server.clovar.dailyReport;
+package bsise.server.clova.dailyReport;
 
-import bsise.server.clovar.ClovaResponseDto;
+import bsise.server.clova.dto.ClovaResponseDto;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor

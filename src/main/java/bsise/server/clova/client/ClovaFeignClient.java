@@ -1,5 +1,7 @@
-package bsise.server.clovar;
+package bsise.server.clova.client;
 
+import bsise.server.clova.dto.ClovaRequestDto;
+import bsise.server.clova.dto.ClovaResponseDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;

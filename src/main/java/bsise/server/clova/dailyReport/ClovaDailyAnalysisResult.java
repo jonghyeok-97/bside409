@@ -1,4 +1,4 @@
-package bsise.server.clovar.dailyReport;
+package bsise.server.clova.dailyReport;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;

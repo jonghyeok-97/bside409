@@ -1,4 +1,4 @@
-package bsise.server.clovar;
+package bsise.server.clova.service;
 
 import static bsise.server.user.domain.Preference.F;
 

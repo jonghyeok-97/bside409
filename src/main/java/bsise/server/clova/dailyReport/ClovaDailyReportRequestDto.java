@@ -1,7 +1,7 @@
-package bsise.server.clovar.dailyReport;
+package bsise.server.clova.dailyReport;
 
-import bsise.server.clovar.ClovaMessageFormat;
-import bsise.server.clovar.ClovaRequestDto;
+import bsise.server.clova.dto.ClovaMessageFormat;
+import bsise.server.clova.dto.ClovaRequestDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static bsise.server.clovar.ClovaRole.*;
+import static bsise.server.clova.dto.ClovaRole.*;
 
 /**
  * <p>Clova Studio에게 일일 리포트 생성 요청 메시지를 보내는 DTO</p>

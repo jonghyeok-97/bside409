@@ -1,4 +1,4 @@
-package bsise.server.clovar;
+package bsise.server.clova.dto;
 
 import lombok.AccessLevel;
 import lombok.Getter;

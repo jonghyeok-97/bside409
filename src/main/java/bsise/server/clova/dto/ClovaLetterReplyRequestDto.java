@@ -1,6 +1,6 @@
-package bsise.server.clovar;
+package bsise.server.clova.dto;
 
-import static bsise.server.clovar.ClovaRole.*;
+import static bsise.server.clova.dto.ClovaRole.*;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
