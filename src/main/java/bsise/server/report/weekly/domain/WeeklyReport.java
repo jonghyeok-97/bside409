@@ -1,4 +1,4 @@
-package bsise.server.report;
+package bsise.server.report.weekly.domain;
 
 import bsise.server.common.BaseTimeEntity;
 import jakarta.persistence.Column;
@@ -28,10 +28,10 @@ public class WeeklyReport extends BaseTimeEntity {
     @Column(name = "week_of_year", nullable = false)
     private int weekOfYear;
 
-    @Column(name = "start_date", nullable = false)
+    @Column(name = "start_date")
     private LocalDate startDate;
 
-    @Column(name = "end_date", nullable = false)
+    @Column(name = "end_date")
     private LocalDate endDate;
 
     @Column(name = "published_count", nullable = false)

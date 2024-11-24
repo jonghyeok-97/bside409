@@ -1,10 +1,13 @@
-package bsise.server.report;
+package bsise.server.report.weekly;
 
 import bsise.server.auth.OAuth2Provider;
 import bsise.server.letter.Letter;
 import bsise.server.letter.LetterRepository;
-import bsise.server.report.daily.DailyReportRepository;
-import bsise.server.report.weekly.WeeklyReportRepository;
+import bsise.server.report.daily.domain.CoreEmotion;
+import bsise.server.report.daily.domain.DailyReport;
+import bsise.server.report.daily.repository.DailyReportRepository;
+import bsise.server.report.weekly.domain.WeeklyReport;
+import bsise.server.report.weekly.repository.WeeklyReportRepository;
 import bsise.server.user.domain.Preference;
 import bsise.server.user.domain.Role;
 import bsise.server.user.domain.User;

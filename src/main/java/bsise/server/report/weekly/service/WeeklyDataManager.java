@@ -1,4 +1,4 @@
-package bsise.server.report;
+package bsise.server.report.weekly.service;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
