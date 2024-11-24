@@ -1,4 +1,4 @@
-package bsise.server.report.retrieve;
+package bsise.server.report.retrieve.controller;
 
 import bsise.server.report.retrieve.dto.DailyReportStatusResponseDto;
 import bsise.server.report.retrieve.dto.ReportStatusRequestDto;
