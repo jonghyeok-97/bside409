@@ -1,10 +1,12 @@
-package bsise.server.report;
+package bsise.server.report.daily.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import bsise.server.auth.OAuth2Provider;
 import bsise.server.letter.Letter;
 import bsise.server.letter.LetterRepository;
+import bsise.server.report.daily.domain.CoreEmotion;
+import bsise.server.report.daily.domain.DailyReport;
 import bsise.server.user.domain.Preference;
 import bsise.server.user.domain.Role;
 import bsise.server.user.domain.User;
@@ -68,11 +70,11 @@ class DailyReportRepositoryTest {
 
         List<DailyReport> reports = dailyReportRepository.findByTargetDateIn(oneWeekDates);
 
-        // thn
+        // then
         assertThat(reports).hasSize(2);
         assertThat(reports).extracting("targetDate").containsAnyOf(
-                LocalDate.of(2024,11,13),
-                LocalDate.of(2024,11,15)
+                LocalDate.of(2024, 11, 13),
+                LocalDate.of(2024, 11, 15)
         );
     }
 

@@ -1,7 +1,7 @@
 package bsise.server.learning.map;
 
 import bsise.server.letter.Letter;
-import bsise.server.report.DailyReport;
+import bsise.server.report.daily.domain.DailyReport;
 import bsise.server.user.domain.User;
 import java.time.LocalDate;
 import java.util.Arrays;

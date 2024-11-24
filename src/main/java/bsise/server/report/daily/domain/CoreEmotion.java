@@ -1,4 +1,4 @@
-package bsise.server.report;
+package bsise.server.report.daily.domain;
 
 import java.util.Arrays;
 

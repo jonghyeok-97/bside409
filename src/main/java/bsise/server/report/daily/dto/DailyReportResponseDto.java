@@ -1,7 +1,7 @@
-package bsise.server.report.daily;
+package bsise.server.report.daily.dto;
 
-import bsise.server.report.DailyReport;
-import bsise.server.report.LetterAnalysis;
+import bsise.server.report.daily.domain.DailyReport;
+import bsise.server.report.daily.domain.LetterAnalysis;
 import lombok.*;
 
 import java.time.LocalDate;

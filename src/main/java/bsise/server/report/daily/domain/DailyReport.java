@@ -1,6 +1,7 @@
-package bsise.server.report;
+package bsise.server.report.daily.domain;
 
 import bsise.server.common.BaseTimeEntity;
+import bsise.server.report.weekly.domain.WeeklyReport;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

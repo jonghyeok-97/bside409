@@ -1,4 +1,4 @@
-package bsise.server.report;
+package bsise.server.report.daily.domain;
 
 import bsise.server.common.BaseTimeEntity;
 import bsise.server.letter.Letter;
