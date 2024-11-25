@@ -22,7 +22,6 @@ class CreateLetters:
         self.time_frequency = time_frequency
         self.timer = ElapsedTimer('letters')
 
-
     def generate_created_at(self):
         """
         각 유저가 하루에 여러 개의 편지를 특정 기간에 작성하는 시간을 생성.
@@ -38,7 +37,6 @@ class CreateLetters:
 
         return pd.Series(created_at)
 
-
     # 메시지 생성 함수 (병렬 처리용)
     @staticmethod
     def generate_message(args):
@@ -47,7 +45,6 @@ class CreateLetters:
             f"{user}이 작성한 편지 - {time.strftime('%y년 %m월 %d일 %H시')} 작성"
             for user, time in zip(username_chunk, created_at_chunk)
         ]
-
 
     # 병렬 처리 실행 함수
     def parallel_generate_messages(self, username_list, created_at_list, chunk_size):
@@ -94,7 +91,7 @@ class CreateLetters:
 
             # CSV 파일에 데이터 쓰기
             letters_df.to_csv(self.letter_filename, index=False, encoding='utf-8')
-            print(f"{self.letter_filename} 파일이 생성되었습니다.")
+            print(f"\n{self.letter_filename} 파일이 생성되었습니다.")
         except Exception as e:
             print(f"\n에러 발생: {e}")
             traceback.print_exc()

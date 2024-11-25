@@ -6,6 +6,7 @@ import numpy as np
 from ElapsedTimer import ElapsedTimer
 from common import generate_unique_uuids
 
+
 class CreateUsers:
     def __init__(self, user_filename, user_cnt, start_date, end_date, time_frequency):
         self.user_filename = user_filename
@@ -23,7 +24,8 @@ class CreateUsers:
             users = {
                 'user_id': list(generate_unique_uuids(self.user_cnt)),
                 'created_at': pd.to_datetime(
-                    np.random.choice(pd.date_range(self.start_date, self.end_date, freq=self.time_frequency), size=self.user_cnt)
+                    np.random.choice(pd.date_range(self.start_date, self.end_date, freq=self.time_frequency),
+                                     size=self.user_cnt)
                 ),
                 'agree_to_privacy_policy': [b'1' for _ in range(self.user_cnt)],
                 'agree_to_terms': [b'1' for _ in range(self.user_cnt)],

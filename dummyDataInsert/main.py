@@ -19,7 +19,7 @@ def __main__():
 
     daily_report_filename = './csv/daily_report.csv'
     daily_report_cnt = 1_500_000
-    daily_report_generation_time = '23h'
+    daily_report_generation_time = ['11h', '13h', '23h']
 
     # user 100k 생성
     userGenerator = CreateUsers(
@@ -50,7 +50,6 @@ def __main__():
     # dailyReport 1.5m 생성
     dailyReportGenerator = CreateDailyReports(
         daily_report_filename=daily_report_filename,
-        user_filename=user_filename,
         letter_filename=letter_filename,
         user_cnt=user_cnt,
         letter_cnt=letter_cnt,
