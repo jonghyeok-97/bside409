@@ -16,6 +16,21 @@ class CreateUsers:
         self.time_frequency = time_frequency
         self.timer = ElapsedTimer('users 생성')
 
+    def generate_dates(self):
+        # 날짜 범위 생성 (날짜만 포함)
+        base_dates = pd.date_range(self.start_date, self.end_date, freq=self.time_frequency)
+
+        # 랜덤하게 날짜 선택 (user_cnt 만큼)
+        random_dates = np.random.choice(base_dates, size=self.user_cnt)
+
+        # 시간 추가: 0초 ~ 86399초 (하루의 시간 랜덤 생성)
+        random_times = pd.to_timedelta(np.random.randint(0, 86400, size=self.user_cnt), unit='s')
+
+        # 날짜 + 시간 합치기
+        created_at = pd.to_datetime(random_dates) + random_times
+
+        return created_at
+
     def create_users(self):
         try:
             self.timer.start()
@@ -23,10 +38,7 @@ class CreateUsers:
             # profile_image_url도 마찬가지
             users = {
                 'user_id': list(generate_unique_uuids(self.user_cnt)),
-                'created_at': pd.to_datetime(
-                    np.random.choice(pd.date_range(self.start_date, self.end_date, freq=self.time_frequency),
-                                     size=self.user_cnt)
-                ),
+                'created_at': self.generate_dates(),
                 'agree_to_privacy_policy': [b'1' for _ in range(self.user_cnt)],
                 'agree_to_terms': [b'1' for _ in range(self.user_cnt)],
                 'email': [f'user{i}@email.none' for i in range(self.user_cnt)],
