@@ -1,7 +1,10 @@
-from concurrent.futures import ProcessPoolExecutor
+import os
 import sqlite3
-import pandas as pd
 import traceback
+from concurrent.futures import ProcessPoolExecutor
+
+import pandas as pd
+
 from ElapsedTimer import ElapsedTimer
 
 # CSV 파일 경로
@@ -10,7 +13,7 @@ letter_csv = './csv/letter.csv'
 daily_report_csv = './csv/daily_report.csv'
 
 sqlite_db_path = './shared_data.db'  # SQLite 파일 경로
-output_csv = './csv/updated_letter.csv'
+output_csv = letter_csv
 
 
 def initialize_database():
@@ -104,16 +107,17 @@ def run_query_for_date(date_str):
 
 def main():
     timer = ElapsedTimer("daily report id mapping")
-    timer.start()
 
     try:
+        timer.start()
+
         print("날짜별 SQL 쿼리 병렬 처리 시작...")
         start_date = '2024-10-01'
         end_date = '2024-10-30'
         date_list = pd.date_range(start=start_date, end=end_date).strftime('%Y-%m-%d')
 
         # 데이터베이스 초기화 (한 번만 실행)
-        # initialize_database()
+        initialize_database()
 
         with ProcessPoolExecutor(max_workers=8) as executor:
             all_results = list(executor.map(run_query_for_date, date_list))
@@ -128,6 +132,12 @@ def main():
         # 결과 저장
         updated_letters.to_csv(output_csv, index=False)
         print("최종 결과 저장 완료!")
+
+        # letter 테이블 교체
+        conn = sqlite3.connect(sqlite_db_path)  # SQLite 데이터베이스 연결
+        updated_letters.to_sql('letter', conn, index=False, if_exists='replace')
+        conn.close()
+        print("SQLite 데이터베이스에서 'letter' 테이블 업데이트 완료!")
     except Exception as e:
         print(f"\n에러 발생: {e}")
         traceback.print_exc()
