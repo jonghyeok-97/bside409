@@ -14,7 +14,7 @@ class ElapsedTimer:
         start_time = time.time()
         while not self.stop_event.is_set():  # 종료 신호가 없으면 계속 실행
             elapsed_time = time.time() - start_time
-            print(f"\r{self.name} 생성 경과 시간: {elapsed_time:.2f}초", end="", flush=True)
+            print(f"\r{self.name} 경과 시간: {elapsed_time:.2f}초", end="", flush=True)
             time.sleep(1)  # 1초마다 업데이트
 
     def start(self):
