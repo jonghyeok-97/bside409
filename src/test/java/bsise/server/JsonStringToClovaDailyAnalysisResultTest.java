@@ -1,6 +1,6 @@
 package bsise.server;
 
-import bsise.server.clovar.dailyReport.ClovaDailyAnalysisResult;
+import bsise.server.clova.dailyReport.ClovaDailyAnalysisResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Assertions;

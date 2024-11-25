@@ -1,10 +1,8 @@
 package bsise.server.report.weekly.dto;
 
-import bsise.server.report.WeeklyDataManager;
-import bsise.server.report.WeeklyReport;
+import bsise.server.report.weekly.service.WeeklyDataManager;
+import bsise.server.report.weekly.domain.WeeklyReport;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 import lombok.AccessLevel;

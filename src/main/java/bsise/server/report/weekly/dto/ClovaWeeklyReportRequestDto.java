@@ -1,11 +1,11 @@
 package bsise.server.report.weekly.dto;
 
-import static bsise.server.clovar.ClovaRole.ASSISTANT;
-import static bsise.server.clovar.ClovaRole.SYSTEM;
-import static bsise.server.clovar.ClovaRole.USER;
+import static bsise.server.clova.dto.ClovaRole.ASSISTANT;
+import static bsise.server.clova.dto.ClovaRole.SYSTEM;
+import static bsise.server.clova.dto.ClovaRole.USER;
 
-import bsise.server.clovar.ClovaMessageFormat;
-import bsise.server.clovar.ClovaRequestDto;
+import bsise.server.clova.dto.ClovaMessageFormat;
+import bsise.server.clova.dto.ClovaRequestDto;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;

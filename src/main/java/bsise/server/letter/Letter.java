@@ -1,7 +1,7 @@
 package bsise.server.letter;
 
 import bsise.server.common.BaseTimeEntity;
-import bsise.server.report.DailyReport;
+import bsise.server.report.daily.domain.DailyReport;
 import bsise.server.user.domain.Preference;
 import bsise.server.user.domain.User;
 import jakarta.persistence.Column;

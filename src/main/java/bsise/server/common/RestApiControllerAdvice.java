@@ -50,7 +50,7 @@ public class RestApiControllerAdvice {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<?> handleRateLimitException(RuntimeException exception) {
-        return createErrorResponse(exception, HttpStatus.INTERNAL_SERVER_ERROR, "error.rate.limit");
+        return createErrorResponse(exception, HttpStatus.INTERNAL_SERVER_ERROR, "error.unknown");
     }
 
     private ResponseEntity<?> createErrorResponse(Exception exception, HttpStatus status, String messageKey) {
