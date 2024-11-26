@@ -1,5 +1,4 @@
 import uuid
-import numpy as np
 from multiprocessing import Pool, cpu_count
 
 
@@ -15,37 +14,32 @@ def generate_unique_uuids(count):
     """
     uuids = set()
     while len(uuids) < count:
-        uuids.add(uuid.uuid4().hex)
+        uuids.add(uuid.uuid4())
     return uuids
 
 
-def generate_random_bytes(chunk_size):
+def generate_uuids_with_uuid4(chunk_size):
     """
-    NumPy를 활용해 무작위 바이트 생성
+    uuid.uuid4()를 활용해 UUID 생성
     """
-    random_bytes = np.random.bytes(16 * chunk_size)
-    return [random_bytes[i:i+16].hex() for i in range(0, len(random_bytes), 16)]
+    return [str(uuid.uuid4()) for _ in range(chunk_size)]
 
 
 def generate_unique_uuids_fast_parallel(count):
     """
-    병렬 + NumPy를 활용한 빠른 UUID 생성
+    병렬 + uuid.uuid4()를 활용한 빠른 UUID 생성
     """
     cpu_cores = cpu_count()
     chunk_size = count // cpu_cores
 
     with Pool(processes=cpu_cores) as pool:
-        results = pool.map(generate_random_bytes, [chunk_size] * cpu_cores)
+        results = pool.map(generate_uuids_with_uuid4, [chunk_size] * cpu_cores)
 
     # 병렬 처리 결과를 평탄화
     uuids = {u for sublist in results for u in sublist}
 
     while len(uuids) < count:
         # 부족한 개수만큼 추가로 생성
-        additional_bytes = np.random.bytes(16 * (count - len(uuids)))
-        uuids.update(
-           additional_bytes[i:i + 16].hex()
-            for i in range(0, len(additional_bytes), 16)
-        )
+        uuids.update(str(uuid.uuid4()) for _ in range(count - len(uuids)))
 
     return list(uuids)
