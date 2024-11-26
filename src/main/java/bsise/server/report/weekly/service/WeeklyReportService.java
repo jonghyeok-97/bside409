@@ -14,7 +14,7 @@ import bsise.server.report.daily.domain.LetterAnalysis;
 import bsise.server.report.daily.repository.DailyReportRepository;
 import bsise.server.report.daily.repository.LetterAnalysisRepository;
 import bsise.server.report.weekly.domain.WeeklyReport;
-import bsise.server.report.weekly.dto.ClovaWeeklyReportRequestDto;
+import bsise.server.clova.weekly.ClovaWeeklyReportRequestDto;
 import bsise.server.report.weekly.dto.WeeklyReportRequestDto;
 import bsise.server.report.weekly.dto.WeeklyReportResponseDto;
 import bsise.server.report.weekly.repository.WeeklyReportRepository;
