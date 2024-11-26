@@ -1,4 +1,4 @@
-package bsise.server.report.weekly.dto;
+package bsise.server.clova.weekly;
 
 import static bsise.server.clova.dto.ClovaRole.ASSISTANT;
 import static bsise.server.clova.dto.ClovaRole.SYSTEM;
