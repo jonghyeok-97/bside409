@@ -83,7 +83,7 @@ class CreateLetters:
                 'created_at': created_at,
                 'message': self.parallel_generate_messages(username, created_at, max(1, len(created_at) // (cpu_count() * 4))),
                 'preference': np.random.choice(['T', 'F'], size=self.letter_cnt),
-                'published': np.random.choice([b'0', b'1'], size=self.letter_cnt),
+                'published': np.random.choice([0, 1], size=self.letter_cnt),
                 'user_id': letter_user_ids
             }
 
