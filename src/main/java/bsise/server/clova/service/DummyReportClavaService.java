@@ -29,6 +29,11 @@ public class DummyReportClavaService extends ClovaService {
         return null;
     }
 
+    /**
+     * message 를 구분자({@code ,})를 이용해 분리한 뒤, 편지 개수에 맞는 응답을 생성합니다. (최대 3개)
+     * @param message 편지의 내용을 구분자({@code ,})를 통해 하나로 만든 문자열
+     * @return 더미 Clova 응답
+     */
     @Override
     public ClovaResponseDto sendDailyReportRequest(String message) {
         int lettersCount = message.split(",").length;
