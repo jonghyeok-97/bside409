@@ -7,6 +7,7 @@ import bsise.server.letter.Letter;
 import bsise.server.letter.LetterRepository;
 import bsise.server.report.daily.domain.CoreEmotion;
 import bsise.server.report.daily.domain.DailyReport;
+import bsise.server.report.weekly.dto.WeeklyPublishedStaticsDto;
 import bsise.server.user.domain.Preference;
 import bsise.server.user.domain.Role;
 import bsise.server.user.domain.User;
@@ -99,18 +100,22 @@ class DailyReportRepositoryTest {
         letter2.setDailyReport(dailyReport);
         Letter letter3 = createPublishedLetter(user);
         letter3.setDailyReport(dailyReport);
+
         Letter letter4 = createPublishedLetter(user);
-        letter4.setDailyReport(dailyReport);
-        letterRepository.saveAll(List.of(letter1, letter2, letter3, letter4));
+
+        Letter letter5 = createUnPublishedLetter(user);
+        letter5.setDailyReport(dailyReport);
+        letterRepository.saveAll(List.of(letter1, letter2, letter3, letter4, letter5));
 
         // when
-        int publishedCount = dailyReportRepository.findPublishedCount(
+        WeeklyPublishedStaticsDto dto = dailyReportRepository.findPublishedStatics(
                 IntStream.rangeClosed(0, 6)
                         .mapToObj(start::plusDays)
                         .toList());
 
         // then
-        System.out.println(publishedCount); // createPublishedLetter의 개수
+        System.out.println(dto.getPublishedCount()); // createPublishedLetter의 개수
+        System.out.println(dto.getUnPublishedCount()); // createPublishedLetter의 개수
     }
 
     private Letter createPublishedLetter(User user) {
