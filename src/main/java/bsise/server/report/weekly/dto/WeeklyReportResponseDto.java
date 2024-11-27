@@ -33,7 +33,7 @@ public class WeeklyReportResponseDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private LocalDate endDate;
 
-    @Schema(description = "주간 분석에 사용된 일기 개수")
+    @Schema(description = "주간 분석에 사용된 편지 개수")
     private int published;
 
     @Schema(description = "주간 분석에 사용된 일기 개수")
