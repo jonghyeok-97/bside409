@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 
 from ElapsedTimer import ElapsedTimer
-from common import generate_unique_uuids_fast_parallel
 
 sqlite_db_path = './shared_data.db'
 letter_analysis_filename = './csv/letter_analysis.csv'
@@ -42,12 +41,16 @@ def main():
 
         letter_analysis_cnt = len(letter_ids)
         letter_analyses = {
-            'letter_analysis_id': generate_unique_uuids_fast_parallel(letter_analysis_cnt),
+            'letter_analysis_id': [i for i in range(1, letter_analysis_cnt + 1)],
             'created_at': created_ats,
             'sensitive_emotions': [
-                np.random.choice(['기쁨', '슬픔', '분노', '두려움', '놀라움', '혐오', '열망', '수용', '중립'],
-                                 size=np.random.randint(0, 4),
-                                 replace=False) for _ in range(letter_analysis_cnt)],
+                "[" + ", ".join(f'"{emotion}"' for emotion in np.random.choice(
+                    ['기쁨', '슬픔', '분노', '두려움', '놀라움', '혐오', '열망', '수용', '중립'],
+                    size=np.random.randint(0, 4),  # 최대 3개의 감정 선택
+                    replace=False
+                )) + "]"
+                for _ in range(letter_analysis_cnt)
+            ],
             'topic': [f'주제{i}' for i in range(letter_analysis_cnt)],
             'letter_id': letter_ids
         }
