@@ -48,7 +48,8 @@ class CreateUsers:
                 'preference': [np.random.choice(['T', 'F']) for _ in range(self.user_cnt)],
                 'oauth2_provider': ['KAKAO' for _ in range(self.user_cnt)],
                 'role': ['OAUTH' for _ in range(self.user_cnt)],
-                'username': [f'{i}@KAKAO' for i in range(self.user_cnt)]
+                'username': [f'{i}@KAKAO' for i in range(self.user_cnt)],
+                'isDormant' : [0 for _ in range(self.user_cnt)],
             }
 
             users_df = pd.DataFrame(users)
