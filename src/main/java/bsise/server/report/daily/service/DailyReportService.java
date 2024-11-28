@@ -4,11 +4,10 @@ import bsise.server.clova.dailyReport.ClovaDailyAnalysisResult;
 import bsise.server.clova.dailyReport.DailyReportExtractor;
 import bsise.server.clova.dto.ClovaResponseDto;
 import bsise.server.clova.service.ClovaService;
-import bsise.server.common.NamedLockRepository;
+import bsise.server.common.aop.transaction.NamedLock;
 import bsise.server.error.DailyReportNotFoundException;
 import bsise.server.error.DuplicateDailyReportException;
 import bsise.server.error.LetterNotFoundException;
-import bsise.server.error.NamedLockAcquisitionException;
 import bsise.server.letter.Letter;
 import bsise.server.letter.LetterRepository;
 import bsise.server.report.daily.domain.CoreEmotion;
@@ -40,7 +39,6 @@ public class DailyReportService {
     private final LetterRepository letterRepository;
     private final LetterAnalysisRepository letterAnalysisRepository;
     private final ClovaService clovaService;
-    private final NamedLockRepository namedLockRepository;
 
     /**
      * <ol> 이 메서드는 순차대로 아래 작업을 수행합니다.
@@ -53,48 +51,32 @@ public class DailyReportService {
      * @param dailyReportDto 일일 리포트 생성 요청 DTO
      * @return 생성된 일일 리포트에 대한 응답 DTO
      */
+    @NamedLock(lockName = "createdDailyReport", timeout = 0, keyFields = {"userId"})
     public DailyReportResponseDto createDailyReport(DailyReportDto.CreateRequest dailyReportDto) {
         UUID userId = UUID.fromString(dailyReportDto.getUserId());
         LocalDate targetDate = dailyReportDto.getDate();
 
-        String shortUserId = dailyReportDto.getUserId().substring(8);
-        String lockName = String.format("createDailyReport:%s:%s", shortUserId, targetDate.toString());
-
-        // 네임드 락을 대기하지 않도록 변경
-        boolean lockAcquired = namedLockRepository.acquireLock(lockName, 0);
-
-        if (!lockAcquired) {
-            throw new NamedLockAcquisitionException("Failed to acquire lock:" + Thread.currentThread().getName());
+        if (dailyReportRepository.existsByUserAndTargetDate(userId, targetDate)) {
+            throw new DuplicateDailyReportException("Duplicate daily report exists.");
         }
+        List<Letter> letters = findRecentLetters(userId, targetDate);
 
-        try {
-            if (dailyReportRepository.existsByUserAndTargetDate(userId, targetDate)) {
-                throw new DuplicateDailyReportException("Duplicate daily report exists.");
-            }
-            List<Letter> letters = findRecentLetters(userId, targetDate);
+        // 클로바에 분석 요청
+        ClovaResponseDto clovaResponse = requestClovaAnalysis(letters);
 
-            // 클로바에 분석 요청
-            ClovaResponseDto clovaResponse = requestClovaAnalysis(letters);
+        // 클로바 응답 파싱
+        ClovaDailyAnalysisResult clovaDailyAnalysisResult = DailyReportExtractor.extract(clovaResponse);
 
-            // 클로바 응답 파싱
-            ClovaDailyAnalysisResult clovaDailyAnalysisResult = DailyReportExtractor.extract(clovaResponse);
+        // 데일리 리포트 저장
+        DailyReport dailyReport = buildDailyReport(targetDate, clovaDailyAnalysisResult);
+        dailyReportRepository.save(dailyReport);
 
-            // 데일리 리포트 저장
-            DailyReport dailyReport = buildDailyReport(targetDate, clovaDailyAnalysisResult);
-            dailyReportRepository.save(dailyReport);
+        // 감정 분석 저장
+        List<LetterAnalysis> letterAnalyses = buildLetterAnalyses(letters, clovaDailyAnalysisResult);
+        letterAnalyses.forEach(analysis -> analysis.getLetter().setDailyReport(dailyReport));
+        letterAnalysisRepository.saveAll(letterAnalyses);
 
-            // 감정 분석 저장
-            List<LetterAnalysis> letterAnalyses = buildLetterAnalyses(letters, clovaDailyAnalysisResult);
-            letterAnalyses.forEach(analysis -> analysis.getLetter().setDailyReport(dailyReport));
-            letterAnalysisRepository.saveAll(letterAnalyses);
-
-            return DailyReportResponseDto.of(dailyReport, letterAnalyses);
-        } finally {
-            boolean released = namedLockRepository.releaseLock(lockName);
-            if (!released) {
-                log.warn("Failed to release lock: {}", lockName);
-            }
-        }
+        return DailyReportResponseDto.of(dailyReport, letterAnalyses);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
