@@ -5,34 +5,20 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.FlushModeType;
 import jakarta.persistence.PersistenceContext;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
-import org.springframework.transaction.support.TransactionTemplate;
 
 @Slf4j
 @Component
 @Aspect
 public class NamedLockAspect {
 
-    private final TransactionTemplate transactionTemplate;
-
     @PersistenceContext
     private EntityManager em;
-
-    public NamedLockAspect(PlatformTransactionManager transactionManager) {
-        this.transactionTemplate = new TransactionTemplate(transactionManager);
-    }
 
     @Pointcut("execution(* bsise.server..*Service.*(..))")
     private void allService() {
@@ -53,61 +39,31 @@ public class NamedLockAspect {
             throw new IllegalArgumentException("timeout must not be negative");
         }
 
-        Propagation propagation = findPropagation(joinPoint);
+        Object acquireResult = getNamedLock(finalLockName, timeout);
 
-        log.info("[NAMED LOCK AOP] using propagation={}", propagation);
-
-        DefaultTransactionDefinition transactionDefinition = new DefaultTransactionDefinition();
-        transactionDefinition.setPropagationBehavior(getPropagationBehavior(propagation));
-        transactionTemplate.setPropagationBehavior(transactionDefinition.getPropagationBehavior());
-
-        return transactionTemplate.execute(status -> {
-            Object acquireResult = getNamedLock(finalLockName, timeout);
-
-            if (!isTrue(acquireResult)) {
-                throw new NamedLockAcquisitionException("[NAMED LOCK AOP] Failed to acquire lock=" + finalLockName);
-            }
-
-            log.info("[NAMED LOCK AOP] acquire lock={} on thread={}", finalLockName, Thread.currentThread().getName());
-
-            try {
-                return joinPoint.proceed();
-            } catch (Throwable e) {
-                throw new RuntimeException(e);
-            } finally {
-                Object releaseResult = releaseNamedLock(finalLockName);
-                if (isTrue(releaseResult)) {
-                    log.info("[NAMED LOCK AOP] successfully released lock={}", finalLockName);
-                } else {
-                    log.warn("[NAMED LOCK AOP] failed to release lock={}", finalLockName);
-                }
-            }
-        });
-    }
-
-    private Propagation findPropagation(ProceedingJoinPoint joinPoint) {
-        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        Method method = signature.getMethod();
-        if (method.isAnnotationPresent(Transactional.class)) {
-            Transactional transactional = method.getAnnotation(Transactional.class);
-            return transactional.propagation();
+        if (!isTrue(acquireResult)) {
+            throw new NamedLockAcquisitionException("[NAMED LOCK AOP] Failed to acquire lock=" + finalLockName);
         }
 
-        Class<?> targetClass = joinPoint.getTarget().getClass();
-        if (targetClass.isAnnotationPresent(Transactional.class)) {
-            Transactional transactional = targetClass.getAnnotation(Transactional.class);
-            return transactional.propagation();
-        }
+        log.info("[NAMED LOCK AOP] acquire lock={} on thread={}", finalLockName, Thread.currentThread().getName());
 
-        log.warn("[NAMED LOCK AOP] propagation not found. defaulting to => Propagation.REQUIRED");
-        return Propagation.REQUIRED;
+        try {
+            return joinPoint.proceed();
+        } finally {
+            Object releaseResult = releaseNamedLock(finalLockName);
+            if (isTrue(releaseResult)) {
+                log.info("[NAMED LOCK AOP] successfully released lock={}", finalLockName);
+            } else {
+                log.warn("[NAMED LOCK AOP] failed to release lock={}", finalLockName);
+            }
+        }
     }
 
     private String generateUniqueKey(String lockName, Object[] args, String[] keyFields) {
         StringBuilder uniqueKey = new StringBuilder();
         uniqueKey.append(lockName);
         if (args == null || args.length == 0) {
-            return returnStringWithMaxLength(uniqueKey);
+            return trimToMaxLength(uniqueKey);
         }
 
         for (String keyField : keyFields) {
@@ -124,26 +80,14 @@ public class NamedLockAspect {
             }
         }
 
-        return returnStringWithMaxLength(uniqueKey);
+        return trimToMaxLength(uniqueKey);
     }
 
-    private String returnStringWithMaxLength(StringBuilder sb) {
+    private String trimToMaxLength(StringBuilder sb) {
         if (sb.length() > 64) {
             return sb.substring(0, 64);
         }
         return sb.toString();
-    }
-
-    private int getPropagationBehavior(Propagation propagation) {
-        return switch (propagation) {
-            case REQUIRED -> TransactionDefinition.PROPAGATION_REQUIRED;
-            case REQUIRES_NEW -> TransactionDefinition.PROPAGATION_REQUIRES_NEW;
-            case SUPPORTS -> TransactionDefinition.PROPAGATION_SUPPORTS;
-            case NOT_SUPPORTED -> TransactionDefinition.PROPAGATION_NOT_SUPPORTED;
-            case MANDATORY -> TransactionDefinition.PROPAGATION_MANDATORY;
-            case NEVER -> TransactionDefinition.PROPAGATION_NEVER;
-            case NESTED -> TransactionDefinition.PROPAGATION_NESTED;
-        };
     }
 
     private Object getNamedLock(String lockName, int timeoutSeconds) {
