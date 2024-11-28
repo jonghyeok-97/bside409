@@ -6,7 +6,7 @@ DB_NAME="bside"
 CSV_DIR="/var/lib/mysql-files/csv/letter"
 
 # 병렬 처리를 위한 최대 동시 실행 프로세스 개수
-MAX_JOBS=8
+MAX_JOBS=$3
 JOBS=0
 
 # 데이터 로드 작업

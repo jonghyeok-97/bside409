@@ -9,6 +9,9 @@ SCRIPT_SOURCE_DIR=$2 # script
 DB_NAME="bside"
 DB_USER=$3
 DB_PASSWORD=$4
+MAX_JOBS=$5
+BUFFER_SIZE=$6
+LOG_BUFFER_SIZE=$7
 
 # 타겟 디렉토리
 TARGET_DIR="/var/lib/mysql-files"
@@ -41,8 +44,8 @@ docker exec -it "$MYSQL_CONTAINER" bash -c "
   SET UNIQUE_CHECKS = 0;
   SET FOREIGN_KEY_CHECKS = 0;
   SET autocommit = 0;
-  SET GLOBAL innodb_buffer_pool_size = 4 * 1024 * 1024 * 1024;
-  SET GLOBAL innodb_log_buffer_size = 64 * 1024 * 1024;
+  SET GLOBAL innodb_buffer_pool_size = $BUFFER_SIZE * 1024 * 1024;
+  SET GLOBAL innodb_log_buffer_size = $LOG_BUFFER_SIZE * 1024 * 1024;
   ALTER TABLE daily_report DISABLE KEYS;
   ALTER TABLE letter DISABLE KEYS;
   ALTER TABLE letter_analysis DISABLE KEYS;
@@ -65,7 +68,7 @@ echo "📝 daily_report table에 load data infile 실행 중..."
 docker exec -it "$MYSQL_CONTAINER" bash -c "
   cd $TARGET_DIR/script
   chmod +x load_daily_report_data.sh
-  ./load_daily_report_data.sh $DB_USER $DB_PASSWORD
+  ./load_daily_report_data.sh $DB_USER $DB_PASSWORD $MAX_JOBS
 "
 
 # 편지 정보 로드
@@ -73,7 +76,7 @@ echo "✉️ letter table에 load data infile 실행 중..."
 docker exec -it "$MYSQL_CONTAINER" bash -c "
   cd $TARGET_DIR/script
   chmod +x load_letter_data.sh
-  ./load_letter_data.sh $DB_USER $DB_PASSWORD
+  ./load_letter_data.sh $DB_USER $DB_PASSWORD $MAX_JOBS
 "
 
 # 편지 분석 정보 로드
@@ -81,7 +84,7 @@ echo "📄 letter_analysis table에 load data infile 실행 중..."
 docker exec -it "$MYSQL_CONTAINER" bash -c "
   cd $TARGET_DIR/script
   chmod +x load_letter_analysis_data.sh
-  ./load_letter_analysis_data.sh $DB_USER $DB_PASSWORD
+  ./load_letter_analysis_data.sh $DB_USER $DB_PASSWORD $MAX_JOBS
 "
 
 # 4. FK 및 PK 복구 스크립트 실행
