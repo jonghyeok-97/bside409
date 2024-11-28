@@ -1,6 +1,7 @@
 package bsise.server.common;
 
 import bsise.server.error.DormantUserLoginException;
+import bsise.server.error.NamedLockAcquisitionException;
 import bsise.server.error.RateLimitException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +47,11 @@ public class RestApiControllerAdvice {
     @ExceptionHandler(DormantUserLoginException.class)
     public ResponseEntity<?> handleDormantUserLoginError(DormantUserLoginException exception) {
         return createErrorResponse(exception, HttpStatus.CONFLICT, "error.dormantuser.login:" + exception.getMessage());
+    }
+
+    @ExceptionHandler(NamedLockAcquisitionException.class)
+    public ResponseEntity<?> handleNamedLockAcquisitionException(NamedLockAcquisitionException exception) {
+        return createErrorResponse(exception, HttpStatus.CONFLICT, "error.namedLock:" + exception.getMessage());
     }
 
     @ExceptionHandler(RuntimeException.class)
