@@ -65,7 +65,7 @@ def main():
         traceback.print_exc()
     finally:
         timer.stop()
-        print("letter analysis 생성 프로그램 종료\n")
+        print("letter core emotions 생성 프로그램 종료\n")
 
 
 if __name__ == "__main__":

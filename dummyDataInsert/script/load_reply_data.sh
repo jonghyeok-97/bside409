@@ -3,14 +3,14 @@
 DB_USER=$1
 DB_PASSWORD=$2
 DB_NAME="bside"
-CSV_DIR="/var/lib/mysql-files/csv/letter_core_emotions"
+CSV_DIR="/var/lib/mysql-files/csv/reply"
 
 # 병렬 처리를 위한 최대 동시 실행 프로세스 개수
 MAX_JOBS=$3
 JOBS=0
 
 # 데이터 로드 작업
-for FILE in "$CSV_DIR"/letter_core_emotions_*.csv; do
+for FILE in "$CSV_DIR"/reply_*.csv; do
   echo "Processing $FILE..."
 
   # LOAD DATA 실행 (백그라운드로)
@@ -18,13 +18,22 @@ for FILE in "$CSV_DIR"/letter_core_emotions_*.csv; do
     mysql -u "$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" -e "
       START TRANSACTION;
       LOAD DATA INFILE '$FILE'
-      INTO TABLE letter_core_emotions
+      INTO TABLE reply
       CHARACTER SET utf8mb4
       FIELDS TERMINATED BY ','
       ENCLOSED BY '\"'
       LINES TERMINATED BY '\r\n'
       IGNORE 1 LINES
-      (letter_analysis_id, core_emotion);
+      (
+          @reply_id,
+          @letter_id,
+          message_t,
+          message_f,
+          created_at
+      )
+      SET
+          reply_id = UUID_TO_BIN(@reply_id),
+          letter_id = UUID_TO_BIN(@letter_id);
       COMMIT;
     "
     echo "Finished processing $FILE"
@@ -43,4 +52,4 @@ done
 # 남은 백그라운드 작업 대기
 wait
 
-echo "✅ 모든 일일분석별 대표 감정 데이터를 로드 완료!"
+echo "✅ 모든 답변 데이터를 로드 완료!"

@@ -80,8 +80,16 @@ docker exec -it "$MYSQL_CONTAINER" bash -c "
 echo "📄 letter_core_emotions table에 load data infile 실행 중..."
 docker exec -it "$MYSQL_CONTAINER" bash -c "
   cd $TARGET_DIR/script
-  chmod +x load_letter_core_emotions.sh
-  ./load_letter_core_emotions.sh $DB_USER $DB_PASSWORD $MAX_JOBS
+  chmod +x load_letter_core_emotions_data.sh
+  ./load_letter_core_emotions_data.sh $DB_USER $DB_PASSWORD $MAX_JOBS
+"
+
+# 편지별 답변 정보 로드
+echo "🗨️ reply table에 load data infile 실행 중..."
+docker exec -it "$MYSQL_CONTAINER" bash -c "
+  cd $TARGET_DIR/script
+  chmod +x load_reply_data.sh
+  ./load_reply_data.sh $DB_USER $DB_PASSWORD $MAX_JOBS
 "
 
 # 4. 변경했던 설정 복구 스크립트 실행

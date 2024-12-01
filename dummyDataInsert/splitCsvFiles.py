@@ -30,3 +30,4 @@ if __name__ == "__main__":
     split_csv_file("./csv/daily_report.csv")
     split_csv_file("./csv/letter_analysis.csv")
     split_csv_file("./csv/letter_core_emotions.csv")
+    split_csv_file("./csv/reply.csv")
