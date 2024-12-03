@@ -1,9 +1,10 @@
 package bsise.server.report.daily.service;
 
-import bsise.server.clova.dto.ClovaResponseDto;
-import bsise.server.clova.service.ClovaService;
 import bsise.server.clova.dailyReport.ClovaDailyAnalysisResult;
 import bsise.server.clova.dailyReport.DailyReportExtractor;
+import bsise.server.clova.dto.ClovaResponseDto;
+import bsise.server.clova.service.ClovaService;
+import bsise.server.common.aop.transaction.NamedLock;
 import bsise.server.error.DailyReportNotFoundException;
 import bsise.server.error.DuplicateDailyReportException;
 import bsise.server.error.LetterNotFoundException;
@@ -23,9 +24,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -47,6 +51,7 @@ public class DailyReportService {
      * @param dailyReportDto 일일 리포트 생성 요청 DTO
      * @return 생성된 일일 리포트에 대한 응답 DTO
      */
+    @NamedLock(lockName = "createdDailyReport", timeout = 0, keyFields = {"userId"})
     public DailyReportResponseDto createDailyReport(DailyReportDto.CreateRequest dailyReportDto) {
         UUID userId = UUID.fromString(dailyReportDto.getUserId());
         LocalDate targetDate = dailyReportDto.getDate();
@@ -54,15 +59,47 @@ public class DailyReportService {
         if (dailyReportRepository.existsByUserAndTargetDate(userId, targetDate)) {
             throw new DuplicateDailyReportException("Duplicate daily report exists.");
         }
-
         List<Letter> letters = findRecentLetters(userId, targetDate);
 
+        // 클로바에 분석 요청
         ClovaResponseDto clovaResponse = requestClovaAnalysis(letters);
 
+        // 클로바 응답 파싱
         ClovaDailyAnalysisResult clovaDailyAnalysisResult = DailyReportExtractor.extract(clovaResponse);
+
+        // 데일리 리포트 저장
         DailyReport dailyReport = buildDailyReport(targetDate, clovaDailyAnalysisResult);
         dailyReportRepository.save(dailyReport);
 
+        // 감정 분석 저장
+        List<LetterAnalysis> letterAnalyses = buildLetterAnalyses(letters, clovaDailyAnalysisResult);
+        letterAnalyses.forEach(analysis -> analysis.getLetter().setDailyReport(dailyReport));
+        letterAnalysisRepository.saveAll(letterAnalyses);
+
+        return DailyReportResponseDto.of(dailyReport, letterAnalyses);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public DailyReportResponseDto createDailyReportWithFacade(DailyReportDto.CreateRequest dailyReportDto) {
+        UUID userId = UUID.fromString(dailyReportDto.getUserId());
+        LocalDate targetDate = dailyReportDto.getDate();
+
+        if (dailyReportRepository.existsByUserAndTargetDate(userId, targetDate)) {
+            throw new DuplicateDailyReportException("Duplicate daily report exists.");
+        }
+        List<Letter> letters = findRecentLetters(userId, targetDate);
+
+        // 클로바에 분석 요청
+        ClovaResponseDto clovaResponse = requestClovaAnalysis(letters);
+
+        // 클로바 응답 파싱
+        ClovaDailyAnalysisResult clovaDailyAnalysisResult = DailyReportExtractor.extract(clovaResponse);
+
+        // 데일리 리포트 저장
+        DailyReport dailyReport = buildDailyReport(targetDate, clovaDailyAnalysisResult);
+        dailyReportRepository.save(dailyReport);
+
+        // 감정 분석 저장
         List<LetterAnalysis> letterAnalyses = buildLetterAnalyses(letters, clovaDailyAnalysisResult);
         letterAnalyses.forEach(analysis -> analysis.getLetter().setDailyReport(dailyReport));
         letterAnalysisRepository.saveAll(letterAnalyses);
