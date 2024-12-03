@@ -13,9 +13,9 @@ import org.springframework.stereotype.Service;
  */
 @Profile("test")
 @Service
-public class DummyReportClavaService extends ClovaService {
+public class DummyReportClovaService extends ClovaService {
 
-    public DummyReportClavaService(ClovaFeignClient client) {
+    public DummyReportClovaService(ClovaFeignClient client) {
         super(client);
     }
 
