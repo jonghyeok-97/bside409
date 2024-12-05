@@ -71,12 +71,12 @@ public class WeeklyReportService {
                 .collect(Collectors.groupingBy(
                         letter -> letter.getCreatedAt().toLocalDate()));
 
-        // 한 날짜에 해당하는 여러 편지중에서 1개라도 dailyReport 가 있으면 해당 날짜의 모든 편지 제거
+        // 이미 일일 분석이 생성된 날짜는 제거
         latestLettersByDate.values().removeIf(
                 letters -> letters.stream().anyMatch(letter -> letter.getDailyReport() != null)
         );
 
-        // 날짜당 편지 3개로 제한
+        // 일일 분석을 생성하려는 편지들을 날짜당 3개로 제한
         Map<LocalDate, List<Letter>> latestThreeLettersByDate = latestLettersByDate.entrySet().stream()
                 .collect(Collectors.toMap(
                         Entry::getKey,
