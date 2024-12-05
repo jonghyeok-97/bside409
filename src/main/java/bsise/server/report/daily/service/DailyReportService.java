@@ -17,18 +17,19 @@ import bsise.server.report.daily.dto.DailyReportDto;
 import bsise.server.report.daily.dto.DailyReportResponseDto;
 import bsise.server.report.daily.repository.DailyReportRepository;
 import bsise.server.report.daily.repository.LetterAnalysisRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -40,6 +41,9 @@ public class DailyReportService {
     private final LetterRepository letterRepository;
     private final LetterAnalysisRepository letterAnalysisRepository;
     private final ClovaService clovaService;
+
+    @Value("${clova.msg.separator}")
+    private String letterSeparator;
 
     /**
      * <ol> 이 메서드는 순차대로 아래 작업을 수행합니다.
@@ -142,13 +146,24 @@ public class DailyReportService {
     }
 
     private ClovaResponseDto requestClovaAnalysis(List<Letter> letters) {
-        AtomicInteger index = new AtomicInteger(1);
+        // 편지 내용 구분자 동적 생성
+        String msgSeparator = Long.toHexString(Double.doubleToLongBits(Math.random()));
 
         String formattedMessages = letters.stream()
-                .map(letter -> index.getAndIncrement() + ". \"" + letter.getMessage() + "\"")
+                .map(letter -> String.format("<%s:%s>\n%s\n</%s:%s>",
+                        letterSeparator, msgSeparator, reformatMsg(letter.getMessage()), letterSeparator, msgSeparator))
                 .collect(Collectors.joining("\n"));
 
         return clovaService.sendDailyReportRequest(formattedMessages);
+    }
+
+    private String reformatMsg(String input) {
+        return input
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll("&", "&amp;")
+                .replaceAll("\"", "&quot;")
+                .replaceAll("'", "&apos;");
     }
 
 
