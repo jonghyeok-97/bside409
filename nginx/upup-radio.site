@@ -1,3 +1,10 @@
+#################
+####  prod   ####
+#################
+upstream backend_upstream {
+    server backend:8080;
+}
+
 server {
     listen 80;
     server_name upup-radio.site www.upup-radio.site;
@@ -14,7 +21,8 @@ server {
 }
 
 server {
-    listen 443 ssl http2;
+    listen 443 ssl;
+    http2 on;  # nginx 1.19 부터
     ssl_certificate /etc/letsencrypt/live/admin.upup-radio.site/fullchain.pem; # managed by Certbot
     ssl_certificate_key /etc/letsencrypt/live/admin.upup-radio.site/privkey.pem; # managed by Certbot
     # include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
@@ -46,6 +54,10 @@ server {
 server {
     listen 443 ssl http2;
 
+    #### nginx 1.27
+#     listen 443 ssl;
+#     http2 on;
+
     ssl_certificate /etc/letsencrypt/live/upup-radio.site/fullchain.pem; # managed by Certbot
     ssl_certificate_key /etc/letsencrypt/live/upup-radio.site/privkey.pem; # managed by Certbot
     # include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
@@ -62,7 +74,7 @@ server {
 
     location ~ ^(/api/|/login/|/oauth2/) {
             # rewrite ^/api/(.*)$ $1?$args break;
-            proxy_pass http://backend; # 포워딩되는 주소
+            proxy_pass http://backend_upstream; # 포워딩되는 주소
             proxy_http_version 1.1; # 웹 소켓 사용하려면 HTTP/1.1 사용 (default HTTP/1.0)
 
            # proxy_set_header Upgrade $http_upgrade; # 응용프로그램이 웹 소켓을 사용하는 경우 헤더 필드가 필요
@@ -77,7 +89,7 @@ server {
     }
 
     location ~ ^/(swagger|webjars|configuration|swagger-resources|v2|v3|csrf) {
-            proxy_pass http://backend;
+            proxy_pass http://backend_upstream;
             proxy_http_version 1.1;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
@@ -86,8 +98,6 @@ server {
     }
 
     location / {
-#           root /var/www/upup-radio.site/html;
-#            index index.html index.htm;
             try_files $uri $uri/ /index.html;
     }
 
