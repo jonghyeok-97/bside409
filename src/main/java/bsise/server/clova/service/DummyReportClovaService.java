@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
  * Clova API 를 사용하지 않고, 더미 데이터를 응답하는 더미 서비스입니다.
  * 테스트 목적으로 생성되었으며, 운영 환경에서 사용할 수 없습니다.
  */
-@Profile("test")
+@Profile({"dev", "test"})
 @Service
 public class DummyReportClovaService extends ClovaService {
 
