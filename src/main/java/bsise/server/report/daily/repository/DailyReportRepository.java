@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -39,5 +40,5 @@ public interface DailyReportRepository extends JpaRepository<DailyReport, UUID> 
             JOIN letter l ON d.daily_report_id = l.daily_report_id
             WHERE d.target_date IN :oneWeekDates
             """, nativeQuery = true)
-    WeeklyPublishedStaticsDto findPublishedStatics(List<LocalDate> oneWeekDates);
+    WeeklyPublishedStaticsDto findPublishedStatics(@Param("oneWeekDates") List<LocalDate> oneWeekDates);
 }
