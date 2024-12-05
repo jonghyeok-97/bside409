@@ -8,19 +8,22 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.PatternMatchUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
 @RequiredArgsConstructor
 public class JwtValidatorFilter extends OncePerRequestFilter {
 
+    private static final String[] NOT_FILTERED_URLS = {
+            "/login", "/oauth2*", "/error", "/swagger-*", "/v3/api-docs*", "/api-docs*", "/api/v1/users*"
+    };
     private final JwtService jwtService;
 
     @Override
@@ -77,8 +80,6 @@ public class JwtValidatorFilter extends OncePerRequestFilter {
      */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return Stream.of(
-                "/login", "/oauth2", "/error", "/swagger-", "/v3/api-docs", "/api-docs", "/api/v1/users"
-        ).anyMatch(uri -> request.getServletPath().startsWith(uri));
+        return PatternMatchUtils.simpleMatch(NOT_FILTERED_URLS, request.getServletPath());
     }
 }
