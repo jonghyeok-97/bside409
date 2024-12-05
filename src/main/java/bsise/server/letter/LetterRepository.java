@@ -48,8 +48,8 @@ public interface LetterRepository extends JpaRepository<Letter, UUID> {
                     l.created_at AS letterCreatedAt
                 FROM letter l
                 LEFT JOIN daily_report d ON d.daily_report_id = l.daily_report_id
-                    AND l.user_id = :userId
                 WHERE l.created_at >= :startDate AND l.created_at <= :endDate
+                    AND l.user_id = :userId
             """,
             nativeQuery = true
     )

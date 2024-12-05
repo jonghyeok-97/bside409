@@ -74,6 +74,11 @@ public class ReplyService {
                 .toList();
     }
 
+    /**
+     * @deprecated 이 메서드는 더 이상 사용되지 않습니다.
+     * `{@link Pageable}`을 인수로 받는 `{@code findMyLetterAndReply}`를 사용하세요.
+     */
+    @Deprecated
     public List<ReplyResponseDto> findMyLetterAndReply(UUID userId, Integer size) {
         validateUserId(userId);
         size = correctSize(size);

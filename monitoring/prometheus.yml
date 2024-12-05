@@ -15,7 +15,7 @@ scrape_configs:
       - targets: ["localhost:9090"] # prometheus web uri
 
   - job_name: "spring-actuator"
-    metrics_path: '/actuator/prometheus'
+    metrics_path: '${METRICS_PATH}'
     scrape_interval: 1m
     static_configs:
-      - targets: ['host.docker.internal:9292']
+      - targets: ['${HOST}:${PORT}'] # linux os: {container name}
