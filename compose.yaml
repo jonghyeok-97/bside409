@@ -1,18 +1,22 @@
 services:
   nginx:
-    image: nginx:1.27.2-alpine-slim
+    image: nginx:1.27.2  # alpine 버전은 addUser 적용안되는 문제가 있음
     profiles: ["prod"]
     restart: always
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt                                  # SSL 인증서 경로
       - /var/lib/letsencrypt:/var/lib/letsencrypt                          # Certbot 인증서 갱신 관련 파일
       - /var/www/upup-radio.site:/var/www/upup-radio.site                  # front app 파일
-      - /etc/nginx/conf.d:/etc/nginx/conf.d                                # Nginx 설정 디렉토리
-      - /etc/nginx/sites-available:/etc/nginx/sites-available              # migration
-      - /etc/nginx/sites-enabled:/etc/nginx/sites-enabled                  # migration
+      # - /etc/nginx/conf.d:/etc/nginx/conf.d                                # migration (Nginx 설정 디렉토리)
+      # - /etc/nginx/sites-available:/etc/nginx/sites-available              # migration
+      # - /etc/nginx/sites-enabled:/etc/nginx/sites-enabled                  # migration
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf                           # Nginx 설정 파일 마운트
       - ./nginx/deploy.conf:/etc/nginx/conf.d/deploy.conf                  # 블루-그린 배포 설정
-      - ./nginx/upup-radio.site:/etc/nginx/site-available/upup-radio.site  # 도메인 관련 설정
+      - ./nginx/upup-radio.site:/etc/nginx/sites-available/upup-radio.site  # 도메인 관련 설정
+    container_name: nginx
+    # command issue: ln -sf 를 해도 덮어쓰기가 안되고 에러가 발생 => 해결 필요
+    command: >
+      sh -c "mkdir -p /etc/nginx/sites-enabled/ && ln -sf /etc/nginx/sites-available/dev.upup-radio.site /etc/nginx/sites-enabled/"
     ports:
       - '80:80'
       - '443:443'
@@ -32,7 +36,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWD}
       MYSQL_USER: ${DB_USERNAME}
     ports:
-      - '3306:3306'
+      - '3307:3306'
     networks:
       - bside-network
   redis:
@@ -45,7 +49,7 @@ services:
       retries: 10
     container_name: bside-redis
     ports:
-      - '6379:6379'
+      - '6380:6379'
     networks:
       - bside-network
   backend:
@@ -59,10 +63,24 @@ services:
       sh -c "mkdir -p logs"
     volumes:
       - ./logs:/app/logs
+      - ./pinpoint-agent:/pinpoint-agent
+    entrypoint:
+      - sh
+      - -c
+      - |
+        java \
+        -javaagent:/pinpoint-agent/pinpoint-bootstrap-3.0.1.jar \
+        -Dpinpoint.agentId=${PINPOINT_AGENT_ID:-NoAgentId} \
+        -Dpinpoint.applicationName=${PINPOINT_APPLICATION_NAME:-NoApplicationName} \
+        -Dspring.profiles.active=${SPRING_ACTIVE_PROFILE} \
+        -Duser.timezone=Asia/Seoul \
+        -jar ${JAR_FILENAME}.jar
     env_file:
       - .env
+    environment:
+      PINPOINT_AGENT_ID: ${PINPOINT_AGENT_ID}
     ports:
-      - '8081:8080'
+      - '8082:8080'
       - '9292:9292'
     depends_on:
       mysql:
@@ -96,6 +114,8 @@ services:
       - grafana_data:/var/lib/grafana
     ports:
       - '3000:3000'
+    networks:
+      - bside-network
   elasticsearch:
     image: elasticsearch:8.15.3
     profiles: ["prod"]
