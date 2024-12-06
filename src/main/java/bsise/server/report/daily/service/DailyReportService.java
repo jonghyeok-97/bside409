@@ -25,6 +25,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -107,6 +108,10 @@ public class DailyReportService {
         return DailyReportResponseDto.of(dailyReport, letterAnalyses);
     }
 
+    @Cacheable(
+            cacheNames = "dailyReport", cacheManager = "caffeineCacheManager",
+            key = "#userId + #targetDate.toString()", unless = "#result == null"
+    )
     public DailyReportResponseDto getDailyReport(String userId, LocalDate targetDate) {
         DailyReport dailyReport = dailyReportRepository.findByUserAndTargetDate(UUID.fromString(userId), targetDate)
                 .orElseThrow(
