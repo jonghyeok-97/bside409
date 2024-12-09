@@ -43,7 +43,7 @@ public class ReportStatusRetrieveService {
      * @return 일자 별 일일 분석 리포트 상태 리스트
      */
     @Cacheable(
-            cacheNames = "#{}", cacheManager = "caffeineCacheManager",
+            cacheNames = "dailyReportStatus", cacheManager = "caffeineCacheManager",
             key = "#userId.toString() + #targetDate.toString()", unless = "#result == null || #result.size() == 0"
     )
     public List<DailyReportStatusResponseDto> findDailyReportStatus(UUID userId, LocalDate targetDate,
