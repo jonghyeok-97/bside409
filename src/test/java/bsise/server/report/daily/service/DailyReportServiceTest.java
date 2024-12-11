@@ -36,12 +36,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.caffeine.CaffeineCache;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest
 @Testcontainers
 @ActiveProfiles("test")
+@TestPropertySource(properties = "clova.msg.separator=test-sep")
 class DailyReportServiceTest {
 
     @Autowired
@@ -242,6 +244,7 @@ class DailyReportServiceTest {
             throws NoSuchFieldException, IllegalAccessException {
         Letter letter = Letter.builder()
                 .user(user)
+                .message("testMsg")
                 .build();
 
         letterRepository.save(letter);
