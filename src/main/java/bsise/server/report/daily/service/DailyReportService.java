@@ -39,13 +39,12 @@ import org.springframework.cache.annotation.Cacheable;
 @RequiredArgsConstructor
 public class DailyReportService {
 
+    private static final String LETTER_SEPARATOR = "sharpie-sep";
+
     private final DailyReportRepository dailyReportRepository;
     private final LetterRepository letterRepository;
     private final LetterAnalysisRepository letterAnalysisRepository;
     private final ClovaService clovaService;
-
-    @Value("${clova.msg.separator}")
-    private String letterSeparator;
 
     /**
      * <ol> 이 메서드는 순차대로 아래 작업을 수행합니다.
