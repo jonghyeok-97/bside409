@@ -48,13 +48,9 @@ public class WeeklyReportService {
      */
     public WeeklyReportResponseDto createWeeklyReport(WeeklyReportRequestDto weeklyReportRequestDto) {
         // 주간 분석 생성할 수 있는지 검증
-        weeklyReportRepository.findDailyReportBy(
-                UUID.fromString(weeklyReportRequestDto.getUserId()),
-                weeklyReportRequestDto.getStartDate(),
-                weeklyReportRequestDto.getStartDate().plusDays(6)
-        ).ifPresent(report -> {
+        if (weeklyReportRepository.existsByUserIdAndDateRangeIn(userId, startDate, endDate)) {
             throw new DuplicationWeeklyReportException("주간 분석이 이미 존재합니다");
-        });
+        }
 
         // 주간분석을 요청한 기간 동안 사용자가 작성한 편지들 찾기
         LocalDateTime start = weeklyReportRequestDto.getStartDate().atStartOfDay();
