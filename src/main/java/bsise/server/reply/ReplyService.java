@@ -9,6 +9,9 @@ import bsise.server.letter.Letter;
 import bsise.server.letter.LetterResponseDto;
 import bsise.server.letter.LetterService;
 import bsise.server.user.repository.UserRepository;
+
+import java.time.LocalDateTime;
+import java.time.Year;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -90,10 +93,13 @@ public class ReplyService {
                 .toList();
     }
 
-    public Page<ReplyResponseDto> findMyLetterAndReply(UUID userId, Pageable pageable) {
+    public Page<ReplyResponseDto> findMyLetterAndReply(UUID userId, int year, Pageable pageable) {
         validateUserId(userId);
 
-        Page<Reply> replies = replyRepository.findRepliesByOrderByCreatedAt(userId, pageable);
+        LocalDateTime startOfYear = Year.of(year).atDay(1).atStartOfDay();
+        LocalDateTime nextStartOfYear = startOfYear.plusYears(1);
+
+        Page<Reply> replies = replyRepository.findRepliesByOrderByCreatedAt(userId, startOfYear, nextStartOfYear, pageable);
         List<ReplyResponseDto> replyDto = replies.stream()
                 .map(reply -> ReplyResponseDto.ofByUserId(reply, userId))
                 .toList();

@@ -44,14 +44,15 @@ public class ReplyController {
         return replyService.findTopNLetterAndReply(size);
     }
 
-    @Operation(summary = "유저의 편지함 목록을 반환하는 API", description = "유저가 최근 작성한 편지와 답변들을 제공합니다.")
+    @Operation(summary = "유저의 편지함 목록을 반환하는 API", description = "연도별 유저가 작성한 편지와 답변들을 최신순으로 제공합니다.")
     @GetMapping(value = "/users/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public Page<ReplyResponseDto> findMyLetters(
             @PathVariable("userId") String userId,
+            @RequestParam int year,
             @PageableDefault(size = 10, direction = Direction.DESC) Pageable pageable
     ) {
-        return replyService.findMyLetterAndReply(UUID.fromString(userId), pageable);
+        return replyService.findMyLetterAndReply(UUID.fromString(userId), year, pageable);
     }
 
 }

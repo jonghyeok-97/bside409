@@ -29,6 +29,9 @@ public class ReplyResponseDto {
     @Schema(description = "유저의 선호하는 답변 유형")
     private final Preference preference;
 
+    @Schema(description = "유저가 작성한 편지의 공개 여부")
+    private final boolean published;
+
     @Schema(description = "두 유형의 답장 배열")
     private final TwoTypeMessage reply;
 
@@ -42,6 +45,7 @@ public class ReplyResponseDto {
                 .userId(reply.getLetter().getUser().getId())
                 .content(reply.getLetter().getMessage())
                 .preference(reply.getLetter().getPreference())
+                .published(reply.getLetter().isPublished())
                 .reply(TwoTypeMessage.fromReply(reply))
                 .createdAt(reply.getCreatedAt())
                 .build();
@@ -53,6 +57,7 @@ public class ReplyResponseDto {
                 .userId(userId)
                 .content(reply.getLetter().getMessage())
                 .preference(reply.getLetter().getPreference())
+                .published(reply.getLetter().isPublished())
                 .reply(TwoTypeMessage.fromReply(reply))
                 .createdAt(reply.getCreatedAt())
                 .build();

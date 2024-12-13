@@ -1,6 +1,8 @@
 package bsise.server.reply;
 
 import bsise.server.letter.Letter;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,6 +27,6 @@ public interface ReplyRepository extends JpaRepository<Reply, UUID> {
     @Query("SELECT r FROM Reply r where r.letter.user.id = :userId ORDER BY r.createdAt DESC")
     List<Reply> findTopNRepliesByUserId(UUID userId, Pageable pageable);
 
-    @Query("SELECT r FROM Reply r where r.letter.user.id = :userId ORDER BY r.createdAt DESC")
-    Page<Reply> findRepliesByOrderByCreatedAt(UUID userId, Pageable pageable);
+    @Query("SELECT r FROM Reply r where r.letter.user.id = :userId AND r.createdAt >= :startOfYear AND r.createdAt < :nextStartOfYear ORDER BY r.createdAt DESC")
+    Page<Reply> findRepliesByOrderByCreatedAt(UUID userId, LocalDateTime startOfYear, LocalDateTime nextStartOfYear, Pageable pageable);
 }
