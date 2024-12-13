@@ -11,6 +11,7 @@ import bsise.server.letter.LetterService;
 import bsise.server.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Year;
 import java.util.List;
 import java.util.UUID;
@@ -97,9 +98,9 @@ public class ReplyService {
         validateUserId(userId);
 
         LocalDateTime startOfYear = Year.of(year).atDay(1).atStartOfDay();
-        LocalDateTime nextStartOfYear = startOfYear.plusYears(1);
+        LocalDateTime endOfYear = Year.of(year).atMonth(12).atDay(31).atTime(LocalTime.MAX);
 
-        Page<Reply> replies = replyRepository.findRepliesByOrderByCreatedAt(userId, startOfYear, nextStartOfYear, pageable);
+        Page<Reply> replies = replyRepository.findRepliesByOrderByCreatedAt(userId, startOfYear, endOfYear, pageable);
         List<ReplyResponseDto> replyDto = replies.stream()
                 .map(reply -> ReplyResponseDto.ofByUserId(reply, userId))
                 .toList();

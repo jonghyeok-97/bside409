@@ -49,7 +49,7 @@ public class ReplyController {
     @ResponseStatus(HttpStatus.OK)
     public Page<ReplyResponseDto> findMyLetters(
             @PathVariable("userId") String userId,
-            @RequestParam int year,
+            @RequestParam("year") int year,
             @PageableDefault(size = 10, direction = Direction.DESC) Pageable pageable
     ) {
         return replyService.findMyLetterAndReply(UUID.fromString(userId), year, pageable);
