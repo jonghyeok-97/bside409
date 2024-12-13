@@ -72,10 +72,10 @@ public interface LetterRepository extends JpaRepository<Letter, UUID> {
                 WITH report_dates AS ( /* 데일리 리포트가 생성된 날짜들 */
                     SELECT DISTINCT DATE(l2.created_at) AS report_date
                     FROM letter l2
-                    WHERE l2.user_id = UUID_TO_BIN(:userId)
+                    WHERE l2.user_id = :userId
                       AND l2.daily_report_id IS NOT NULL
-                      AND l2.created_at >= '2024-10-01T00:00:00.000000'
-                      AND l2.created_at < '2024-11-01T00:00:00.000000'
+                      AND l2.created_at >= :startDate
+                      AND l2.created_at < :endDate
                 ),
                 ranked_letters AS ( /* 데일리 리포트가 생성된 날짜와 left join 후 데일리 리포트 생성일이 없는 편지들을 최신순으로 선택 */
                     SELECT l1.letter_id, l1.created_at, l1.like_f, l1.like_t, l1.message, l1.preference, l1.published,
@@ -83,15 +83,15 @@ public interface LetterRepository extends JpaRepository<Letter, UUID> {
                         ROW_NUMBER() OVER (PARTITION BY DATE(l1.created_at) ORDER BY l1.created_at DESC) AS seq
                     FROM letter l1
                     LEFT JOIN report_dates dr ON DATE(l1.created_at) = dr.report_date
-                    WHERE l1.user_id = UUID_TO_BIN(:userId)
+                    WHERE l1.user_id = :userId
                         AND dr.report_date IS NULL -- 데일리 리포트 생성일이 없는 경우
-                        AND l1.created_at >= '2024-10-01T00:00:00.000000'
-                        AND l1.created_at < '2024-11-01T00:00:00.000000'
+                        AND l1.created_at >= :startDate
+                        AND l1.created_at <= :endDate
                 )
                 /* 최신순으로 정렬된 ranked_letters 에서 최신 3개까지만 선택 */
                 SELECT letter_id, created_at, like_f, like_t, message, preference, published, daily_report_id, user_id
                 FROM ranked_letters
                 WHERE seq <= 3
             """, nativeQuery = true)
-    List<Letter> findLettersForDailyReportCreation(UUID userId, LocalDateTime start, LocalDateTime end);
+    List<Letter> findLettersForDailyReportCreation(UUID userId, LocalDateTime startDate, LocalDateTime endDate);
 }
