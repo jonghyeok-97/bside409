@@ -33,7 +33,7 @@ public interface DailyReportRepository extends JpaRepository<DailyReport, UUID> 
     List<DailyReport> findByTargetDateIn(List<LocalDate> dates);
 
     @Query(value = """
-            SELECT 
+            SELECT
                 COUNT(CASE WHEN l.published = TRUE THEN 1 END) AS publishedCount,
                 COUNT(CASE WHEN l.published = FALSE THEN 1 END) AS unPublishedCount
             FROM daily_report d
@@ -41,4 +41,13 @@ public interface DailyReportRepository extends JpaRepository<DailyReport, UUID> 
             WHERE d.target_date IN :oneWeekDates
             """, nativeQuery = true)
     WeeklyPublishedStaticsDto findPublishedStatics(@Param("oneWeekDates") List<LocalDate> oneWeekDates);
+
+    @Query("""
+            SELECT d
+            FROM WeeklyReport w
+            JOIN DailyReport d ON w.id = d.weeklyReport.id
+            JOIN Letter l ON d.id = l.dailyReport.id AND l.user.id = :userId
+            WHERE w.startDate = :startDate AND w.endDate = :endDate
+            """)
+    List<DailyReport> findDailyReportsWithWeeklyReport(UUID userId, LocalDate startDate, LocalDate endDate);
 }
