@@ -5,6 +5,7 @@ import bsise.server.clova.dailyReport.DailyReportExtractor;
 import bsise.server.clova.dto.ClovaResponseDto;
 import bsise.server.clova.service.ClovaService;
 import bsise.server.clova.weekly.ClovaWeeklyReportRequestDto;
+import bsise.server.error.DailyReportNotFoundException;
 import bsise.server.error.DuplicationWeeklyReportException;
 import bsise.server.error.WeeklyReportNotFoundException;
 import bsise.server.letter.Letter;
@@ -28,6 +29,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,8 +45,7 @@ public class WeeklyReportService {
     private final WeeklyReportRepository weeklyReportRepository;
 
     /**
-     * 분석 날짜, 작성빈도, 요일 ⛧ 감정 변화 추이, 위로 메세지, + 데일리의 각 편지 대표 감정
-     * 일요일 자정(00:00)을 넘으면 주간 분석 요청 버튼 활성화 및 주간 분석 요청 가능
+     * 분석 날짜, 작성빈도, 요일 ⛧ 감정 변화 추이, 위로 메세지, + 데일리의 각 편지 대표 감정 일요일 자정(00:00)을 넘으면 주간 분석 요청 버튼 활성화 및 주간 분석 요청 가능
      */
     public WeeklyReportResponseDto createWeeklyReport(UUID userId, LocalDate startDate) {
         LocalDate endDate = startDate.plusDays(6);
@@ -120,7 +121,7 @@ public class WeeklyReportService {
                 ClovaWeeklyReportRequestDto.from(descriptions));
         String resultMessage = clovaResponseDto.getResultMessage();
 
-        WeeklyDataManager manager = new WeeklyDataManager(weeklyReportRequestDto.getStartDate());
+        WeeklyDataManager manager = new WeeklyDataManager(startDate); // TODO: util class 로 리팩토링 필요
         WeeklyPublishedStaticsDto staticsDto = dailyReportRepository.findPublishedStatics(oneWeekDates);
 
         WeeklyReport weeklyReport = WeeklyReport.builder()
@@ -134,14 +135,36 @@ public class WeeklyReportService {
         weeklyReportRepository.save(weeklyReport);
         dailyReports.forEach(dailyReport -> dailyReport.setWeeklyReport(weeklyReport));
 
-        return WeeklyReportResponseDto.from(weeklyReport);
+        List<CoreEmotion> coreEmotions = dailyReports.stream()
+                .map(DailyReport::getCoreEmotion)
+                .toList();
+
+        return WeeklyReportResponseDto.from(weeklyReport, coreEmotions);
     }
 
+    @Cacheable(
+            cacheNames = "weeklyReport", cacheManager = "caffeineCacheManager",
+            key = "#userId.toString() + #startDate.toString()", unless = "#result == null"
+    )
+    @Transactional(readOnly = true)
     public WeeklyReportResponseDto getWeeklyReport(UUID userId, LocalDate startDate, LocalDate endDate) {
-        WeeklyReport weeklyReport = weeklyReportRepository.findDailyReportBy(userId, startDate, endDate)
-                .orElseThrow(() -> new WeeklyReportNotFoundException("주간분석이 존재하지 않습니다"));
+        List<DailyReport> dailyReports = dailyReportRepository.findDailyReportsWithWeeklyReport(userId, startDate,
+                endDate);
 
-        return WeeklyReportResponseDto.from(weeklyReport);
+        if (dailyReports.isEmpty()) {
+            throw new DailyReportNotFoundException("데일리 리포트가 존재하지 않습니다");
+        }
+
+        List<CoreEmotion> coreEmotions = dailyReports.stream()
+                .map(DailyReport::getCoreEmotion)
+                .toList();
+
+        WeeklyReport weeklyReport = dailyReports.stream()
+                .findAny()
+                .map(DailyReport::getWeeklyReport)
+                .orElseThrow(() -> new WeeklyReportNotFoundException("위클리 리포트가 존재하지 않습니다"));
+
+        return WeeklyReportResponseDto.from(weeklyReport, coreEmotions);
     }
 
     private ClovaResponseDto requestClovaAnalysis(List<Letter> letters) {
