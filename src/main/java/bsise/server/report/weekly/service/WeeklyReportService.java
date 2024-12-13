@@ -55,14 +55,9 @@ public class WeeklyReportService {
         }
 
         // 주간분석을 요청한 기간 동안 사용자가 작성한 편지들 찾기
-        LocalDateTime start = weeklyReportRequestDto.getStartDate().atStartOfDay();
-        LocalDateTime end = start.plusDays(7);
-
-        List<Letter> userLettersByLatest = letterRepository.findByCreatedAtDesc(
-                UUID.fromString(weeklyReportRequestDto.getUserId()),
-                start,
-                end
-        );
+        List<Letter> userLettersByLatest = letterRepository.findByCreatedAtDesc(userId,
+                startDate.atStartOfDay(),
+                LocalDateTime.of(endDate, LocalTime.MIN));
 
         // 날짜별로 편지들을 3개씩 묶기
         Map<LocalDate, List<Letter>> latestLettersByDate = userLettersByLatest.stream()
@@ -111,7 +106,7 @@ public class WeeklyReportService {
         letterAnalysisRepository.saveAll(letterAnalyses);
 
         // startDate 로 부터 1주일 날짜 구하기
-        List<LocalDate> oneWeekDates = createOneWeek(weeklyReportRequestDto.getStartDate());
+        List<LocalDate> oneWeekDates = createOneWeek(startDate);
 
         // 1주일에 해당하는 데일리 리포트 찾기
         List<DailyReport> dailyReports = dailyReportRepository.findByTargetDateIn(oneWeekDates);
