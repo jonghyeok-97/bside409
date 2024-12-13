@@ -13,24 +13,21 @@ import bsise.server.letter.LetterRepository;
 import bsise.server.report.daily.domain.CoreEmotion;
 import bsise.server.report.daily.domain.DailyReport;
 import bsise.server.report.daily.domain.LetterAnalysis;
-import bsise.server.report.daily.dto.DailyReportDto;
 import bsise.server.report.daily.dto.DailyReportResponseDto;
 import bsise.server.report.daily.repository.DailyReportRepository;
 import bsise.server.report.daily.repository.LetterAnalysisRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Slf4j
@@ -54,14 +51,12 @@ public class DailyReportService {
      *     <li>분석된 일일 리포트를 저장하고 응답합니다.</li>
      * </ol>
      *
-     * @param dailyReportDto 일일 리포트 생성 요청 DTO
+     * @param userId     UUID 형식의 사용자 아이디
+     * @param targetDate 리포트 생성 대상 날짜
      * @return 생성된 일일 리포트에 대한 응답 DTO
      */
     @NamedLock(lockName = "createdDailyReport", timeout = 0, keyFields = {"userId"})
-    public DailyReportResponseDto createDailyReport(DailyReportDto.CreateRequest dailyReportDto) {
-        UUID userId = UUID.fromString(dailyReportDto.getUserId());
-        LocalDate targetDate = dailyReportDto.getDate();
-
+    public DailyReportResponseDto createDailyReport(UUID userId, LocalDate targetDate) {
         if (dailyReportRepository.existsByUserAndTargetDate(userId, targetDate)) {
             throw new DuplicateDailyReportException("Duplicate daily report exists.");
         }
@@ -86,10 +81,7 @@ public class DailyReportService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public DailyReportResponseDto createDailyReportWithFacade(DailyReportDto.CreateRequest dailyReportDto) {
-        UUID userId = UUID.fromString(dailyReportDto.getUserId());
-        LocalDate targetDate = dailyReportDto.getDate();
-
+    public DailyReportResponseDto createDailyReportWithFacade(UUID userId, LocalDate targetDate) {
         if (dailyReportRepository.existsByUserAndTargetDate(userId, targetDate)) {
             throw new DuplicateDailyReportException("Duplicate daily report exists.");
         }
@@ -117,8 +109,8 @@ public class DailyReportService {
             cacheNames = "dailyReport", cacheManager = "caffeineCacheManager",
             key = "#userId + #targetDate.toString()", unless = "#result == null"
     )
-    public DailyReportResponseDto getDailyReport(String userId, LocalDate targetDate) {
-        DailyReport dailyReport = dailyReportRepository.findByUserAndTargetDate(UUID.fromString(userId), targetDate)
+    public DailyReportResponseDto getDailyReport(UUID userId, LocalDate targetDate) {
+        DailyReport dailyReport = dailyReportRepository.findByUserAndTargetDate(userId, targetDate)
                 .orElseThrow(
                         () -> new DailyReportNotFoundException("Daily Report not found. targetDate: " + targetDate));
 
@@ -156,7 +148,9 @@ public class DailyReportService {
 
         String formattedMessages = letters.stream()
                 .map(letter -> String.format("<%s:%s>\n%s\n</%s:%s>",
-                        letterSeparator, msgSeparator, reformatMsg(letter.getMessage()), letterSeparator, msgSeparator))
+                        LETTER_SEPARATOR, msgSeparator,
+                        reformatMsg(letter.getMessage()),
+                        LETTER_SEPARATOR, msgSeparator))
                 .collect(Collectors.joining("\n"));
 
         return clovaService.sendDailyReportRequest(formattedMessages);
@@ -170,7 +164,6 @@ public class DailyReportService {
                 .replaceAll("\"", "&quot;")
                 .replaceAll("'", "&apos;");
     }
-
 
     private DailyReport buildDailyReport(LocalDate targetDate, ClovaDailyAnalysisResult clovaDailyAnalysisResult) {
         return DailyReport.builder()
