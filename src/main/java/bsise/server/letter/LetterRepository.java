@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 public interface LetterRepository extends JpaRepository<Letter, UUID> {
 
     Page<Letter> findLettersByUserId(UUID userId, Pageable pageable);
+
     List<Letter> findTop10ByPublishedIsTrueOrderByCreatedAtDesc();
 
     @Query(value = """
@@ -27,22 +28,22 @@ public interface LetterRepository extends JpaRepository<Letter, UUID> {
             nativeQuery = true)
     List<Letter> find3RecentLetters(UUID userId, LocalDateTime startTime, LocalDateTime endTime);
 
-    @Query(
-            value = """
+    @Query(value = """
                 SELECT
-                    daily_report_id AS dailyReportId,
-                    created_at AS createdAt
-                FROM letter
-                WHERE user_id = :userId
-                    AND created_at >= :startDate
-                    AND created_at <= :endDate
+                    l.daily_report_id AS dailyReportId,
+                    d.core_emotion AS coreEmotion,
+                    l.created_at AS createdAt
+                FROM letter l
+                LEFT JOIN daily_report d ON d.daily_report_id = l.daily_report_id
+                WHERE l.user_id = :userId
+                    AND l.created_at >= :startDate
+                    AND l.created_at <= :endDate
             """,
             nativeQuery = true
     )
     List<DailyReportDto> findDailyReportIdByDateRange(UUID userId, LocalDateTime startDate, LocalDateTime endDate);
 
-    @Query(
-            value = """
+    @Query(value = """
                 SELECT
                     d.weekly_report_id AS weeklyReportId,
                     l.created_at AS letterCreatedAt
@@ -55,8 +56,7 @@ public interface LetterRepository extends JpaRepository<Letter, UUID> {
     )
     List<WeeklyReportDto> findWeeklyReportIdByDateRange(UUID userId, LocalDateTime startDate, LocalDateTime endDate);
 
-    @Query(
-            value = """
+    @Query(value = """
                 SELECT l
                 FROM Letter l
                 WHERE l.user.id = :userId AND
