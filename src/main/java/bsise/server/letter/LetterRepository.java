@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 public interface LetterRepository extends JpaRepository<Letter, UUID> {
 
     Page<Letter> findLettersByUserId(UUID userId, Pageable pageable);
+
     List<Letter> findTop10ByPublishedIsTrueOrderByCreatedAtDesc();
 
     @Query(value = """
@@ -27,22 +28,23 @@ public interface LetterRepository extends JpaRepository<Letter, UUID> {
             nativeQuery = true)
     List<Letter> find3RecentLetters(UUID userId, LocalDateTime startTime, LocalDateTime endTime);
 
-    @Query(
-            value = """
+    @Query(value = """
                 SELECT
-                    daily_report_id AS dailyReportId,
-                    created_at AS createdAt
-                FROM letter
-                WHERE user_id = :userId
-                    AND created_at >= :startDate
-                    AND created_at <= :endDate
+                    l.daily_report_id AS dailyReportId,
+                    d.core_emotion AS coreEmotion,
+                    l.created_at AS createdAt
+                FROM letter l
+                LEFT JOIN daily_report d ON d.daily_report_id = l.daily_report_id
+                WHERE l.user_id = :userId
+                    AND l.created_at >= :startDate
+                    AND l.created_at <= :endDate
             """,
             nativeQuery = true
     )
     List<DailyReportDto> findDailyReportIdByDateRange(UUID userId, LocalDateTime startDate, LocalDateTime endDate);
 
-    @Query(
-            value = """
+    // TODO: 리팩토링 시 deprecated 예정
+    @Query(value = """
                 SELECT
                     d.weekly_report_id AS weeklyReportId,
                     l.created_at AS letterCreatedAt
@@ -55,14 +57,41 @@ public interface LetterRepository extends JpaRepository<Letter, UUID> {
     )
     List<WeeklyReportDto> findWeeklyReportIdByDateRange(UUID userId, LocalDateTime startDate, LocalDateTime endDate);
 
-    @Query(
-            value = """
+    @Query(value = """
                 SELECT l
                 FROM Letter l
                 WHERE l.user.id = :userId AND
                       l.createdAt >= :start AND
-                      l.createdAt < :end
+                      l.createdAt <= :end
                 ORDER BY l.createdAt DESC
             """)
     List<Letter> findByCreatedAtDesc(UUID userId, LocalDateTime start, LocalDateTime end);
+
+    // FIXME: 리팩토링 떄 사용할 예정
+    @Query(value = """
+                WITH report_dates AS ( /* 데일리 리포트가 생성된 날짜들 */
+                    SELECT DISTINCT DATE(l2.created_at) AS report_date
+                    FROM letter l2
+                    WHERE l2.user_id = UUID_TO_BIN(:userId)
+                      AND l2.daily_report_id IS NOT NULL
+                      AND l2.created_at >= '2024-10-01T00:00:00.000000'
+                      AND l2.created_at < '2024-11-01T00:00:00.000000'
+                ),
+                ranked_letters AS ( /* 데일리 리포트가 생성된 날짜와 left join 후 데일리 리포트 생성일이 없는 편지들을 최신순으로 선택 */
+                    SELECT l1.letter_id, l1.created_at, l1.like_f, l1.like_t, l1.message, l1.preference, l1.published,
+                        l1.daily_report_id, l1.user_id,
+                        ROW_NUMBER() OVER (PARTITION BY DATE(l1.created_at) ORDER BY l1.created_at DESC) AS seq
+                    FROM letter l1
+                    LEFT JOIN report_dates dr ON DATE(l1.created_at) = dr.report_date
+                    WHERE l1.user_id = UUID_TO_BIN(:userId)
+                        AND dr.report_date IS NULL -- 데일리 리포트 생성일이 없는 경우
+                        AND l1.created_at >= '2024-10-01T00:00:00.000000'
+                        AND l1.created_at < '2024-11-01T00:00:00.000000'
+                )
+                /* 최신순으로 정렬된 ranked_letters 에서 최신 3개까지만 선택 */
+                SELECT letter_id, created_at, like_f, like_t, message, preference, published, daily_report_id, user_id
+                FROM ranked_letters
+                WHERE seq <= 3
+            """, nativeQuery = true)
+    List<Letter> findLettersForDailyReportCreation(UUID userId, LocalDateTime start, LocalDateTime end);
 }

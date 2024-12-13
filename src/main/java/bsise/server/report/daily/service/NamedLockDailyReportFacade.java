@@ -2,9 +2,9 @@ package bsise.server.report.daily.service;
 
 import bsise.server.common.NamedLockRepository;
 import bsise.server.error.NamedLockAcquisitionException;
-import bsise.server.report.daily.dto.DailyReportDto;
 import bsise.server.report.daily.dto.DailyReportResponseDto;
 import java.time.LocalDate;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -19,9 +19,8 @@ public class NamedLockDailyReportFacade {
     private final DailyReportService dailyReportService;
 
     @Transactional
-    public DailyReportResponseDto createDailyReportWithNamedLock(DailyReportDto.CreateRequest dailyReportDto) {
-        String shortUserId = dailyReportDto.getUserId().substring(8);
-        LocalDate targetDate = dailyReportDto.getDate();
+    public DailyReportResponseDto createDailyReportWithNamedLock(UUID userId, LocalDate targetDate) {
+        String shortUserId = userId.toString().substring(8);
         String lockName = String.format("createDailyReport:%s:%s", shortUserId, targetDate.toString());
 
         boolean lockAcquired = namedLockRepository.acquireLock(lockName, 2);
@@ -31,7 +30,7 @@ public class NamedLockDailyReportFacade {
         }
 
         try {
-            return dailyReportService.createDailyReportWithFacade(dailyReportDto);
+            return dailyReportService.createDailyReportWithFacade(userId, targetDate);
         } finally {
             boolean released = namedLockRepository.releaseLock(lockName);
             if (!released) {

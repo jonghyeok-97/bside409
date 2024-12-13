@@ -1,5 +1,6 @@
 package bsise.server.report.retrieve.dto;
 
+import bsise.server.report.daily.domain.CoreEmotion;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDate;
 import java.util.List;
@@ -13,20 +14,24 @@ public class DailyReportStatusResponseDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private final LocalDate date;
 
-    private final int totalCount;
+    private final CoreEmotion coreEmotion;
 
     private final boolean available;
 
-    private final boolean analyzed;
-
     public static DailyReportStatusResponseDto create(LocalDate date, List<DailyReportDto> letters) {
         boolean analyzed = letters.stream()
-                .allMatch(letter -> letter.getDailyReportId() != null);
+                .anyMatch(letter -> letter.getDailyReportId() != null);
 
-        return new DailyReportStatusResponseDto(date, letters.size(), !analyzed, analyzed);
+        CoreEmotion coreEmotion = letters.stream()
+                .filter(letter -> letter.getDailyReportId() != null)
+                .findAny()
+                .map(DailyReportDto::getCoreEmotion)
+                .orElse(null);
+
+        return new DailyReportStatusResponseDto(date, coreEmotion, !analyzed);
     }
 
     public static DailyReportStatusResponseDto createFalseStatus(LocalDate date) {
-        return new DailyReportStatusResponseDto(date, 0, false, false);
+        return new DailyReportStatusResponseDto(date, null, false);
     }
 }
