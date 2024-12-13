@@ -24,9 +24,8 @@ public class WeeklyReportController {
 
     @PostMapping("/api/v1/reports/weekly")
     @ResponseStatus(HttpStatus.CREATED)
-    public WeeklyReportResponseDto createWeeklyReport(
-            @Valid @RequestBody WeeklyReportRequestDto weeklyReportRequestDto) {
-        return weeklyReportService.createWeeklyReport(weeklyReportRequestDto);
+    public WeeklyReportResponseDto createWeeklyReport(@Valid @RequestBody WeeklyReportRequestDto dto) {
+        return weeklyReportService.createWeeklyReport(UUID.fromString(dto.getUserId()), dto.getStartDate());
     }
 
     @GetMapping("/api/v1/reports/weekly/{userId}")

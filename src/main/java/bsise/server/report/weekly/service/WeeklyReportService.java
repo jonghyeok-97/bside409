@@ -16,11 +16,11 @@ import bsise.server.report.daily.repository.DailyReportRepository;
 import bsise.server.report.daily.repository.LetterAnalysisRepository;
 import bsise.server.report.weekly.domain.WeeklyReport;
 import bsise.server.report.weekly.dto.WeeklyPublishedStaticsDto;
-import bsise.server.report.weekly.dto.WeeklyReportRequestDto;
 import bsise.server.report.weekly.dto.WeeklyReportResponseDto;
 import bsise.server.report.weekly.repository.WeeklyReportRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -46,7 +46,9 @@ public class WeeklyReportService {
      * 분석 날짜, 작성빈도, 요일 ⛧ 감정 변화 추이, 위로 메세지, + 데일리의 각 편지 대표 감정
      * 일요일 자정(00:00)을 넘으면 주간 분석 요청 버튼 활성화 및 주간 분석 요청 가능
      */
-    public WeeklyReportResponseDto createWeeklyReport(WeeklyReportRequestDto weeklyReportRequestDto) {
+    public WeeklyReportResponseDto createWeeklyReport(UUID userId, LocalDate startDate) {
+        LocalDate endDate = startDate.plusDays(6);
+
         // 주간 분석 생성할 수 있는지 검증
         if (weeklyReportRepository.existsByUserIdAndDateRangeIn(userId, startDate, endDate)) {
             throw new DuplicationWeeklyReportException("주간 분석이 이미 존재합니다");
