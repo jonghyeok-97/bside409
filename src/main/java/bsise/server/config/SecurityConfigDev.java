@@ -1,11 +1,16 @@
 package bsise.server.config;
 
+import static bsise.server.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+
 import bsise.server.auth.CookieEncodingFilter;
 import bsise.server.auth.OAuth2SuccessHandler;
 import bsise.server.auth.UpOAuth2UserService;
 import bsise.server.auth.jwt.JwtAuthenticationEntryPoint;
 import bsise.server.auth.jwt.JwtGeneratorFilter;
 import bsise.server.auth.jwt.JwtService;
+import java.util.Arrays;
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +22,7 @@ import org.springframework.security.config.annotation.web.configurers.LogoutConf
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
 
 @EnableWebSecurity(debug = true)
 @Configuration
@@ -43,7 +49,7 @@ public class SecurityConfigDev {
                 UsernamePasswordAuthenticationFilter.class);
 
         // cors
-        http.cors(AbstractHttpConfigurer::disable);
+        http.cors(cors -> cors.configurationSource(source -> corsConfiguration()));
 
         // url pattern
         http.authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
@@ -62,5 +68,18 @@ public class SecurityConfigDev {
     @Bean
     public JwtGeneratorFilter jwtGeneratorFilter(JwtService jwtService) {
         return new JwtGeneratorFilter(jwtService);
+    }
+
+    @Bean
+    public CorsConfiguration corsConfiguration() {
+        CorsConfiguration corsConfig = new CorsConfiguration();
+        corsConfig.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+        corsConfig.setAllowedMethods(Arrays.asList("HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"));
+        corsConfig.setAllowedHeaders(Collections.singletonList("*"));
+        corsConfig.setAllowCredentials(true);
+        corsConfig.setExposedHeaders(Arrays.asList(AUTHORIZATION, X_REFRESH_TOKEN, "Cache-Control", "Content-Type"));
+        corsConfig.setMaxAge(3600L);
+
+        return corsConfig;
     }
 }
