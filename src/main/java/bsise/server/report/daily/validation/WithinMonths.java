@@ -1,6 +1,5 @@
-package bsise.server.validation.constraints;
+package bsise.server.report.daily.validation;
 
-import bsise.server.validation.WithinLastMonthValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
@@ -12,7 +11,9 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = WithinLastMonthValidator.class)
 @Target({ ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface WithinLastMonth {
+public @interface WithinMonths {
+
+    int months() default 1;
 
     String message() default "{bsise.server.validation.constraints.WithinLastMonth.message}";
 

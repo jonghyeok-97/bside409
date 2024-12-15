@@ -1,6 +1,6 @@
 package bsise.server.report.daily.dto;
 
-import bsise.server.validation.constraints.WithinLastMonth;
+import bsise.server.report.daily.validation.WithinMonths;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -21,7 +21,7 @@ public class DailyReportDto {
         private String userId;
 
         @NotNull(message = "생성 요청 날짜는 필수 요청 값입니다.")
-        @WithinLastMonth(message = "생성 요청 날짜는 오늘 포함 한달 이전까지만 가능합니다.")
+        @WithinMonths(message = "생성 요청 날짜는 오늘 포함 한달 이전까지만 가능합니다.")
         private LocalDate date;
     }
 }
