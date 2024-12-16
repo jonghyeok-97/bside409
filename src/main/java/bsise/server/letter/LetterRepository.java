@@ -19,10 +19,11 @@ public interface LetterRepository extends JpaRepository<Letter, UUID> {
     List<Letter> findTop10ByPublishedIsTrueOrderByCreatedAtDesc();
 
     @Query(value = """
-               SELECT *
-               FROM letter
-               WHERE user_id = :userId AND created_at BETWEEN :startTime AND :endTime
-               ORDER BY created_at DESC
+               SELECT l.*
+               FROM letter l
+               JOIN reply r ON l.letter_id = r.letter_id
+               WHERE l.user_id = :userId AND l.created_at BETWEEN :startTime AND :endTime
+               ORDER BY l.created_at DESC
                LIMIT 3
             """,
             nativeQuery = true)
