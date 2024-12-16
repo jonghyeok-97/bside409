@@ -1,7 +1,7 @@
 package bsise.server.report.daily.repository;
 
 import bsise.server.report.daily.domain.DailyReport;
-import bsise.server.report.weekly.dto.WeeklyPublishedStaticsDto;
+import bsise.server.report.daily.dto.DailyPublishedStaticsDto;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +40,7 @@ public interface DailyReportRepository extends JpaRepository<DailyReport, UUID> 
             JOIN letter l ON d.daily_report_id = l.daily_report_id
             WHERE d.target_date IN :oneWeekDates
             """, nativeQuery = true)
-    WeeklyPublishedStaticsDto findPublishedStatics(@Param("oneWeekDates") List<LocalDate> oneWeekDates);
+    DailyPublishedStaticsDto findPublishedStatics(@Param("oneWeekDates") List<LocalDate> oneWeekDates);
 
     @Query("""
             SELECT d

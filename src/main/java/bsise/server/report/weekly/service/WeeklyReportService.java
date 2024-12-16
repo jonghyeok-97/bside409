@@ -64,15 +64,13 @@ public class WeeklyReportService {
         String resultMessage = clovaResponseDto.getResultMessage();
 
         WeeklyDataManager manager = new WeeklyDataManager(startDate); // TODO: util class 로 리팩토링 필요
-
         WeeklyReport weeklyReport = WeeklyReport.builder()
                 .weekOfYear(manager.getWeekOfWeekBasedYear())
                 .startDate(manager.getMondayOfWeek())
                 .endDate(manager.getSundayOfWeek())
                 .cheerUp(resultMessage)
                 .publishedCount(dailyStaticsDto.getStaticsDto().getPublishedCount())
-                .unpublishedCount(dailyStaticsDto.getStaticsDto()
-                    .getUnPublishedCount())
+                .unpublishedCount(dailyStaticsDto.getStaticsDto().getUnPublishedCount())
                 .build();
         weeklyReportRepository.save(weeklyReport);
         dailyReports.forEach(dailyReport -> dailyReport.setWeeklyReport(weeklyReport));

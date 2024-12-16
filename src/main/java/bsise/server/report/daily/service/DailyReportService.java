@@ -17,7 +17,7 @@ import bsise.server.report.daily.dto.DailyReportResponseDto;
 import bsise.server.report.daily.dto.DailyStaticsOneWeekResponseDto;
 import bsise.server.report.daily.repository.DailyReportRepository;
 import bsise.server.report.daily.repository.LetterAnalysisRepository;
-import bsise.server.report.weekly.dto.WeeklyPublishedStaticsDto;
+import bsise.server.report.daily.dto.DailyPublishedStaticsDto;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -178,8 +178,7 @@ public class DailyReportService {
 
     public DailyStaticsOneWeekResponseDto findDailyStaticsInOneWeek(List<LocalDate> oneWeekDates) {
         List<DailyReport> dailyReports = dailyReportRepository.findByTargetDateIn(oneWeekDates);
-
-        WeeklyPublishedStaticsDto dto = dailyReportRepository.findPublishedStatics(oneWeekDates);
+        DailyPublishedStaticsDto dto = dailyReportRepository.findPublishedStatics(oneWeekDates);
 
         return DailyStaticsOneWeekResponseDto.of(dailyReports, dto);
     }
