@@ -7,7 +7,7 @@ import bsise.server.letter.Letter;
 import bsise.server.letter.LetterRepository;
 import bsise.server.report.daily.domain.CoreEmotion;
 import bsise.server.report.daily.domain.DailyReport;
-import bsise.server.report.daily.dto.DailyPublishedStaticsDto;
+import bsise.server.report.daily.dto.DailyReportStaticsDto;
 import bsise.server.user.domain.Preference;
 import bsise.server.user.domain.Role;
 import bsise.server.user.domain.User;
@@ -110,7 +110,7 @@ class DailyReportRepositoryTest {
         letterRepository.saveAll(List.of(letter1, letter2, letter3, letter4, letter5));
 
         // when
-        DailyPublishedStaticsDto staticsDto = dailyReportRepository.findPublishedStatics(
+        DailyReportStaticsDto staticsDto = dailyReportRepository.findStaticsBy(
                 IntStream.rangeClosed(0, 6)
                         .mapToObj(start::plusDays)
                         .toList());

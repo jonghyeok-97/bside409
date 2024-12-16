@@ -10,10 +10,10 @@ import lombok.Getter;
 public class DailyStaticsOneWeekResponseDto {
 
   private List<DailyReport> dailyReports;
-  private DailyPublishedStaticsDto staticsDto;
+  private DailyReportStaticsDto staticsDto;
 
   public static DailyStaticsOneWeekResponseDto of(List<DailyReport> dailyReports,
-                                                  DailyPublishedStaticsDto staticsDto) {
+                                                  DailyReportStaticsDto staticsDto) {
     return DailyStaticsOneWeekResponseDto.builder()
         .dailyReports(dailyReports)
         .staticsDto(staticsDto)

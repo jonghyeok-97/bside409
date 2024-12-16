@@ -1,6 +1,6 @@
 package bsise.server.report.daily.dto;
 
-public interface DailyPublishedStaticsDto {
+public interface DailyReportStaticsDto {
 
     int getPublishedCount();
     int getUnPublishedCount();
