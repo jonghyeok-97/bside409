@@ -1,12 +1,18 @@
-package bsise.server.validation;
+package bsise.server.report.daily.validation;
 
-import bsise.server.validation.constraints.WithinLastMonth;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 import java.time.LocalDate;
 
-public class WithinLastMonthValidator implements ConstraintValidator<WithinLastMonth, LocalDate> {
+public class WithinLastMonthValidator implements ConstraintValidator<WithinMonths, LocalDate> {
+
+    private int months;
+
+    @Override
+    public void initialize(WithinMonths constraintAnnotation) {
+        this.months = constraintAnnotation.months();
+    }
 
     @Override
     public boolean isValid(LocalDate value, ConstraintValidatorContext context) {
@@ -15,9 +21,9 @@ public class WithinLastMonthValidator implements ConstraintValidator<WithinLastM
         }
 
         LocalDate now = LocalDate.now();
-        LocalDate oneMonthAgo = now.minusMonths(1);
+        LocalDate oneMonthAgo = now.minusMonths(months);
 
-        // 오늘 또는 한 달 이전 날짜까지만 허용
+        // 오늘 또는 지정된 months 달 이전 날짜까지만 허용
         return !value.isAfter(now) && !value.isBefore(oneMonthAgo);
     }
 }
