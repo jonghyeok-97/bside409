@@ -14,12 +14,16 @@ import bsise.server.report.daily.domain.CoreEmotion;
 import bsise.server.report.daily.domain.DailyReport;
 import bsise.server.report.daily.domain.LetterAnalysis;
 import bsise.server.report.daily.dto.DailyReportResponseDto;
+import bsise.server.report.daily.dto.DailyStaticsOneWeekResponseDto;
 import bsise.server.report.daily.repository.DailyReportRepository;
 import bsise.server.report.daily.repository.LetterAnalysisRepository;
+import bsise.server.report.weekly.dto.WeeklyPublishedStaticsDto;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -117,6 +121,67 @@ public class DailyReportService {
         List<LetterAnalysis> letterAnalyses = letterAnalysisRepository.findByDailyReportId(dailyReport.getId());
 
         return DailyReportResponseDto.of(dailyReport, letterAnalyses);
+    }
+
+    public void createDailyReportsBy(UUID userId, LocalDate startDate, LocalDate endDate) {
+        // 주간분석을 요청한 기간 동안 사용자가 작성한 편지들 찾기
+        List<Letter> userLettersByLatest = letterRepository.findByCreatedAtDesc(userId,
+            startDate.atStartOfDay(),
+            LocalDateTime.of(endDate, LocalTime.MIN));
+
+        // 날짜별로 편지들을 3개씩 묶기
+        Map<LocalDate, List<Letter>> latestLettersByDate = userLettersByLatest.stream()
+            .collect(Collectors.groupingBy(
+                letter -> letter.getCreatedAt().toLocalDate()));
+
+        // 이미 일일 분석이 생성된 날짜는 제거
+        latestLettersByDate.values().removeIf(
+            letters -> letters.stream().anyMatch(letter -> letter.getDailyReport() != null)
+        );
+
+        // 일일 분석을 생성하려는 편지들을 날짜당 3개로 제한
+        Map<LocalDate, List<Letter>> latestThreeLettersByDate = latestLettersByDate.entrySet().stream()
+            .collect(Collectors.toMap(
+                Entry::getKey,
+                entry -> entry.getValue().stream()
+                    .limit(3)
+                    .collect(Collectors.toList())
+            ));
+
+        // 편지 3개에 대한 분석을 Clova에게 요청해서 받은 결과물들
+        Map<ClovaDailyAnalysisResult, List<Letter>> lettersByAnalysisResult = latestThreeLettersByDate.values().stream()
+            .collect(Collectors.toMap(
+                letters -> DailyReportExtractor.extract(requestClovaAnalysis(letters)),
+                letters -> letters
+            ));
+
+        // 분석결과와 편지들을 가지고 데일리 리포트 생성
+        Map<DailyReport, List<Letter>> lettersByDailyReport = lettersByAnalysisResult.entrySet().stream()
+            .collect(Collectors.toMap(
+                entry -> buildDailyReport(entry.getValue().get(0).getCreatedAt().toLocalDate(), entry.getKey()),
+                Entry::getValue
+            ));
+        dailyReportRepository.saveAll(lettersByDailyReport.keySet());
+
+        // 편지들에 알맞는 데일리 리포트를 setter 주입
+        lettersByDailyReport.forEach((key, value) ->
+            value.forEach(
+                letter -> letter.setDailyReport(key)
+            ));
+
+        // 편지와 분석결과를 가지고 편지분석엔티티들 생성 및 저장
+        List<LetterAnalysis> letterAnalyses = lettersByAnalysisResult.entrySet().stream()
+            .flatMap(entry -> buildLetterAnalyses(entry.getValue(), entry.getKey()).stream())
+            .toList();
+        letterAnalysisRepository.saveAll(letterAnalyses);
+    }
+
+    public DailyStaticsOneWeekResponseDto findDailyStaticsInOneWeek(List<LocalDate> oneWeekDates) {
+        List<DailyReport> dailyReports = dailyReportRepository.findByTargetDateIn(oneWeekDates);
+
+        WeeklyPublishedStaticsDto dto = dailyReportRepository.findPublishedStatics(oneWeekDates);
+
+        return DailyStaticsOneWeekResponseDto.of(dailyReports, dto);
     }
 
     /**
