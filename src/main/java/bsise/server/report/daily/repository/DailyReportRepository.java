@@ -1,7 +1,7 @@
 package bsise.server.report.daily.repository;
 
 import bsise.server.report.daily.domain.DailyReport;
-import bsise.server.report.weekly.dto.WeeklyPublishedStaticsDto;
+import bsise.server.report.daily.dto.DailyReportStaticsDto;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -38,9 +38,9 @@ public interface DailyReportRepository extends JpaRepository<DailyReport, UUID> 
                 COUNT(CASE WHEN l.published = FALSE THEN 1 END) AS unPublishedCount
             FROM daily_report d
             JOIN letter l ON d.daily_report_id = l.daily_report_id
-            WHERE d.target_date IN :oneWeekDates
+            WHERE d.target_date IN :dateRange
             """, nativeQuery = true)
-    WeeklyPublishedStaticsDto findPublishedStatics(@Param("oneWeekDates") List<LocalDate> oneWeekDates);
+    DailyReportStaticsDto findStaticsBy(@Param("dateRange") List<LocalDate> dateRange);
 
     @Query("""
             SELECT d
