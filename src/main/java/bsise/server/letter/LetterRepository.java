@@ -25,8 +25,7 @@ public interface LetterRepository extends JpaRepository<Letter, UUID> {
                WHERE l.user_id = :userId AND l.created_at BETWEEN :startTime AND :endTime
                ORDER BY l.created_at DESC
                LIMIT 3
-            """,
-            nativeQuery = true)
+            """, nativeQuery = true)
     List<Letter> find3RecentLetters(UUID userId, LocalDateTime startTime, LocalDateTime endTime);
 
     @Query(value = """
@@ -35,13 +34,12 @@ public interface LetterRepository extends JpaRepository<Letter, UUID> {
                     d.core_emotion AS coreEmotion,
                     l.created_at AS createdAt
                 FROM letter l
+                JOIN reply r ON l.letter_id = r.letter_id
                 LEFT JOIN daily_report d ON d.daily_report_id = l.daily_report_id
                 WHERE l.user_id = :userId
                     AND l.created_at >= :startDate
                     AND l.created_at <= :endDate
-            """,
-            nativeQuery = true
-    )
+            """, nativeQuery = true)
     List<DailyReportDto> findDailyReportIdByDateRange(UUID userId, LocalDateTime startDate, LocalDateTime endDate);
 
     // TODO: 리팩토링 시 deprecated 예정
@@ -61,6 +59,7 @@ public interface LetterRepository extends JpaRepository<Letter, UUID> {
     @Query(value = """
                 SELECT l
                 FROM Letter l
+                JOIN Reply r ON l.id = r.letter.id
                 WHERE l.user.id = :userId AND
                       l.createdAt >= :start AND
                       l.createdAt <= :end
