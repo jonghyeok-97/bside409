@@ -44,7 +44,7 @@ public class ReportStatusRetrieveService {
      */
     @Cacheable(
             cacheNames = "dailyReportStatus", cacheManager = "caffeineCacheManager",
-            key = "#userId.toString() + #targetDate.toString()", unless = "#result == null || #result.size() == 0"
+            key = "#userId.toString()", unless = "#result == null || #result.size() == 0"
     )
     public List<DailyReportStatusResponseDto> findDailyReportStatus(UUID userId, LocalDate targetDate,
                                                                     LocalDate endDate) {
@@ -80,7 +80,7 @@ public class ReportStatusRetrieveService {
      */
     @Cacheable(
             cacheNames = "weeklyReportStatus", cacheManager = "caffeineCacheManager",
-            key = "#userId.toString() + #targetDate.toString()", unless = "#result == null || #result.size() == 0"
+            key = "#userId.toString()", unless = "#result == null || #result.size() == 0"
     )
     public List<WeeklyReportStatusResponseDto> findWeeklyReportStatus(UUID userId, LocalDate targetDate,
                                                                       LocalDate endDate) {

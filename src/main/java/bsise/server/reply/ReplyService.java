@@ -1,21 +1,21 @@
 package bsise.server.reply;
 
 import bsise.server.clova.dto.ClovaResponseDto;
-import bsise.server.clova.service.ClovaService;
 import bsise.server.clova.dto.TwoTypeMessage;
+import bsise.server.clova.service.ClovaService;
 import bsise.server.error.LetterNotFoundException;
 import bsise.server.error.UserNotFoundException;
 import bsise.server.letter.Letter;
 import bsise.server.letter.LetterResponseDto;
 import bsise.server.letter.LetterService;
 import bsise.server.user.repository.UserRepository;
-
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Year;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -44,6 +44,10 @@ public class ReplyService {
      * @param letterResponse 유저의 편지 정보가 저장되어있는 dto
      * @return 저장한 답장에 대한 응답 dto
      */
+    @CacheEvict(
+            cacheNames = {"dailyReportStatus", "weeklyReportStatus"}, cacheManager = "caffeineCacheManager",
+            key = "#letterResponse.userId.toString()"
+    )
     public ReplyResponseDto makeAndSaveReply(LetterResponseDto letterResponse) {
         ClovaResponseDto clovaResponse = clovaService.send(letterResponse.getContent());
         TwoTypeMessage twoTypeMessage = clovaService.extract(clovaResponse);
@@ -61,6 +65,7 @@ public class ReplyService {
         return ReplyResponseDto.of(savedReply);
     }
 
+    @Transactional(readOnly = true)
     public ReplyResponseDto findReply(UUID letterId) {
         Letter letter = letterService.findLetter(letterId);
         Reply reply = replyRepository.findByLetter(letter)
@@ -69,6 +74,7 @@ public class ReplyService {
         return ReplyResponseDto.of(reply);
     }
 
+    @Transactional(readOnly = true)
     public List<ReplyResponseDto> findTopNLetterAndReply(Integer size) {
         size = correctSize(size);
         PageRequest pageable = PageRequest.of(0, size, Sort.by(Direction.DESC, "createdAt"));
@@ -79,8 +85,7 @@ public class ReplyService {
     }
 
     /**
-     * @deprecated 이 메서드는 더 이상 사용되지 않습니다.
-     * `{@link Pageable}`을 인수로 받는 `{@code findMyLetterAndReply}`를 사용하세요.
+     * @deprecated 이 메서드는 더 이상 사용되지 않습니다. `{@link Pageable}`을 인수로 받는 `{@code findMyLetterAndReply}`를 사용하세요.
      */
     @Deprecated
     public List<ReplyResponseDto> findMyLetterAndReply(UUID userId, Integer size) {
@@ -94,6 +99,7 @@ public class ReplyService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public Page<ReplyResponseDto> findMyLetterAndReply(UUID userId, int year, Pageable pageable) {
         validateUserId(userId);
 

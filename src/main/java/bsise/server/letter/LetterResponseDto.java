@@ -2,6 +2,7 @@ package bsise.server.letter;
 
 import bsise.server.user.domain.Preference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDateTime;
@@ -19,6 +20,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class LetterResponseDto {
+
+    @JsonIgnore
+    private UUID userId;
 
     @Schema(description = "저장된 편지의 식별자")
     private UUID letterId;
@@ -38,6 +42,7 @@ public class LetterResponseDto {
 
     public static LetterResponseDto fromLetter(Letter letter) {
         return LetterResponseDto.builder()
+                .userId(letter.getUser().getId())
                 .letterId(letter.getId())
                 .preference(letter.getPreference())
                 .content(letter.getMessage())
