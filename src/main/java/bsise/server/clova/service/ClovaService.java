@@ -16,7 +16,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-@Profile("prod")
+@Profile({"prod", "dev"})
 @Service
 @RequiredArgsConstructor
 @EnableConfigurationProperties(ClovaKeyProperties.class)
