@@ -237,7 +237,7 @@ public class DailyReportService {
     private DailyReport buildDailyReport(LocalDate targetDate, ClovaDailyAnalysisResult clovaDailyAnalysisResult) {
         return DailyReport.builder()
                 .targetDate(targetDate)
-                .coreEmotion(CoreEmotion.valueOf(clovaDailyAnalysisResult.getDailyCoreEmotion()))
+                .coreEmotion(CoreEmotion.findOrNeutral(clovaDailyAnalysisResult.getDailyCoreEmotion()))
                 .description(clovaDailyAnalysisResult.getDescription())
                 .build();
     }
@@ -253,7 +253,7 @@ public class DailyReportService {
                             .letter(letter)
                             .topic(analysis.getTopic())
                             .coreEmotions(analysis.getCoreEmotions().stream()
-                                    .map(CoreEmotion::valueOf)
+                                    .map(CoreEmotion::findOrNeutral)
                                     .collect(Collectors.toList()))
                             .sensitiveEmotions(analysis.getSensitiveEmotions())
                             .build();

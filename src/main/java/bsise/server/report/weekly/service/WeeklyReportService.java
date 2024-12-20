@@ -20,11 +20,13 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -67,6 +69,7 @@ public class WeeklyReportService {
         ClovaResponseDto clovaResponseDto = clovaService.sendWeeklyReportRequest(
                 ClovaWeeklyReportRequestDto.from(descriptions));
         String resultMessage = clovaResponseDto.getResultMessage();
+        log.info("cheer_up 내용 : {}", resultMessage);
 
         WeeklyDataManager manager = new WeeklyDataManager(startDate); // TODO: util class 로 리팩토링 필요
         WeeklyReport weeklyReport = WeeklyReport.builder()
