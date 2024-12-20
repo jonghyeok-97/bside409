@@ -1,4 +1,4 @@
-package bsise.server.clova.service;
+package bsise.server.clova.letter;
 
 import static bsise.server.user.domain.Preference.F;
 

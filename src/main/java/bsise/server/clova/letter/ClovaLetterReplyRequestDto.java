@@ -1,4 +1,4 @@
-package bsise.server.clova.dto;
+package bsise.server.clova.letter;
 
 import static bsise.server.clova.dto.ClovaRole.*;
 

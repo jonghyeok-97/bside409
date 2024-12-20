@@ -2,12 +2,13 @@ package bsise.server.clova.service;
 
 import static bsise.server.user.domain.Preference.*;
 
-import bsise.server.clova.dto.ClovaLetterReplyRequestDto;
-import bsise.server.clova.dto.ClovaRequestDto;
-import bsise.server.clova.dto.ClovaResponseDto;
-import bsise.server.clova.dto.TwoTypeMessage;
 import bsise.server.clova.client.ClovaFeignClient;
 import bsise.server.clova.dailyReport.ClovaDailyReportRequestDto;
+import bsise.server.clova.dto.ClovaRequestDto;
+import bsise.server.clova.dto.ClovaResponseDto;
+import bsise.server.clova.letter.ClovaLetterReplyRequestDto;
+import bsise.server.clova.letter.MessageExtractor;
+import bsise.server.clova.letter.TwoTypeMessage;
 import bsise.server.clova.weekly.ClovaWeeklyReportRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
