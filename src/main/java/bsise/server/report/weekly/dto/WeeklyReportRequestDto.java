@@ -17,8 +17,7 @@ public class WeeklyReportRequestDto {
     @NotBlank(message = "유저의 아이디가 존재하지 않습니다.")
     private final String userId;
 
-    @Schema(description = "유저가 주간 분석을 받을 주차의 시작 날짜",
-            requiredMode = RequiredMode.REQUIRED)
+    @Schema(description = "유저가 주간 분석을 받을 주차의 시작 날짜", requiredMode = RequiredMode.REQUIRED)
     @NotNull(message = "주간 분석을 받을 주차의 시작 날짜를 입력해 주세요.")
     private final LocalDate startDate;
 }
