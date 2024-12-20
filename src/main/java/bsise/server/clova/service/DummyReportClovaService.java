@@ -16,8 +16,8 @@ import org.springframework.stereotype.Service;
 @EnableConfigurationProperties(ClovaKeyProperties.class)
 public class DummyReportClovaService extends ClovaService {
 
-    public DummyReportClovaService(ClovaFeignClient client, ClovaKeyProperties properties) {
-        super(client, properties);
+    public DummyReportClovaService(ClovaKeyProperties properties, ClovaFeignClient client) {
+        super(properties, client);
     }
 
     /**
