@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-@Profile("prod")
+@Profile({"prod", "dev"})
 @Service
 @RequiredArgsConstructor
 public class ClovaService {
@@ -28,7 +28,7 @@ public class ClovaService {
     @Value("${clova.request.id}")
     private String requestId;
 
-    private final ClovaFeignClient client;
+    protected final ClovaFeignClient client;
 
     public ClovaResponseDto send(String message) {
         return sendRequestToClova(ClovaLetterReplyRequestDto.from(message));
