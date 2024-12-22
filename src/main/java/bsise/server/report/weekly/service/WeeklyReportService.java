@@ -69,7 +69,6 @@ public class WeeklyReportService {
         ClovaResponseDto clovaResponseDto = clovaService.sendWeeklyReportRequest(
                 ClovaWeeklyReportRequestDto.from(descriptions));
         String resultMessage = clovaResponseDto.getResultMessage();
-        log.info("cheer_up 내용 : {}", resultMessage);
 
         WeeklyDataManager manager = new WeeklyDataManager(startDate); // TODO: util class 로 리팩토링 필요
         WeeklyReport weeklyReport = WeeklyReport.builder()
