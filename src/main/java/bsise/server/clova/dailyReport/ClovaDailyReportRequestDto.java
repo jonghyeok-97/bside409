@@ -5,6 +5,7 @@ import static bsise.server.clova.dto.ClovaRole.USER;
 
 import bsise.server.clova.dto.ClovaMessageFormat;
 import bsise.server.clova.dto.ClovaRequestDto;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,14 +20,30 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ClovaDailyReportRequestDto implements ClovaRequestDto {
 
-    private static final double TEMPERATURE = 0.5;
-    private static final int TOP_K = 0;
-    private static final double TOP_P = 0.8;
-    private static final double REPEAT_PENALTY = 6.0;
-    private static final List<String> stopBefore = Collections.emptyList();
-    private static final int MAX_TOKENS = 700;
-    private static final boolean INCLUDE_AI_FILTERS = true;
-    private static final long SEED = 3404182980L;
+    @JsonProperty("temperature")
+    private final double temperature = 0.5;
+
+    @JsonProperty("topK")
+    private final int topK = 0;
+
+    @JsonProperty("topP")
+    private final double topP = 0.8;
+
+    @JsonProperty("repeatPenalty")
+    private final double repeatPenalty = 6.0;
+
+    @JsonProperty("stopBefore")
+    private final List<String> stopBefore = Collections.emptyList();
+
+    @JsonProperty("maxTokens")
+    private final int maxTokens = 700;
+
+    @JsonProperty("includeAiFilters")
+    private final boolean includeAiFilters = true;
+
+    @JsonProperty("seed")
+    private final long seed = 3404182980L;
+
     private static final String SYSTEM_PROMPT = """
             # 시스템 목표:
             입력받은 모든 편지를 분석하여 감정과 주제를 구조화된 방식으로 처리, 사용자에게 감정 통찰과 행동 지침을 제공
@@ -115,6 +132,7 @@ public class ClovaDailyReportRequestDto implements ClovaRequestDto {
             1. 분석될 수 없는 편지거나, 내용이 일기나 고민에 관련된 글이 아니라도 sensitiveEmotions를 제외하고 분석, coreEmotions는 "중립"으로 할 것
             2. 주제를 알 수 없더라도 주제는 반드시 작성되어야 함. 예를 들어 "공백", "알 수 없는 내용" 이런 형식으로라도""";
 
+    @JsonProperty("messages")
     private final List<ClovaMessageFormat> messages;
 
     public static ClovaRequestDto from(String userMessage) {

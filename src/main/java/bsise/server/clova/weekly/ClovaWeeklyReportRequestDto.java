@@ -6,7 +6,9 @@ import static bsise.server.clova.dto.ClovaRole.USER;
 
 import bsise.server.clova.dto.ClovaMessageFormat;
 import bsise.server.clova.dto.ClovaRequestDto;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -16,14 +18,30 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ClovaWeeklyReportRequestDto implements ClovaRequestDto {
 
-    private static final double TEMPERATURE = 0.5;
-    private static final int TOP_K = 0;
-    private static final double TOP_P = 0.8;
-    private static final double REPEAT_PENALTY = 5.0;
-    private static final List<String> stopBefore = new ArrayList<>();
-    private static final int MAX_TOKENS = 500;
-    private static final boolean INCLUDE_AI_FILTERS = true;
-    private static final long SEED = 3923155011L;
+    @JsonProperty("temperature")
+    private final double temperature = 0.5;
+
+    @JsonProperty("topK")
+    private final int topK = 0;
+
+    @JsonProperty("topP")
+    private final double topP = 0.8;
+
+    @JsonProperty("repeatPenalty")
+    private final double repeatPenalty = 5.0;
+
+    @JsonProperty("stopBefore")
+    private final List<String> stopBefore = Collections.emptyList();
+
+    @JsonProperty("maxTokens")
+    private final int maxTokens = 500;
+
+    @JsonProperty("includeAiFilters")
+    private final boolean includeAiFilters = true;
+
+    @JsonProperty("seed")
+    private final long seed = 3923155011L;
+
     private static final String USER_PROMPT = "다양한 경험을 하면서 여러 감정을 느낀 하루였네요. 팀 프로젝트에서는 충돌로 인해 분노와 슬픔을 겪으셨겠지만, 소통의 중요성을 배우는 계기가 되었을 것 입니다. 주말에는 가족과 즐거운 시간을 보내며 연대감을 다지셨다니 정말 좋으셨겠어요. 거기다 새로 시작한 취미로부터 삶의 열망과 열정을 얻으시다니, 매일이 새롭게 느껴지실 것 같네요., 여러 감정들이 오고간 하루였습니다. 비 때문에 조금 우울해질 뻔 했지만 책 한권이 큰 위로가 되어주었고, 친구들과 만나며 즐거움을 느꼈지만 미래에 대한 고민 또한 피할 수 없었습니다. 지하철에서는 불쾌한 상황을 목격하고 분노하였지만, 정의로운 행동을 보며 아직 세상엔 좋은 사람이 많다는 것을 느끼기도 하였습니다. 이런 감정들을 잘 정리하고 소화한다면, 성장의 기회로 삼을 수 있을 것입니다., 당신의 하루는 밝음과 어둠이 교차하는 순간들로 가득 차 있었습니다. 비 오는 날의 차분함 속에서 책을 읽으며 우울함을 느끼기도 했지만, 그 안에서 위로와 희망을 발견하기도 했습니다. 친구들과의 소중한 시간 속에서는 즐거움과 동시에 미래에 대한 고민이 고개를 들었지만, 현재의 소중함을 느끼며 그 무게를 덜어놓기도 했죠. 지하철에서는 무례한 행동에 분노하면서도, 용기 있는 행동 덕분에 세상의 따뜻함을 느낄 수도 있었습니다. 이런 다양한 감정들을 받아들이고 인정하며, 그 안에서 의미를 찾아보세요.";
     private static final String ASSISTANT_RESPONSE1 = "밝음과 어둠이 교차하는 순간들로 가득한 하루하루를 보내고 계시네요. 때로는 우울함과 고민이 찾아올 때도 있겠지만, 그 안에서 위로와 희망을 찾고 현재의 소중함을 느끼는 모습이 인상적이에요. 이렇게 다양한 감정들을 받아들이고 인정하다 보면, 한층 더 성장할 수 있을 거예요. 그러니 너무 걱정하지 마시고, 자신을 믿고 계속해서 나아가 보세요.";
     private static final String ASSISTANT_RESPONSE2 = "여러 감정들이 오고 가는 하루하루를 보내고 계시는군요. 이러한 감정들을 잘 정리하고 소화한다면 성장의 기회로 삼을 수 있을거에요. 그리고 밝은 면만 보면서 긍정적으로 생각하면 좀 더 행복한 하루를 보낼 수 있을겁니다! 😊";
@@ -49,6 +67,7 @@ public class ClovaWeeklyReportRequestDto implements ClovaRequestDto {
             4. 분석할 수 없다면 '분석하기 어려운 내용이 있는 것 같아요.' 라고 응답하세요
             """;
 
+    @JsonProperty("messages")
     private List<ClovaMessageFormat> messages;
 
     public static ClovaWeeklyReportRequestDto from(String descriptions) {

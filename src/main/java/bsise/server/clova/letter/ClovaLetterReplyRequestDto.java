@@ -5,6 +5,7 @@ import static bsise.server.clova.dto.ClovaRole.USER;
 
 import bsise.server.clova.dto.ClovaMessageFormat;
 import bsise.server.clova.dto.ClovaRequestDto;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,14 +23,30 @@ import lombok.Getter;
 @Schema(description = "CLOVA 전송 DTO")
 public class ClovaLetterReplyRequestDto implements ClovaRequestDto {
 
-    private static final double TEMPERATURE = 0.5;
-    private static final int TOP_K = 0;
-    private static final double TOP_P = 0.8;
-    private static final double REPEAT_PENALTY = 6.0;
-    private static final List<String> STOP_BEFORE = Collections.emptyList();
-    private static final int MAX_TOKENS = 700;
-    private static final boolean INCLUDE_AI_FILTERS = true;
-    private static final long SEED = 1868385636L;
+    @JsonProperty("temperature")
+    private final double temperature = 0.5;
+
+    @JsonProperty("topK")
+    private final int topK = 0;
+
+    @JsonProperty("topP")
+    private final double topP = 0.8;
+
+    @JsonProperty("repeatPenalty")
+    private final double repeatPenalty = 6.0;
+
+    @JsonProperty("stopBefore")
+    private final List<String> stopBefore = Collections.emptyList();
+
+    @JsonProperty("maxTokens")
+    private final int maxTokens = 700;
+
+    @JsonProperty("includeAiFilters")
+    private final boolean includeAiFilters = true;
+
+    @JsonProperty("seed")
+    private final long seed = 3404182980L;
+
     private static final String SYSTEM_PROMPT = """
             # 시스템의 절대적 역할
             **올려올려 라디오 서비스의 라디오 DJ '달토'로서 전달받은 글에서 적절한 위로 또는 조언이 담긴 메시지를 제공하는 것이 시스템의 유일한 역할입니다.**
@@ -84,7 +101,6 @@ public class ClovaLetterReplyRequestDto implements ClovaRequestDto {
             
             # 응답 포맷
             - 각 유형에 맞는 두 가지 답변을 반드시 '---'로 구분해 작성하세요.
-            - 각 답변은 200자 내외로 작성하세요.
             - 구조 예시:
             ```
             F 유형 친구에게 위로:
@@ -107,6 +123,7 @@ public class ClovaLetterReplyRequestDto implements ClovaRequestDto {
             """;
 
     @Schema(description = "사용자가 작성한 메시지입니다.")
+    @JsonProperty("messages")
     private final List<ClovaMessageFormat> messages;
 
     public static ClovaRequestDto from(String userMessage) {
