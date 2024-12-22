@@ -22,3 +22,7 @@ spring:
     compose:
       skip:
         in-tests: false
+
+feign:
+  clova:
+    url: https://clovastudio.stream.ntruss.com/testapp/v1/chat-completions/HCX-003
