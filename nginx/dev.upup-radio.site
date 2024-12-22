@@ -65,7 +65,7 @@ server {
     }
 
     location /static/media/ {
-        alias /var/www/upup-radio.site/html/static/media/;
+        alias /var/www/dev-upup-radio.site/html/static/media/;
         expires 30d;
         add_header Cache-Control "public, max-age=86400";
     }
