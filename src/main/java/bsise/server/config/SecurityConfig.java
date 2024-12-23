@@ -1,12 +1,16 @@
 package bsise.server.config;
 
+import static bsise.server.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
+
 import bsise.server.auth.CookieEncodingFilter;
 import bsise.server.auth.OAuth2SuccessHandler;
 import bsise.server.auth.UpOAuth2UserService;
 import bsise.server.auth.jwt.JwtAuthenticationEntryPoint;
-import bsise.server.auth.jwt.JwtRefresherFilter;
+import bsise.server.auth.jwt.JwtGeneratorFilter;
 import bsise.server.auth.jwt.JwtService;
 import bsise.server.auth.jwt.JwtValidatorFilter;
+import java.util.Arrays;
+import java.util.Collections;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,17 +23,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
-
-import java.util.Arrays;
-import java.util.Collections;
-
-import static bsise.server.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
 
 @EnableWebSecurity(debug = false)
 @Configuration
@@ -66,9 +65,9 @@ public class SecurityConfig {
         }));
 
         // filter
-        http.addFilterAfter(jwtRefresherFilter(jwtService), OAuth2LoginAuthenticationFilter.class);
+        http.addFilterAfter(jwtGeneratorFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
         http.addFilterAfter(jwtValidatorFilter(jwtService), LogoutFilter.class);
-        http.addFilterBefore(new CookieEncodingFilter("nickname", "--user-data"), OAuth2LoginAuthenticationFilter.class);
+        http.addFilterBefore(new CookieEncodingFilter("nickname", "--user-data"), UsernamePasswordAuthenticationFilter.class);
 
         // url pattern
         http.authorizeHttpRequests(requests -> requests
@@ -105,13 +104,13 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtValidatorFilter jwtValidatorFilter(JwtService jwtService) {
-        return new JwtValidatorFilter(jwtService);
+    public JwtGeneratorFilter jwtGeneratorFilter(JwtService jwtService) {
+        return new JwtGeneratorFilter(jwtService);
     }
 
     @Bean
-    public JwtRefresherFilter jwtRefresherFilter(JwtService jwtService) {
-        return new JwtRefresherFilter(jwtService);
+    public JwtValidatorFilter jwtValidatorFilter(JwtService jwtService) {
+        return new JwtValidatorFilter(jwtService);
     }
 
     @Bean

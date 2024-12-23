@@ -1,33 +1,36 @@
 package bsise.server.auth.jwt;
 
+import static bsise.server.auth.jwt.JwtConstant.ACCESS_VALID_MILLIS;
+import static bsise.server.auth.jwt.JwtConstant.REFRESH_VALID_MILLIS;
+import static bsise.server.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
+
 import bsise.server.auth.UpOAuth2UserService;
 import bsise.server.auth.UpUserDetails;
 import bsise.server.user.domain.User;
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.Jwts.SIG;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.Jwts.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.UUID;
+import javax.crypto.SecretKey;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.UUID;
-
-import static bsise.server.auth.jwt.JwtConstant.*;
-
-@Slf4j
 @Component
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class JwtService {
@@ -87,23 +90,16 @@ public class JwtService {
                 .compact();
     }
 
-    public Authentication getAuthenticationFromAccessToken(String jwt) {
-        String userId = getUserId(jwt, accessSecretKey);
+    public Authentication getAuthentication(String jwt) {
+        String userId = getUserId(jwt);
         UserDetails userDetails = oAuth2UserService.loadUserByUsername(userId);
 
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
-    public Authentication getAuthenticationFromRefreshToken(String jwt) {
-        String userId = getUserId(jwt, refreshSecretKey);
-        UserDetails userDetails = oAuth2UserService.loadUserByUsername(userId);
-
-        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
-    }
-
-    public String getUserId(String jwt, SecretKey key) {
+    public String getUserId(String jwt) {
         return Jwts.parser()
-                .verifyWith(key)
+                .verifyWith(accessSecretKey)
                 .build()
                 .parseSignedClaims(jwt)
                 .getPayload()
@@ -156,16 +152,15 @@ public class JwtService {
     }
 
     private boolean validateToken(String jwt, SecretKey secretKey) {
+        Jws<Claims> claims;
         try {
-            Jwts.parser()
+            claims = Jwts.parser()
                     .verifyWith(secretKey)
                     .build()
                     .parseSignedClaims(jwt);
-            return true;
-        } catch (ExpiredJwtException e) {
-            throw e;
+            return !claims.getPayload().getExpiration().before(Timestamp.valueOf(LocalDateTime.now()));
         } catch (JwtException | IllegalArgumentException e) {
-            throw new BadCredentialsException("Invalid JWT token.");
+            throw new ExpiredJwtException(null, null, "EXPIRED TOKEN");
         }
     }
 }

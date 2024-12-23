@@ -7,6 +7,8 @@ import bsise.server.auth.CookieEncodingFilter;
 import bsise.server.auth.OAuth2SuccessHandler;
 import bsise.server.auth.UpOAuth2UserService;
 import bsise.server.auth.jwt.JwtAuthenticationEntryPoint;
+import bsise.server.auth.jwt.JwtGeneratorFilter;
+import bsise.server.auth.jwt.JwtService;
 import java.util.Arrays;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +20,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
 @EnableWebSecurity(debug = true)
@@ -28,6 +30,7 @@ import org.springframework.web.cors.CorsConfiguration;
 @Profile("dev")
 public class SecurityConfigDev {
 
+    private final JwtService jwtService;
     private final UpOAuth2UserService upOAuth2UserService;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
@@ -41,8 +44,9 @@ public class SecurityConfigDev {
         http.csrf(AbstractHttpConfigurer::disable);
 
         // filter: 개발 환경에서는 검증만 사용하지 않음
+        http.addFilterAfter(jwtGeneratorFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(new CookieEncodingFilter("nickname", "--user-data"),
-                OAuth2LoginAuthenticationFilter.class);
+                UsernamePasswordAuthenticationFilter.class);
 
         // cors
         http.cors(cors -> cors.configurationSource(source -> corsConfiguration()));
@@ -59,6 +63,11 @@ public class SecurityConfigDev {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint));
 
         return http.build();
+    }
+
+    @Bean
+    public JwtGeneratorFilter jwtGeneratorFilter(JwtService jwtService) {
+        return new JwtGeneratorFilter(jwtService);
     }
 
     @Bean
