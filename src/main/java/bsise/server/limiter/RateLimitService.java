@@ -27,6 +27,7 @@ public class RateLimitService {
 
     /**
      * 유저의 요청이 제한 횟수를 초과하는지 유저 아이디로 조회하는 메서드.
+     *
      * @param userId {@link java.util.UUID} 의 String 타입
      * @return 제한 횟수 초과 여부
      */
@@ -56,6 +57,13 @@ public class RateLimitService {
         Long expire = redisTemplate.getExpire(key);
 
         return UserUsageResponseDto.of(userId, usage, expire);
+    }
+
+    public RateLimitPolicyResponseDto retrieveCurrentPolicy() {
+        Long limit = getCurrentPolicy(LIMIT);
+        Long ttl = getCurrentPolicy(TTL);
+
+        return RateLimitPolicyResponseDto.of(limit, ttl);
     }
 
     private String getKey(String userId) {
