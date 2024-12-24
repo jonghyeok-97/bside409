@@ -1,20 +1,20 @@
 package bsise.server.auth.jwt;
 
-import static bsise.server.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
-
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.util.stream.Stream;
+
+import static bsise.server.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -26,18 +26,20 @@ public class JwtGeneratorFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         log.info("=== jwt generator filter start ===");
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String accessToken = jwtService.resolveAccessToken(request);
+        Authentication authentication = jwtService.getAuthentication(accessToken);
 
         if (authentication != null) {
             // authentication 으로부터 프로필 이미지 포함한 클레임 생성
             Claims claims = jwtService.makeNewClaims(authentication);
 
             // access token, refresh token 발행
-            String accessToken = jwtService.issueAccessToken(claims);
-            String refreshToken = jwtService.issueRefreshToken(claims);
+            String newAccessToken = jwtService.issueAccessToken(claims);
+            String newRefreshToken = jwtService.issueRefreshToken(claims);
 
-            response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
-            response.setHeader(X_REFRESH_TOKEN, "Bearer " + refreshToken);
+            response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + newAccessToken);
+            response.setHeader(X_REFRESH_TOKEN, "Bearer " + newRefreshToken);
         }
 
         log.info("=== jwt generator filter end ===");

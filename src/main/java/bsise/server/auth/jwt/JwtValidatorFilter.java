@@ -55,13 +55,13 @@ public class JwtValidatorFilter extends OncePerRequestFilter {
                 throw new BadCredentialsException("Invalid refresh token");
             }
 
-            // security context 저장
-            Authentication authentication = jwtService.getAuthentication(accessToken);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
             // 기존 accessToken 기반 새로운 accessToken 생성
-            String reIssuedAccessToken = jwtService.reIssueAccessToken(accessToken);
-            String reIssuedRefreshToken = jwtService.reIssueRefreshToken(accessToken);
+            String reIssuedAccessToken = jwtService.reIssueAccessToken(refreshToken);
+            String reIssuedRefreshToken = jwtService.reIssueRefreshToken(refreshToken);
+
+            // security context 저장
+            Authentication authentication = jwtService.getAuthentication(reIssuedAccessToken);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
             // 갱신된 accessToken, refreshToken 반환
             response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + reIssuedAccessToken);

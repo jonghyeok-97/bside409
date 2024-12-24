@@ -1,16 +1,11 @@
 package bsise.server.config;
 
-import static bsise.server.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-
 import bsise.server.auth.CookieEncodingFilter;
 import bsise.server.auth.OAuth2SuccessHandler;
 import bsise.server.auth.UpOAuth2UserService;
 import bsise.server.auth.jwt.JwtAuthenticationEntryPoint;
 import bsise.server.auth.jwt.JwtGeneratorFilter;
 import bsise.server.auth.jwt.JwtService;
-import java.util.Arrays;
-import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +18,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.Arrays;
+import java.util.Collections;
+
+import static bsise.server.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @EnableWebSecurity(debug = true)
 @Configuration
