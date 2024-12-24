@@ -44,9 +44,8 @@ public class DummyReportClovaService extends ClovaService {
         return DummyDailyReportClovaResponseDto.createDummy(lettersCount);
     }
 
-    // TODO: weeklyReport 구현 선행
     @Override
     public ClovaResponseDto sendWeeklyReportRequest(ClovaWeeklyReportRequestDto dto) {
-        return null;
+        return client.sendToClova("", "", "", dto);
     }
 }

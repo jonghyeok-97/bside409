@@ -31,3 +31,7 @@ logging:
         orm:
           jdbc:
             bind: trace
+
+feign:
+  clova:
+    url: https://clovastudio.stream.ntruss.com/testapp/v1/chat-completions/HCX-003

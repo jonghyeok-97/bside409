@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 public class ClovaService {
 
     private final ClovaKeyProperties properties;
-    private final ClovaFeignClient client;
+    protected final ClovaFeignClient client;
 
     public ClovaResponseDto send(String message) {
         return sendRequestToClova(ClovaLetterReplyRequestDto.from(message));
