@@ -82,6 +82,7 @@ dependencies {
     runtimeOnly 'com.h2database:h2'
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
+    testImplementation "org.springframework.cloud:spring-cloud-contract-wiremock"
 }
 
 dependencyManagement {
