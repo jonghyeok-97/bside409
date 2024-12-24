@@ -1,7 +1,7 @@
 package bsise.server.reply;
 
 import bsise.server.clova.dto.ClovaResponseDto;
-import bsise.server.clova.dto.TwoTypeMessage;
+import bsise.server.clova.letter.TwoTypeMessage;
 import bsise.server.clova.service.ClovaService;
 import bsise.server.error.LetterNotFoundException;
 import bsise.server.error.UserNotFoundException;

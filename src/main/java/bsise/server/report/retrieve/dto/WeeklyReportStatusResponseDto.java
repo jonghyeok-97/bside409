@@ -1,6 +1,6 @@
 package bsise.server.report.retrieve.dto;
 
-import static bsise.server.report.retrieve.service.CustomDateUtils.*;
+import static bsise.server.report.retrieve.service.CustomDateUtils.getWeekOfMonth;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.DayOfWeek;
@@ -30,9 +30,10 @@ public class WeeklyReportStatusResponseDto {
 
     private final boolean analyzed;
 
-    public static WeeklyReportStatusResponseDto create(int weekOfYear, List<LocalDate> dates, List<WeeklyReportDto> reports) {
+    public static WeeklyReportStatusResponseDto create(int weekOfYear, List<LocalDate> dates,
+                                                       List<WeeklyReportDto> reports) {
         boolean analyzed = reports.stream()
-                .allMatch(report -> report.getWeeklyReportId() != null);
+                .anyMatch(report -> report.getWeeklyReportId() != null);
 
         LocalDate startDate = dates.get(0).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate endDate = dates.get(0).with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));

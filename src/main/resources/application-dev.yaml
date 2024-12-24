@@ -21,7 +21,7 @@ spring:
   data:
     redis:
       host: bside-redis
-      port: 6380
+      port: 6379
 logging:
   level:
     bsise.server: debug

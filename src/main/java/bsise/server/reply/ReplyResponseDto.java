@@ -1,6 +1,6 @@
 package bsise.server.reply;
 
-import bsise.server.clova.dto.TwoTypeMessage;
+import bsise.server.clova.letter.TwoTypeMessage;
 import bsise.server.user.domain.Preference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;

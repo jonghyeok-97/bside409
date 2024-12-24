@@ -12,15 +12,14 @@ import org.springframework.stereotype.Repository;
 public interface WeeklyReportRepository extends JpaRepository<WeeklyReport, UUID> {
 
     @Query(value = """
-            SELECT EXISTS(
-                SELECT 1
-                FROM weekly_report w
-                JOIN daily_report d ON w.weekly_report_id = d.weekly_report_id
-                JOIN letter l ON d.daily_report_id = l.daily_report_id AND l.user_id = :userId
-                WHERE w.start_date = :startDate AND w.end_date = :endDate
-            )
+            SELECT 1
+            FROM weekly_report w
+            JOIN daily_report d ON w.weekly_report_id = d.weekly_report_id
+            JOIN letter l ON d.daily_report_id = l.daily_report_id AND l.user_id = :userId
+            WHERE w.start_date = :startDate AND w.end_date = :endDate
+            LIMIT 1
             """, nativeQuery = true)
-    boolean existsByUserIdAndDateRangeIn(UUID userId, LocalDate startDate, LocalDate endDate);
+    Optional<Integer> fetchCountBy(UUID userId, LocalDate startDate, LocalDate endDate);
 
     @Query(value = """
             SELECT w.*
@@ -28,9 +27,8 @@ public interface WeeklyReportRepository extends JpaRepository<WeeklyReport, UUID
             JOIN daily_report d ON w.weekly_report_id = d.weekly_report_id
             JOIN letter l ON d.daily_report_id = l.daily_report_id
             WHERE w.start_date = :startDate
-              AND w.end_date = :endDate
-              AND l.user_id = :userId
-            """,
-            nativeQuery = true)
+                AND w.end_date = :endDate
+                AND l.user_id = :userId
+            """, nativeQuery = true)
     Optional<WeeklyReport> findDailyReportBy(UUID userId, LocalDate startDate, LocalDate endDate);
 }

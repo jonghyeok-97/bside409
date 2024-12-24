@@ -25,7 +25,7 @@ public class DailyReportController {
     @PostMapping("/api/v1/reports/daily")
     @ResponseStatus(HttpStatus.CREATED)
     public DailyReportResponseDto createDailyReport(@Valid @RequestBody DailyReportDto.CreateRequest dto) {
-        return dailyReportService.createDailyReport(UUID.fromString(dto.getUserId()), dto.getDate());
+        return dailyReportService.createDailyReport(UUID.fromString(dto.getUserId()), dto.getTargetDate());
     }
 
     @GetMapping("/api/v1/reports/daily/{userId}")
