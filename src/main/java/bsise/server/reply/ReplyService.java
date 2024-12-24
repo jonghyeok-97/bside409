@@ -100,13 +100,14 @@ public class ReplyService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ReplyResponseDto> findMyLetterAndReply(UUID userId, int year, Pageable pageable) {
+    public Page<ReplyResponseDto> findMyLetterAndReply(UUID userId, int year, boolean published, Pageable pageable) {
         validateUserId(userId);
 
         LocalDateTime startOfYear = Year.of(year).atDay(1).atStartOfDay();
         LocalDateTime endOfYear = Year.of(year).atMonth(12).atDay(31).atTime(LocalTime.MAX);
 
-        Page<Reply> replies = replyRepository.findRepliesByOrderByCreatedAt(userId, startOfYear, endOfYear, pageable);
+        Page<Reply> replies = replyRepository.findRepliesByOrderByCreatedAt(userId, startOfYear, endOfYear, published,
+                pageable);
         List<ReplyResponseDto> replyDto = replies.stream()
                 .map(reply -> ReplyResponseDto.ofByUserId(reply, userId))
                 .toList();
