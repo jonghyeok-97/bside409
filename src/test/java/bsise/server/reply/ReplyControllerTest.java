@@ -1,6 +1,7 @@
 package bsise.server.reply;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -11,6 +12,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -63,9 +66,10 @@ class ReplyControllerTest {
         given(mockReply.getLetter()).willReturn(mockLetter);
     }
 
+    @DisplayName("published 값에 따른 편지와 1:1로 대응하는 답장을 페이징으로 응답할 수 있다")
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
-    void findMyLetters(boolean published) throws Exception {
+    void success_paging_response_when_published_is_existed(boolean published) throws Exception {
         // given
         /* Arrange */
         int year = 2024;

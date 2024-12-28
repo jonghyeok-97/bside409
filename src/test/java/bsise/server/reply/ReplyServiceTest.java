@@ -65,7 +65,7 @@ class ReplyServiceTest {
 
         doReturn(true).when(mockUserRepository).existsUserById(userId);
         doReturn(replies).when(mockReplyRepository)
-                .findRepliesByOrderByCreatedAt(eq(userId), any(LocalDateTime.class), any(LocalDateTime.class),
+                .findLatestRepliesBy(eq(userId), any(LocalDateTime.class), any(LocalDateTime.class),
                         eq(published), eq(pageable));
 
         // when
@@ -73,7 +73,7 @@ class ReplyServiceTest {
 
         // then
         then(mockUserRepository).should().existsUserById(userId);
-        then(mockReplyRepository).should().findRepliesByOrderByCreatedAt(
+        then(mockReplyRepository).should().findLatestRepliesBy(
                 eq(userId), any(LocalDateTime.class), any(LocalDateTime.class), eq(published), eq(pageable));
 
         assertThat(response).isNotNull();
@@ -86,7 +86,7 @@ class ReplyServiceTest {
         // verify
         verify(mockUserRepository, times(1)).existsUserById(any(UUID.class));
         verify(mockReplyRepository, times(1))
-                .findRepliesByOrderByCreatedAt(any(UUID.class), any(LocalDateTime.class), any(LocalDateTime.class),
+                .findLatestRepliesBy(any(UUID.class), any(LocalDateTime.class), any(LocalDateTime.class),
                         any(boolean.class), any(Pageable.class));
     }
 }
