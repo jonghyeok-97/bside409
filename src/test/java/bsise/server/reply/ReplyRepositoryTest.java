@@ -14,6 +14,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -34,18 +35,18 @@ class ReplyRepositoryTest {
     @DisplayName("공개 여부 조건에 해당하는 편지의 답장을 가져올 수 있다")
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
-    void findRepliesByOrderByCreatedAt(boolean published) {
+    void findLatestRepliesBy(boolean published) {
         // given
         User savedUser = userRepository.save(User.makeGuest());
         Letter savedLetter = letterRepository.save(makeLetter(savedUser, published));
         Reply savedReply = replyRepository.save(makeReply(savedLetter));
+        Pageable pageable = PageRequest.of(0, 10);
 
         LocalDateTime start = LocalDateTime.now().with(TemporalAdjusters.firstDayOfYear());
         LocalDateTime end = LocalDateTime.now().with(TemporalAdjusters.lastDayOfYear());
 
         // when
-        Page<Reply> replies = replyRepository.findRepliesByOrderByCreatedAt(
-                savedUser.getId(), start, end, published, Pageable.unpaged());
+        Page<Reply> replies = replyRepository.findLatestRepliesBy(savedUser.getId(), start, end, published, pageable);
 
         Reply findReply = replies.getContent().get(0);
 

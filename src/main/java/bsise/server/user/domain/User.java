@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "user")
+@Table(name = "`user`")
 public class User extends BaseTimeEntity {
 
     private static final String TEMP_NICKNAME = "임시 닉네임";
