@@ -50,7 +50,7 @@ public class ReplyController {
     public Page<ReplyResponseDto> findMyLetters(
             @PathVariable("userId") String userId,
             @RequestParam("year") int year,
-            @RequestParam("published") boolean published,
+            @RequestParam(value = "published", required = false) Boolean published,
             @PageableDefault(size = 10, direction = Direction.DESC) Pageable pageable
     ) {
         return replyService.findMyLetterAndReply(UUID.fromString(userId), year, published, pageable);
