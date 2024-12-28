@@ -107,7 +107,7 @@ public class ReplyService {
 
         Page<Reply> replies = replyRepository.findLatestRepliesBy(userId, startOfYear, endOfYear, published, pageable);
 
-        return replies.map(ReplyResponseDto::of);
+        return replies.map(reply -> ReplyResponseDto.ofByUserId(reply, userId));
     }
 
     private void validateUserId(UUID userId) {
