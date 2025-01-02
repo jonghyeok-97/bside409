@@ -20,8 +20,8 @@ spring:
         in-tests: false
   data:
     redis:
-      host: bside-redis
-      port: 6379
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
 logging:
   level:
     bsise.server: debug
