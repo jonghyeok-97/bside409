@@ -14,15 +14,15 @@ spring:
       client:
         config:
           default:
-            connect-timeout: 1000
-            read-timeout: 10000
+            connect-timeout: 10000
+            read-timeout: 120000
 resilience4j:
   circuitbreaker:
     configs:
       default:
-        wait-duration-in-open-state: 30s
-        slow-call-rate-threshold: 80
-        slow-call-duration-threshold: 15s
+        wait-duration-in-open-state: 30s    # OPEN -> HALF_OPEN 상태로 변경까지 대기 시간
+        slow-call-rate-threshold: 80        # slow-call 비율 임계값 80%가 넘으면 CLOSE -> OPEN
+        slow-call-duration-threshold: 120s  # 120초가 넘으면 slow-call 으로 판단
         register-health-indicator: true
         record-failure-predicate: bsise.server.common.resilience.DefaultExceptionRecordFailurePredicate
     instances:
@@ -31,8 +31,8 @@ resilience4j:
   timelimiter:
     configs:
       default:
-        timeout-duration: 20s
-        cancel-running-future: true
+        timeout-duration: 150s              # 150초가 넘으면 Future 작업 중단. slow-call-duration 보다 큰 값
+        cancel-running-future: true         # timeout-duration 값이 지나면 Future 작업 중단
 server:
   error:
     whitelabel:
