@@ -12,6 +12,12 @@ metadata:
     nginx.ingress.kubernetes.io/cors-allow-headers: "Authorization, Content-Type, X-Refresh-Token, Cache-Control"
     nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
     cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; 
+      proxy_set_header X-Forwarded-Proto $scheme;
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.org/path-regex: "case_insensitive"
 spec:
   tls:
     - hosts:
@@ -22,7 +28,7 @@ spec:
     - host: dev2.upup-radio.site
       http:
         paths:
-          - path: /api/v1
+          - path: ~ ^(/api/|/login/|/oauth2/)
             pathType: Prefix
             backend:
               service:
