@@ -36,9 +36,15 @@ spec:
             - containerPort: 8080
           env:
             - name: SPRING_ACTIVE_PROFILE
-              value: dev
+              valueFrom:
+                configMapKeyRef:
+                  key: spring-active-profile
+                  name: api-config-env
             - name: JAR_FILENAME
-              value: bside-backend
+              valueFrom:
+                configMapKeyRef:
+                  key: jar-file-name
+                  name: api-config-env
             - name: DB_URL
               valueFrom:
                 secretKeyRef:
