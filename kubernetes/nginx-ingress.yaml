@@ -27,7 +27,21 @@ spec:
     - host: dev2.upup-radio.site
       http:
         paths:
-          - path: ~ ^(/api/|/login/|/oauth2/).*$
+          - path: ~ ^/api/.*$
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: api-svc
+                port:
+                  number: 8080
+          - path: ~ ^/login/.*$
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: api-svc
+                port:
+                  number: 8080
+          - path: ~ ^/oauth2/.*$
             pathType: ImplementationSpecific
             backend:
               service:
