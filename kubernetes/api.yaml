@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: yeriimii/upup-radio-backend:k8s
+          image: yeriimii/upup-radio-backend:2025-01-05T01-53-11
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
