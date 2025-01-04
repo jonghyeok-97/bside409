@@ -44,6 +44,8 @@ public class RestApiControllerAdvice extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException exception, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        log.error("An error occurred: ", exception);
+
         List<ValidationProblemDetails> problemDetails = exception.getBindingResult().getFieldErrors().stream()
                 .map(fieldError -> new ValidationProblemDetails(
                         fieldError.getField(),
@@ -61,6 +63,8 @@ public class RestApiControllerAdvice extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(
             Exception exception, @Nullable Object body, HttpHeaders headers, HttpStatusCode statusCode, WebRequest request) {
+        log.error("An error occurred: ", exception);
+
         return ResponseEntity.status(statusCode)
                 .body(
                         CustomErrorResponse.of(
