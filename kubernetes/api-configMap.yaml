@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-config-env
+data:
+  spring-active-profile: "dev"
+  jar-file-name: "bside-backend"

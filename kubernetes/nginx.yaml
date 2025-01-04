@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-svc
+spec:
+  selector:
+    app: view
+    tier: frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      nodePort: 30956
+      targetPort: 80
+      name: http
+    - protocol: TCP
+      port: 443
+      nodePort: 30780
+      targetPort: 443
+      name: https
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: view
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: view
+        tier: frontend
+    spec:
+      containers:
+        - name: nginx
+          image: yeriimii/upup-radio-front:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+            - containerPort: 443
