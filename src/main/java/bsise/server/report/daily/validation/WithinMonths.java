@@ -15,7 +15,7 @@ public @interface WithinMonths {
 
     int months() default 1;
 
-    String message() default "{bsise.server.validation.constraints.WithinLastMonth.message}";
+    String message() default "{bsise.server.validation.WithinLastMonth.message}";
 
     Class<?>[] groups() default {};
 
