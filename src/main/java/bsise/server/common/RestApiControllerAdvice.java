@@ -1,6 +1,7 @@
 package bsise.server.common;
 
 import bsise.server.error.DormantUserLoginException;
+import bsise.server.error.EntityAlreadyExistsException;
 import bsise.server.error.NamedLockAcquisitionException;
 import bsise.server.error.RateLimitException;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
@@ -9,13 +10,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.client.circuitbreaker.NoFallbackAvailableException;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.ErrorResponse;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
@@ -69,8 +74,21 @@ public class RestApiControllerAdvice {
         return createErrorResponse(exception, HttpStatus.INTERNAL_SERVER_ERROR, "error.noFallbackAvailable");
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<?> handleRateLimitException(RuntimeException exception) {
+    @ExceptionHandler(EntityAlreadyExistsException.class)
+    public ResponseEntity<?> handleEntityAlreadyExistsException(EntityAlreadyExistsException exception) {
+        return createErrorResponse(exception, HttpStatus.CONFLICT, "error.entity.already.exists");
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
+        String errorMessages = exception.getBindingResult().getFieldErrors().stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .collect(Collectors.joining(", "));
+        return createErrorResponse(exception, HttpStatus.BAD_REQUEST, "error.args.invalid: " + errorMessages);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleUnhandledException(Exception exception) {
         return createErrorResponse(exception, HttpStatus.INTERNAL_SERVER_ERROR, "error.unknown");
     }
 

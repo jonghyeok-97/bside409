@@ -6,7 +6,7 @@ import bsise.server.clova.dto.ClovaResponseDto;
 import bsise.server.clova.service.ClovaService;
 import bsise.server.common.aop.transaction.NamedLock;
 import bsise.server.error.DailyReportNotFoundException;
-import bsise.server.error.DuplicateDailyReportException;
+import bsise.server.error.DailyReportAlreadyExistsException;
 import bsise.server.error.LetterNotFoundException;
 import bsise.server.letter.Letter;
 import bsise.server.letter.LetterRepository;
@@ -67,7 +67,7 @@ public class DailyReportService {
     @NamedLock(lockName = "createdDailyReport", timeout = 0, keyFields = {"userId"})
     public DailyReportResponseDto createDailyReport(UUID userId, LocalDate targetDate) {
         if (dailyReportRepository.existsByUserAndTargetDate(userId, targetDate)) {
-            throw new DuplicateDailyReportException("Duplicate daily report exists.");
+            throw new DailyReportAlreadyExistsException("Duplicate daily report exists.");
         }
         List<Letter> letters = findRecentLetters(userId, targetDate);
 
@@ -92,7 +92,7 @@ public class DailyReportService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public DailyReportResponseDto createDailyReportWithFacade(UUID userId, LocalDate targetDate) {
         if (dailyReportRepository.existsByUserAndTargetDate(userId, targetDate)) {
-            throw new DuplicateDailyReportException("Duplicate daily report exists.");
+            throw new DailyReportAlreadyExistsException("Duplicate daily report exists.");
         }
         List<Letter> letters = findRecentLetters(userId, targetDate);
 
