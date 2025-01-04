@@ -50,7 +50,7 @@ jobs:
 
       - name: Update deployment version
         run: |
-          sed -i "s|image: yeriimii/upup-radio-backend:.*|image: yeriimii/upup-radio-backend:${{ steps.current_time.outputs.formattedTime }}|g" /kubernetes/api.yaml
+          sed -i "s|image: yeriimii/upup-radio-backend:.*|image: yeriimii/upup-radio-backend:${{ steps.current_time.outputs.formattedTime }}|g" ./kubernetes/api.yaml
 
       - name: Configure Git
         run: |
@@ -59,7 +59,7 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          git add kubernetes/api.yaml
+          git add ./kubernetes/api.yaml
           git commit -m ":tada: Update deployment version to ${{ steps.current_time.outputs.formattedTime }}"
           git push origin dev
         env:
