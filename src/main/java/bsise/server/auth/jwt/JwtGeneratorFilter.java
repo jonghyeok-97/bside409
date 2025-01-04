@@ -8,17 +8,18 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.PatternMatchUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
 @RequiredArgsConstructor
 public class JwtGeneratorFilter extends OncePerRequestFilter {
 
+    private static final String[] NOT_FILTERED_URLS = {"/error", "/swagger-*", "/v3/api-docs*", "/api-docs*"};
     private final JwtService jwtService;
 
     @Override
@@ -54,8 +55,6 @@ public class JwtGeneratorFilter extends OncePerRequestFilter {
      */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return Stream.of(
-                "/error", "/swagger-", "/v3/api-docs", "/api-docs"
-        ).noneMatch(uri -> request.getServletPath().startsWith(uri));
+        return PatternMatchUtils.simpleMatch(NOT_FILTERED_URLS, request.getServletPath());
     }
 }
