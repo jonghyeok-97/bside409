@@ -42,7 +42,7 @@ public class WeeklyReportService {
      */
     @CacheEvict(
             cacheNames = {"dailyReportStatus", "weeklyReportStatus"}, cacheManager = "caffeineCacheManager",
-            key = "#userId.toString()"
+            key = "#userId.toString() + #startDate.toString()"
     )
     public WeeklyReportResponseDto createWeeklyReport(UUID userId, LocalDate startDate) {
         // 주간 분석 생성할 수 있는지 검증

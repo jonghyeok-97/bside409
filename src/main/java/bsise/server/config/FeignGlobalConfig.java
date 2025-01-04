@@ -29,7 +29,7 @@ public class FeignGlobalConfig {
     }
 
     @Slf4j
-    static class CustomFeignLogging extends Logger {
+    public static class CustomFeignLogging extends Logger {
 
         @Override
         protected void logRequest(String configKey, Level logLevel, Request request) {
@@ -38,12 +38,11 @@ public class FeignGlobalConfig {
                 return;
             }
             String stringBody = createRequestStringBody(request);
-            log.info("[threadId={}] ---> {} {} {} [Headers]: {} [Body]: {}",
+            log.info("[threadId={}] ---> {} {} {} [Body]: {}",
                     Thread.currentThread().getId(),
                     request.httpMethod(),
                     request.url(),
                     request.protocolVersion(),
-                    request.headers(),
                     stringBody);
         }
 
@@ -76,7 +75,7 @@ public class FeignGlobalConfig {
         }
 
         /**
-         * customeFeignLogging 을 빈으로 등록하고, log()와 format()이 없으면 feign 로그 레벨이 HEADERS 이상일 떄, DEBUG 레벨의 로그가 나오지 않음
+         * CustomFeignLogging 을 빈으로 등록하고, log()와 format()이 없으면 feign 로그 레벨이 HEADERS 이상일 떄, DEBUG 레벨의 로그가 나오지 않음
          */
         @Override
         protected void log(String configKey, String format, Object... args) {

@@ -45,7 +45,7 @@ public class ReplyService {
      */
     @CacheEvict(
             cacheNames = {"dailyReportStatus", "weeklyReportStatus"}, cacheManager = "caffeineCacheManager",
-            key = "#letterResponse.userId.toString()"
+            key = "#letterResponse.userId.toString() + #letterResponse.createdAt.toLocalDate().toString()"
     )
     public ReplyResponseDto makeAndSaveReply(LetterResponseDto letterResponse) {
         ClovaResponseDto clovaResponse = clovaService.send(letterResponse.getContent());
