@@ -10,9 +10,9 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,6 +26,7 @@ import java.util.UUID;
 
 import static bsise.server.auth.jwt.JwtConstant.*;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class JwtService {
@@ -156,7 +157,7 @@ public class JwtService {
         } catch (ExpiredJwtException e) {
             throw e;
         } catch (JwtException | IllegalArgumentException e) {
-            throw new BadCredentialsException("Invalid JWT");
+            return false;
         }
     }
 }
