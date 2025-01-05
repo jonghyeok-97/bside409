@@ -44,7 +44,7 @@ public class DailyReport extends BaseTimeEntity {
     @Column(name = "target_date", nullable = false)
     private LocalDate targetDate;
 
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", nullable = false, length = 500)
     private String description;
 
     @Builder
