@@ -40,11 +40,12 @@ public class WeeklyReport extends BaseTimeEntity {
     @Column(name = "unpublished_count", nullable = false)
     private int unpublishedCount;
 
-    @Column(name = "cheer_up", nullable = false)
+    @Column(name = "cheer_up", nullable = false, length = 500)
     private String cheerUp;
 
     @Builder
-    public WeeklyReport(int weekOfYear, LocalDate startDate, LocalDate endDate, int publishedCount, int unpublishedCount, String cheerUp) {
+    public WeeklyReport(int weekOfYear, LocalDate startDate, LocalDate endDate, int publishedCount,
+                        int unpublishedCount, String cheerUp) {
         this.weekOfYear = weekOfYear;
         this.startDate = startDate;
         this.endDate = endDate;
