@@ -16,6 +16,8 @@ spring:
           default:
             connect-timeout: 10000
             read-timeout: 120000
+  lifecycle:
+    timeout-per-shutdown-phase: 2m
 resilience4j:
   circuitbreaker:
     configs:
@@ -45,6 +47,7 @@ server:
   tomcat:
     mbeanregistry:
       enabled: true
+  shutdown: graceful
 management:
   server:
     port: 9292
