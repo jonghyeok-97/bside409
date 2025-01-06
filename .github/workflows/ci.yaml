@@ -7,8 +7,6 @@ on:
 jobs:
   build:
     name: Build and Push Docker Image
-    outputs:
-      TAG: ${{ steps.current_time.outputs.formattedTime }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -43,12 +41,12 @@ jobs:
         with:
           context: .
           file: Dockerfile-dev
-          tags: yeriimii/upup-radio-backend:${{ steps.current_time.outputs.formattedTime }}
+          tags: ${{ vars.CONTAINER_REGISTRY }}:${{ steps.current_time.outputs.formattedTime }}
           push: true
 
       - name: Update deployment version
         run: |
-          sed -i "s|image: yeriimii/upup-radio-backend:.*|image: yeriimii/upup-radio-backend:${{ steps.current_time.outputs.formattedTime }}|g" ./kubernetes/api.yaml
+          sed -i "s|image: ${{ vars.CONTAINER_REGISTRY }}:.*|image: ${{ vars.CONTAINER_REGISTRY }}:${{ steps.current_time.outputs.formattedTime }}|g" ${{ vars.MANIFEST_DIR }}
 
       - name: Configure Git
         run: |
@@ -57,7 +55,7 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          git add ./kubernetes/api.yaml
+          git add ${{ vars.MANIFEST_DIR }}
           git commit -m ":tada: Update deployment version to ${{ steps.current_time.outputs.formattedTime }}"
           git push origin dev
         env:
