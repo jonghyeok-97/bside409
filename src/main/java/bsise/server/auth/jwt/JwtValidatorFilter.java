@@ -24,7 +24,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtValidatorFilter extends OncePerRequestFilter {
 
     private static final String[] NOT_FILTERED_URLS = {
-            "/login", "/oauth2*", "/error", "/swagger-*", "/v3/api-docs*", "/api-docs*", "/api/v1/users*"
+            "/login*", "/oauth2*", "/error", "/swagger-*", "/v3/api-docs*", "/api-docs*", "/api/v1/users*"
     };
     private final JwtService jwtService;
 
@@ -54,19 +54,18 @@ public class JwtValidatorFilter extends OncePerRequestFilter {
             if (refreshToken == null || !jwtService.isValidRefreshToken(refreshToken)) {
                 throw new BadCredentialsException("Invalid refresh token");
             }
-
             // 기존 accessToken 기반 새로운 accessToken 생성
-            String reIssuedAccessToken = jwtService.reIssueAccessToken(refreshToken);
-            String reIssuedRefreshToken = jwtService.reIssueRefreshToken(refreshToken);
+            accessToken = jwtService.reIssueAccessToken(refreshToken);
+            refreshToken = jwtService.reIssueRefreshToken(refreshToken);
 
             // security context 저장
-            Authentication authentication = jwtService.getAuthentication(reIssuedAccessToken);
+            Authentication authentication = jwtService.getAuthentication(accessToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             // 갱신된 accessToken, refreshToken 반환
-            response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + reIssuedAccessToken);
-            response.setHeader(X_REFRESH_TOKEN, "Bearer " + reIssuedRefreshToken);
-            log.info("=== JWT IN HEADER: 만료 ===");
+            response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+            response.setHeader(X_REFRESH_TOKEN, "Bearer " + refreshToken);
+            log.info("=== JWT Refresh ===");
         }
 
         filterChain.doFilter(request, response);
