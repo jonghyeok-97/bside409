@@ -24,7 +24,7 @@ spring:
       port: ${REDIS_PORT}
 logging:
   level:
-    bsise.server: debug
+    site.radio: debug
     org:
       hibernate:
         SQL: debug
