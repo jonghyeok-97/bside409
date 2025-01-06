@@ -1,12 +1,9 @@
 package site.radio.config;
 
-import site.radio.auth.CookieEncodingFilter;
-import site.radio.auth.OAuth2SuccessHandler;
-import site.radio.auth.UpOAuth2UserService;
-import site.radio.auth.jwt.JwtAuthenticationEntryPoint;
-import site.radio.auth.jwt.JwtGeneratorFilter;
-import site.radio.auth.jwt.JwtService;
-import site.radio.auth.jwt.JwtValidatorFilter;
+import static site.radio.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
+
+import java.util.Arrays;
+import java.util.Collections;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,11 +22,13 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
-
-import java.util.Arrays;
-import java.util.Collections;
-
-import static site.radio.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
+import site.radio.auth.CookieEncodingFilter;
+import site.radio.auth.OAuth2SuccessHandler;
+import site.radio.auth.UpOAuth2UserService;
+import site.radio.auth.jwt.JwtAuthenticationEntryPoint;
+import site.radio.auth.jwt.JwtGeneratorFilter;
+import site.radio.auth.jwt.JwtService;
+import site.radio.auth.jwt.JwtValidatorFilter;
 
 @EnableWebSecurity(debug = false)
 @Configuration
@@ -68,7 +67,8 @@ public class SecurityConfig {
         // filter
         http.addFilterAfter(jwtGeneratorFilter(jwtService), OAuth2LoginAuthenticationFilter.class);
         http.addFilterAfter(jwtValidatorFilter(jwtService), LogoutFilter.class);
-        http.addFilterBefore(new CookieEncodingFilter("nickname", "--user-data"), OAuth2LoginAuthenticationFilter.class);
+        http.addFilterBefore(new CookieEncodingFilter("nickname", "--user-data"),
+                OAuth2LoginAuthenticationFilter.class);
 
         // url pattern
         http.authorizeHttpRequests(requests -> requests

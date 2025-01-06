@@ -1,11 +1,10 @@
 package site.radio.config;
 
-import site.radio.auth.CookieEncodingFilter;
-import site.radio.auth.OAuth2SuccessHandler;
-import site.radio.auth.UpOAuth2UserService;
-import site.radio.auth.jwt.JwtAuthenticationEntryPoint;
-import site.radio.auth.jwt.JwtGeneratorFilter;
-import site.radio.auth.jwt.JwtService;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static site.radio.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
+
+import java.util.Arrays;
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -19,12 +18,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
-
-import java.util.Arrays;
-import java.util.Collections;
-
-import static site.radio.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import site.radio.auth.CookieEncodingFilter;
+import site.radio.auth.OAuth2SuccessHandler;
+import site.radio.auth.UpOAuth2UserService;
+import site.radio.auth.jwt.JwtAuthenticationEntryPoint;
+import site.radio.auth.jwt.JwtGeneratorFilter;
+import site.radio.auth.jwt.JwtService;
 
 @EnableWebSecurity(debug = true)
 @Configuration
