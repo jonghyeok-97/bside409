@@ -1,5 +1,14 @@
 package site.radio.report.weekly.service;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import site.radio.clova.dto.ClovaResponseDto;
 import site.radio.clova.service.ClovaService;
 import site.radio.clova.weekly.ClovaWeeklyReportRequestDto;
@@ -14,17 +23,6 @@ import site.radio.report.daily.service.DailyReportService;
 import site.radio.report.weekly.domain.WeeklyReport;
 import site.radio.report.weekly.dto.WeeklyReportResponseDto;
 import site.radio.report.weekly.repository.WeeklyReportRepository;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -40,10 +38,6 @@ public class WeeklyReportService {
     /**
      * 분석 날짜, 작성빈도, 요일 ⛧ 감정 변화 추이, 위로 메세지, + 데일리의 각 편지 대표 감정 일요일 자정(00:00)을 넘으면 주간 분석 요청 버튼 활성화 및 주간 분석 요청 가능
      */
-    @CacheEvict(
-            cacheNames = {"dailyReportStatus", "weeklyReportStatus"}, cacheManager = "caffeineCacheManager",
-            key = "#userId.toString()"
-    )
     public WeeklyReportResponseDto createWeeklyReport(UUID userId, LocalDate startDate) {
         // 주간 분석 생성할 수 있는지 검증
         if (weeklyReportRepository.fetchCountBy(userId, startDate, startDate.plusDays(6)).isPresent()) {
@@ -89,10 +83,6 @@ public class WeeklyReportService {
         return WeeklyReportResponseDto.from(weeklyReport, coreEmotions);
     }
 
-    @Cacheable(
-            cacheNames = "weeklyReport", cacheManager = "caffeineCacheManager",
-            key = "#userId.toString()", unless = "#result == null"
-    )
     @Transactional(readOnly = true)
     public WeeklyReportResponseDto getWeeklyReport(UUID userId, LocalDate startDate, LocalDate endDate) {
         List<DailyReport> dailyReports = dailyReportRepository.findDailyReportsWithWeeklyReport(userId, startDate,

@@ -2,11 +2,6 @@ package site.radio.report.retrieve.service;
 
 import static java.util.stream.Collectors.groupingBy;
 
-import site.radio.letter.LetterRepository;
-import site.radio.report.retrieve.dto.DailyReportDto;
-import site.radio.report.retrieve.dto.DailyReportStatusResponseDto;
-import site.radio.report.retrieve.dto.WeeklyReportDto;
-import site.radio.report.retrieve.dto.WeeklyReportStatusResponseDto;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,9 +14,13 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import site.radio.letter.LetterRepository;
+import site.radio.report.retrieve.dto.DailyReportDto;
+import site.radio.report.retrieve.dto.DailyReportStatusResponseDto;
+import site.radio.report.retrieve.dto.WeeklyReportDto;
+import site.radio.report.retrieve.dto.WeeklyReportStatusResponseDto;
 
 @Slf4j
 @Service
@@ -42,10 +41,6 @@ public class ReportStatusRetrieveService {
      * @param endDate    검색 범위 마지막 날짜
      * @return 일자 별 일일 분석 리포트 상태 리스트
      */
-    @Cacheable(
-            cacheNames = "dailyReportStatus", cacheManager = "caffeineCacheManager",
-            key = "#userId.toString()", unless = "#result == null || #result.size() == 0"
-    )
     public List<DailyReportStatusResponseDto> findDailyReportStatus(UUID userId, LocalDate targetDate,
                                                                     LocalDate endDate) {
         // 타겟 날짜로부터 한 달 전 날짜
@@ -78,10 +73,6 @@ public class ReportStatusRetrieveService {
      * @param endDate    검색 범위 마지막 날짜
      * @return 주간 별 주간 분석 리포트 상태 리스트
      */
-    @Cacheable(
-            cacheNames = "weeklyReportStatus", cacheManager = "caffeineCacheManager",
-            key = "#userId.toString()", unless = "#result == null || #result.size() == 0"
-    )
     public List<WeeklyReportStatusResponseDto> findWeeklyReportStatus(UUID userId, LocalDate targetDate,
                                                                       LocalDate endDate) {
         // 타겟 날짜로부터 한 달 전 날짜

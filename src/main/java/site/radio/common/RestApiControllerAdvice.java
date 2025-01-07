@@ -52,11 +52,7 @@ public class RestApiControllerAdvice extends ResponseEntityExceptionHandler {
                 )).toList();
 
         return ResponseEntity.status(status)
-                .body(
-                        ValidationErrorResponse.of(
-                                ExceptionType.from(exception), problemDetails
-                        )
-                );
+                .body(ValidationErrorResponse.of(ExceptionType.from(exception), problemDetails));
     }
 
     @Override
@@ -66,11 +62,7 @@ public class RestApiControllerAdvice extends ResponseEntityExceptionHandler {
         log.error("An error occurred: ", exception);
 
         return ResponseEntity.status(statusCode)
-                .body(
-                        CustomErrorResponse.of(
-                                ExceptionType.from(exception), null
-                        )
-                );
+                .body(CustomErrorResponse.of(ExceptionType.from(exception), null));
     }
 
     private ResponseEntity<?> createErrorResponse(Exception exception) {
