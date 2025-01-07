@@ -1,10 +1,10 @@
 package bsise.server.common;
 
-import bsise.server.error.*;
-import bsise.server.error.CustomErrorResponse;
-import bsise.server.error.ExceptionType;
-import bsise.server.error.ValidationErrorResponse;
+import bsise.server.error.DormantUserLoginException;
 import bsise.server.error.ValidationProblemDetails;
+import bsise.server.error.ValidationErrorResponse;
+import bsise.server.error.ExceptionType;
+import bsise.server.error.CustomErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.client.circuitbreaker.NoFallbackAvailableException;
