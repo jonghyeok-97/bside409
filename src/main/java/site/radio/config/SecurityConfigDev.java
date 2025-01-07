@@ -22,8 +22,6 @@ import site.radio.auth.CookieEncodingFilter;
 import site.radio.auth.OAuth2SuccessHandler;
 import site.radio.auth.UpOAuth2UserService;
 import site.radio.auth.jwt.JwtAuthenticationEntryPoint;
-import site.radio.auth.jwt.JwtGeneratorFilter;
-import site.radio.auth.jwt.JwtService;
 
 @EnableWebSecurity(debug = true)
 @Configuration
@@ -33,7 +31,6 @@ public class SecurityConfigDev {
 
     @Value("${security.base-url}")
     private String baseUrl;
-    private final JwtService jwtService;
     private final UpOAuth2UserService upOAuth2UserService;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
@@ -65,11 +62,6 @@ public class SecurityConfigDev {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint));
 
         return http.build();
-    }
-
-    @Bean
-    public JwtGeneratorFilter jwtGeneratorFilter(JwtService jwtService) {
-        return new JwtGeneratorFilter(jwtService);
     }
 
     @Bean
