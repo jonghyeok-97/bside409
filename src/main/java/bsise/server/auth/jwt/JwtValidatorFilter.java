@@ -40,11 +40,9 @@ public class JwtValidatorFilter extends OncePerRequestFilter {
 
         // validate
         try {
-            if (accessToken == null) {
+            if (accessToken == null || !jwtService.isValidAccessToken(accessToken)) {
                 throw new BadCredentialsException("Invalid access token");
             } else {
-                jwtService.isValidAccessToken(accessToken);
-
                 // security context 저장
                 Authentication authentication = jwtService.getAuthentication(accessToken);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -55,11 +53,9 @@ public class JwtValidatorFilter extends OncePerRequestFilter {
                 log.info("=== JWT IN HEADER: 최초 ===");
             }
         } catch (ExpiredJwtException e) {
-            if (refreshToken == null) {
+            if (refreshToken == null || !jwtService.isValidRefreshToken(refreshToken)) {
                 throw new BadCredentialsException("Invalid refresh token");
             } else {
-                jwtService.isValidRefreshToken(refreshToken);
-
                 // 기존 accessToken 기반 새로운 accessToken 생성
                 String reIssuedAccessToken = jwtService.reIssueAccessToken(refreshToken);
                 String reIssuedRefreshToken = jwtService.reIssueRefreshToken(refreshToken);
