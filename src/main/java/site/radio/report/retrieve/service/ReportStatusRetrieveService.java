@@ -6,6 +6,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.WeekFields;
 import java.util.List;
 import java.util.Map;
@@ -77,10 +78,11 @@ public class ReportStatusRetrieveService {
                                                                       LocalDate endDate) {
         // 타겟 날짜로부터 한 달 전 날짜
         LocalDate oneMonthAgo = targetDate.minusMonths(DEFAULT_PREVIOUS_RANGE);
+        LocalDate lastDayOfWeek = endDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
 
         // 편지 리스트 조회
         List<WeeklyReportDto> dailyReports = letterRepository.findWeeklyReportIdByDateRange(userId,
-                convertToMin(oneMonthAgo), convertToMax(endDate));
+                convertToMin(oneMonthAgo), convertToMax(lastDayOfWeek));
 
         // 편지 작성일을 weekOfYear 로 변환 후 주간 기준으로 그루핑
         Map<Integer, List<WeeklyReportDto>> reportsByWeekOfYear = dailyReports.stream()
