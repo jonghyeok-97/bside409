@@ -26,7 +26,7 @@ resilience4j:
         slow-call-rate-threshold: 80        # slow-call 비율 임계값 80%가 넘으면 CLOSE -> OPEN
         slow-call-duration-threshold: 120s  # 120초가 넘으면 slow-call 으로 판단
         register-health-indicator: true
-        record-failure-predicate: bsise.server.common.resilience.DefaultExceptionRecordFailurePredicate
+        record-failure-predicate: site.radio.common.resilience.DefaultExceptionRecordFailurePredicate
     instances:
       default:
         base-config: default
