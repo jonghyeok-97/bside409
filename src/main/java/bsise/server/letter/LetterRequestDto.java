@@ -4,7 +4,7 @@ import bsise.server.user.domain.Preference;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -22,9 +22,8 @@ public class LetterRequestDto {
     private final String message;
 
     @Schema(description = "유저가 선호하는 답변 유형", allowableValues = {"F", "T"}, requiredMode = RequiredMode.REQUIRED)
-    @NotBlank(message = "선호하는 답변 유형이 없습니다.")
-    @Pattern(regexp = "F|T", message = "선호하는 답변 유형은 F나 T 중 하나여야 합니다.")
-    private final String preference;
+    @NotNull(message = "선호하는 답변 유형이 없습니다.")
+    private final Preference preference;
 
     @Schema(description = "편지 공개 여부", allowableValues = {"true", "false"}, requiredMode = RequiredMode.REQUIRED)
     private final boolean published;
@@ -32,7 +31,7 @@ public class LetterRequestDto {
     public Letter toLetterWithoutUser() {
         return Letter.builder()
                 .message(message)
-                .preference(Preference.of(preference))
+                .preference(preference)
                 .published(published)
                 .build();
     }
