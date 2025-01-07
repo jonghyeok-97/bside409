@@ -1,83 +1,91 @@
 package bsise.server.common;
 
 import bsise.server.error.DormantUserLoginException;
-import bsise.server.error.NamedLockAcquisitionException;
-import bsise.server.error.RateLimitException;
-import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
-import jakarta.persistence.EntityNotFoundException;
+import bsise.server.error.ValidationProblemDetails;
+import bsise.server.error.ValidationErrorResponse;
+import bsise.server.error.ExceptionType;
+import bsise.server.error.CustomErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.client.circuitbreaker.NoFallbackAvailableException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.web.ErrorResponse;
+import org.springframework.lang.Nullable;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import java.util.List;
 
 @Slf4j
 @RestControllerAdvice
-@RequiredArgsConstructor
-public class RestApiControllerAdvice {
+public class RestApiControllerAdvice extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler
-    public ResponseEntity<?> handleBadCredentialsException(BadCredentialsException exception) {
-        return createErrorResponse(exception, HttpStatus.UNAUTHORIZED, "error.unauthorized");
-    }
-
-    @ExceptionHandler
-    public ResponseEntity<?> handleEntityNotFoundException(EntityNotFoundException exception) {
-        return createErrorResponse(exception, HttpStatus.NOT_FOUND, "error.entity.not.found");
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException exception) {
-        return createErrorResponse(exception, HttpStatus.BAD_REQUEST, "error.illegal.argument");
-    }
-
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<?> handleIllegalStateException(IllegalStateException exception) {
-        return createErrorResponse(exception, HttpStatus.INTERNAL_SERVER_ERROR, "error.illegal.state");
-    }
-
-    @ExceptionHandler(RateLimitException.class)
-    public ResponseEntity<?> handleRateLimitException(RateLimitException exception) {
-        return createErrorResponse(exception, HttpStatus.TOO_MANY_REQUESTS, "error.rate.limit");
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleExceptions(Exception exception) {
+        return createErrorResponse(exception);
     }
 
     @ExceptionHandler(DormantUserLoginException.class)
     public ResponseEntity<?> handleDormantUserLoginError(DormantUserLoginException exception) {
-        return createErrorResponse(exception, HttpStatus.CONFLICT, "error.dormantuser.login:" + exception.getMessage());
-    }
-
-    @ExceptionHandler(NamedLockAcquisitionException.class)
-    public ResponseEntity<?> handleNamedLockAcquisitionException(NamedLockAcquisitionException exception) {
-        return createErrorResponse(exception, HttpStatus.CONFLICT, "error.namedLock:" + exception.getMessage());
-    }
-
-    @ExceptionHandler(CallNotPermittedException.class)
-    public ResponseEntity<?> handleCallNotPermittedException(CallNotPermittedException exception) {
-        return createErrorResponse(exception, HttpStatus.INTERNAL_SERVER_ERROR, "error.call.notPermitted");
+        return createErrorResponse(exception, exception.getMessage());
     }
 
     @ExceptionHandler(NoFallbackAvailableException.class)
     public ResponseEntity<?> handleNoFallbackAvailableException(HttpServletRequest request,
                                                                 NoFallbackAvailableException exception) {
         log.warn("error occurred uri: {}, exception: ", request.getRequestURI(), exception.getCause());
-        return createErrorResponse(exception, HttpStatus.INTERNAL_SERVER_ERROR, "error.noFallbackAvailable");
+        return createErrorResponse(exception);
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<?> handleRateLimitException(RuntimeException exception) {
-        return createErrorResponse(exception, HttpStatus.INTERNAL_SERVER_ERROR, "error.unknown");
-    }
-
-    private ResponseEntity<?> createErrorResponse(Exception exception, HttpStatus status, String messageKey) {
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException exception, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         log.error("An error occurred: ", exception);
-        ErrorResponse errorResponse = ErrorResponse.builder(exception,
-                ProblemDetail.forStatusAndDetail(status, messageKey)).build();
-        return ResponseEntity.status(status).body(errorResponse);
+
+        List<ValidationProblemDetails> problemDetails = exception.getBindingResult().getFieldErrors().stream()
+                .map(fieldError -> new ValidationProblemDetails(
+                        fieldError.getField(),
+                        fieldError.getDefaultMessage()
+                )).toList();
+
+        return ResponseEntity.status(status)
+                .body(
+                        ValidationErrorResponse.of(
+                                ExceptionType.from(exception), problemDetails
+                        )
+                );
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleExceptionInternal(
+            Exception exception, @Nullable Object body, HttpHeaders headers, HttpStatusCode statusCode, WebRequest request) {
+        log.error("An error occurred: ", exception);
+
+        return ResponseEntity.status(statusCode)
+                .body(
+                        CustomErrorResponse.of(
+                                ExceptionType.from(exception), null
+                        )
+                );
+    }
+
+    private ResponseEntity<?> createErrorResponse(Exception exception) {
+        return createErrorResponse(exception, null);
+    }
+
+    private ResponseEntity<?> createErrorResponse(Exception exception, @Nullable String customMessage) {
+        ExceptionType exceptionType = ExceptionType.from(exception);
+
+        log.error("An error occurred: {}", exceptionType.getException());
+
+        // 메시지가 제공되면 사용, 없으면 기본 메시지로 처리
+        String message = (customMessage != null) ? customMessage : exception.getMessage();
+
+        CustomErrorResponse errorResponse = CustomErrorResponse.of(exceptionType, message);
+        return ResponseEntity.status(exceptionType.getHttpStatus()).body(errorResponse);
     }
 }

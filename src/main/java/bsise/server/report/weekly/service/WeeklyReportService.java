@@ -4,7 +4,7 @@ import bsise.server.clova.dto.ClovaResponseDto;
 import bsise.server.clova.service.ClovaService;
 import bsise.server.clova.weekly.ClovaWeeklyReportRequestDto;
 import bsise.server.error.DailyReportNotFoundException;
-import bsise.server.error.DuplicationWeeklyReportException;
+import bsise.server.error.WeeklyReportAlreadyExistsException;
 import bsise.server.error.WeeklyReportNotFoundException;
 import bsise.server.report.daily.domain.CoreEmotion;
 import bsise.server.report.daily.domain.DailyReport;
@@ -47,7 +47,7 @@ public class WeeklyReportService {
     public WeeklyReportResponseDto createWeeklyReport(UUID userId, LocalDate startDate) {
         // 주간 분석 생성할 수 있는지 검증
         if (weeklyReportRepository.fetchCountBy(userId, startDate, startDate.plusDays(6)).isPresent()) {
-            throw new DuplicationWeeklyReportException("주간 분석이 이미 존재합니다");
+            throw new WeeklyReportAlreadyExistsException("주간 분석이 이미 존재합니다");
         }
 
         // 1주일 동안의 일일 분석 생성
