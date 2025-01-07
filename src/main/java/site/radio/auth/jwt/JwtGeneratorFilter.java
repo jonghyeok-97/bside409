@@ -19,7 +19,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class JwtGeneratorFilter extends OncePerRequestFilter {
 
-    private static final String[] NOT_FILTERED_URLS = {"/error", "/swagger-*", "/v3/api-docs*", "/api-docs*"};
+    private static final String[] NOT_FILTERED_URLS = {"/error", "/swagger-*", "/v3/api-docs*", "/api-docs*",
+            "/actuator*"};
     private final JwtService jwtService;
 
     @Override

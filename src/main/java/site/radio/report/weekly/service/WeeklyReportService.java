@@ -4,7 +4,7 @@ import site.radio.clova.dto.ClovaResponseDto;
 import site.radio.clova.service.ClovaService;
 import site.radio.clova.weekly.ClovaWeeklyReportRequestDto;
 import site.radio.error.DailyReportNotFoundException;
-import site.radio.error.DuplicationWeeklyReportException;
+import site.radio.error.WeeklyReportAlreadyExistsException;
 import site.radio.error.WeeklyReportNotFoundException;
 import site.radio.report.daily.domain.CoreEmotion;
 import site.radio.report.daily.domain.DailyReport;
@@ -47,7 +47,7 @@ public class WeeklyReportService {
     public WeeklyReportResponseDto createWeeklyReport(UUID userId, LocalDate startDate) {
         // 주간 분석 생성할 수 있는지 검증
         if (weeklyReportRepository.fetchCountBy(userId, startDate, startDate.plusDays(6)).isPresent()) {
-            throw new DuplicationWeeklyReportException("주간 분석이 이미 존재합니다");
+            throw new WeeklyReportAlreadyExistsException("주간 분석이 이미 존재합니다");
         }
 
         // 1주일 동안의 일일 분석 생성

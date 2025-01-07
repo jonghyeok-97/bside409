@@ -1,23 +1,5 @@
 package site.radio.report.daily.service;
 
-import site.radio.clova.dailyReport.ClovaDailyAnalysisResult;
-import site.radio.clova.dailyReport.DailyReportExtractor;
-import site.radio.clova.dto.ClovaResponseDto;
-import site.radio.clova.service.ClovaService;
-import site.radio.common.aop.transaction.NamedLock;
-import site.radio.error.DailyReportNotFoundException;
-import site.radio.error.DuplicateDailyReportException;
-import site.radio.error.LetterNotFoundException;
-import site.radio.letter.Letter;
-import site.radio.letter.LetterRepository;
-import site.radio.report.daily.domain.CoreEmotion;
-import site.radio.report.daily.domain.DailyReport;
-import site.radio.report.daily.domain.LetterAnalysis;
-import site.radio.report.daily.dto.DailyReportResponseDto;
-import site.radio.report.daily.dto.DailyReportStaticsDto;
-import site.radio.report.daily.dto.DailyStaticsOneWeekResponseDto;
-import site.radio.report.daily.repository.DailyReportRepository;
-import site.radio.report.daily.repository.LetterAnalysisRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -33,6 +15,24 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import site.radio.clova.dailyReport.ClovaDailyAnalysisResult;
+import site.radio.clova.dailyReport.DailyReportExtractor;
+import site.radio.clova.dto.ClovaResponseDto;
+import site.radio.clova.service.ClovaService;
+import site.radio.common.aop.transaction.NamedLock;
+import site.radio.error.DailyReportAlreadyExistsException;
+import site.radio.error.DailyReportNotFoundException;
+import site.radio.error.LetterNotFoundException;
+import site.radio.letter.Letter;
+import site.radio.letter.LetterRepository;
+import site.radio.report.daily.domain.CoreEmotion;
+import site.radio.report.daily.domain.DailyReport;
+import site.radio.report.daily.domain.LetterAnalysis;
+import site.radio.report.daily.dto.DailyReportResponseDto;
+import site.radio.report.daily.dto.DailyReportStaticsDto;
+import site.radio.report.daily.dto.DailyStaticsOneWeekResponseDto;
+import site.radio.report.daily.repository.DailyReportRepository;
+import site.radio.report.daily.repository.LetterAnalysisRepository;
 
 
 @Slf4j
@@ -67,7 +67,7 @@ public class DailyReportService {
     @NamedLock(lockName = "createdDailyReport", timeout = 0, keyFields = {"userId"})
     public DailyReportResponseDto createDailyReport(UUID userId, LocalDate targetDate) {
         if (dailyReportRepository.existsByUserAndTargetDate(userId, targetDate)) {
-            throw new DuplicateDailyReportException("Duplicate daily report exists.");
+            throw new DailyReportAlreadyExistsException("Duplicate daily report exists.");
         }
         List<Letter> letters = findRecentLetters(userId, targetDate);
 
@@ -92,7 +92,7 @@ public class DailyReportService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public DailyReportResponseDto createDailyReportWithFacade(UUID userId, LocalDate targetDate) {
         if (dailyReportRepository.existsByUserAndTargetDate(userId, targetDate)) {
-            throw new DuplicateDailyReportException("Duplicate daily report exists.");
+            throw new DailyReportAlreadyExistsException("Duplicate daily report exists.");
         }
         List<Letter> letters = findRecentLetters(userId, targetDate);
 

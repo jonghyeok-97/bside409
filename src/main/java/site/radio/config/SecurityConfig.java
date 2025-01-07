@@ -2,6 +2,14 @@ package site.radio.config;
 
 import static site.radio.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
 
+import site.radio.auth.CookieEncodingFilter;
+import site.radio.auth.OAuth2SuccessHandler;
+import site.radio.auth.UpOAuth2UserService;
+import site.radio.auth.jwt.JwtAuthenticationEntryPoint;
+import site.radio.auth.jwt.JwtAuthenticationFailureHandlingFilter;
+import site.radio.auth.jwt.JwtGeneratorFilter;
+import site.radio.auth.jwt.JwtService;
+import site.radio.auth.jwt.JwtValidatorFilter;
 import java.util.Arrays;
 import java.util.Collections;
 import lombok.AccessLevel;
@@ -22,13 +30,6 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
-import site.radio.auth.CookieEncodingFilter;
-import site.radio.auth.OAuth2SuccessHandler;
-import site.radio.auth.UpOAuth2UserService;
-import site.radio.auth.jwt.JwtAuthenticationEntryPoint;
-import site.radio.auth.jwt.JwtGeneratorFilter;
-import site.radio.auth.jwt.JwtService;
-import site.radio.auth.jwt.JwtValidatorFilter;
 
 @EnableWebSecurity(debug = false)
 @Configuration
@@ -42,6 +43,7 @@ public class SecurityConfig {
     private final UpOAuth2UserService upOAuth2UserService;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final JwtAuthenticationFailureHandlingFilter jwtAuthenticationFailureHandlingFilter;
 
     @Bean
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -67,6 +69,7 @@ public class SecurityConfig {
         // filter
         http.addFilterAfter(jwtGeneratorFilter(jwtService), OAuth2LoginAuthenticationFilter.class);
         http.addFilterAfter(jwtValidatorFilter(jwtService), LogoutFilter.class);
+        http.addFilterBefore(jwtAuthenticationFailureHandlingFilter, JwtValidatorFilter.class);
         http.addFilterBefore(new CookieEncodingFilter("nickname", "--user-data"),
                 OAuth2LoginAuthenticationFilter.class);
 

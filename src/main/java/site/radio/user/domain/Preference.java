@@ -12,7 +12,7 @@ public enum Preference {
     @JsonCreator
     public static Preference of(String preference) {
         return Arrays.stream(values())
-                .filter(pref -> pref == valueOf(preference.toUpperCase()))
+                .filter(pref -> pref.name().equals(preference.toUpperCase()))
                 .findAny()
                 .orElse(F);
     }

@@ -47,7 +47,6 @@ public class SecurityConfigDev {
         http.csrf(AbstractHttpConfigurer::disable);
 
         // filter: 개발 환경에서는 검증만 사용하지 않음
-        http.addFilterAfter(jwtGeneratorFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(new CookieEncodingFilter("nickname", "--user-data"),
                 UsernamePasswordAuthenticationFilter.class);
 
