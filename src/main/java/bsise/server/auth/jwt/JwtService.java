@@ -36,6 +36,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class JwtService {
 
+    private static final String SEOUL = "Asia/Seoul";
+
     @Value("${security.jwt.token.access-key}")
     private String accessKey;
 
@@ -74,7 +76,7 @@ public class JwtService {
     }
 
     private Instant getSeoulInstant() {
-        return ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toInstant();
+        return ZonedDateTime.now(ZoneId.of(SEOUL)).toInstant();
     }
 
     public String reIssueAccessToken(String jwt) {
@@ -110,6 +112,7 @@ public class JwtService {
 
     public String getUserId(String jwt) {
         return Jwts.parser()
+                .clock(() -> Date.from(getSeoulInstant()))
                 .verifyWith(accessSecretKey)
                 .build()
                 .parseSignedClaims(jwt)
@@ -132,6 +135,7 @@ public class JwtService {
 
     public Claims getClaims(String jwt, SecretKey secretKey) {
         return Jwts.parser()
+                .clock(() -> Date.from(getSeoulInstant()))
                 .verifyWith(secretKey)
                 .build()
                 .parseSignedClaims(jwt)
