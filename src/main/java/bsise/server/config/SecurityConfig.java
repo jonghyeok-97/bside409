@@ -6,6 +6,7 @@ import bsise.server.auth.CookieEncodingFilter;
 import bsise.server.auth.OAuth2SuccessHandler;
 import bsise.server.auth.UpOAuth2UserService;
 import bsise.server.auth.jwt.JwtAuthenticationEntryPoint;
+import bsise.server.auth.jwt.JwtAuthenticationFailureHandlingFilter;
 import bsise.server.auth.jwt.JwtGeneratorFilter;
 import bsise.server.auth.jwt.JwtService;
 import bsise.server.auth.jwt.JwtValidatorFilter;
@@ -69,7 +70,8 @@ public class SecurityConfig {
         http.addFilterAfter(jwtGeneratorFilter(jwtService), OAuth2LoginAuthenticationFilter.class);
         http.addFilterAfter(jwtValidatorFilter(jwtService), LogoutFilter.class);
         http.addFilterBefore(jwtAuthenticationFailureHandlingFilter, JwtValidatorFilter.class);
-        http.addFilterBefore(new CookieEncodingFilter("nickname", "--user-data"), OAuth2LoginAuthenticationFilter.class);
+        http.addFilterBefore(new CookieEncodingFilter("nickname", "--user-data"),
+                OAuth2LoginAuthenticationFilter.class);
 
         // url pattern
         http.authorizeHttpRequests(requests -> requests
