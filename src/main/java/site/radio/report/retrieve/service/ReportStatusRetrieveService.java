@@ -84,7 +84,7 @@ public class ReportStatusRetrieveService {
 
         // 편지 작성일을 weekOfYear 로 변환 후 주간 기준으로 그루핑
         Map<Integer, List<WeeklyReportDto>> reportsByWeekOfYear = dailyReports.stream()
-                .collect(groupingBy(report -> report.getLetterCreatedAt().get(WEEK_FIELDS.weekOfWeekBasedYear())));
+                .collect(groupingBy(report -> report.getLetterCreatedAt().get(WEEK_FIELDS.weekOfYear())));
 
         // 한 달 이전부터 타겟 날짜를 포함한 주간별 일자 구하기
         Map<Integer, List<LocalDate>> totalWeekRange = getInclusiveWeekRange(oneMonthAgo, targetDate);
