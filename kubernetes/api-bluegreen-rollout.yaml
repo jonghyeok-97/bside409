@@ -18,7 +18,7 @@ spec:
       terminationGracePeriodSeconds: 150
       containers:
         - name: backend
-          image: yeriimii/upup-radio-backend:2025-01-07T15-27-27
+          image: yeriimii/upup-radio-backend:2025-01-07T15-50-06
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
