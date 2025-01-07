@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+
+jobs:
+  build:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4.6.0
+        with:
+          distribution: 'corretto'
+          java-version: '17'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew clean build -x test
+
+      - name: Get current time
+        uses: josStorer/get-current-time@v2.1.2
+        id: current_time
+        with:
+          format: YYYY-MM-DDTHH-mm-ss
+          utcOffset: "+09:00"
+
+      - name: Docker Login
+        uses: docker/login-action@v3.3.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v6.10.0
+        with:
+          context: .
+          file: Dockerfile-dev
+          tags: ${{ vars.CONTAINER_REGISTRY }}:${{ steps.current_time.outputs.formattedTime }}
+          push: true
+
+      - name: Update deployment version
+        run: |
+          sed -i "s|image: ${{ vars.CONTAINER_REGISTRY }}:.*|image: ${{ vars.CONTAINER_REGISTRY }}:${{ steps.current_time.outputs.formattedTime }}|g" ${{ vars.MANIFEST_DIR }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit and push changes
+        run: |
+          git add ${{ vars.MANIFEST_DIR }}
+          git commit -m ":tada: Update deployment version to ${{ steps.current_time.outputs.formattedTime }}"
+          git push origin dev
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

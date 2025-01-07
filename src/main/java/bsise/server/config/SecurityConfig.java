@@ -1,5 +1,7 @@
 package bsise.server.config;
 
+import static bsise.server.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
+
 import bsise.server.auth.CookieEncodingFilter;
 import bsise.server.auth.OAuth2SuccessHandler;
 import bsise.server.auth.UpOAuth2UserService;
@@ -7,7 +9,8 @@ import bsise.server.auth.jwt.JwtAuthenticationEntryPoint;
 import bsise.server.auth.jwt.JwtGeneratorFilter;
 import bsise.server.auth.jwt.JwtService;
 import bsise.server.auth.jwt.JwtValidatorFilter;
-import bsise.server.auth.jwt.JwtAuthenticationFailureHandlingFilter;
+import java.util.Arrays;
+import java.util.Collections;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,11 +30,6 @@ import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
 
-import java.util.Arrays;
-import java.util.Collections;
-
-import static bsise.server.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
-
 @EnableWebSecurity(debug = false)
 @Configuration
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -44,7 +42,6 @@ public class SecurityConfig {
     private final UpOAuth2UserService upOAuth2UserService;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
-
     private final JwtAuthenticationFailureHandlingFilter jwtAuthenticationFailureHandlingFilter;
 
     @Bean

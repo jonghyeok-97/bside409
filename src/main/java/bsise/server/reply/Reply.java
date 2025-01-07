@@ -32,10 +32,10 @@ public class Reply extends BaseTimeEntity {
     @JoinColumn(name = "letter_id", nullable = false, unique = true)
     private Letter letter;
 
-    @Column(name = "message_f")
+    @Column(name = "message_f", length = 500)
     private String messageForF;
 
-    @Column(name = "message_t")
+    @Column(name = "message_t", length = 500)
     private String messageForT;
 
     @Builder

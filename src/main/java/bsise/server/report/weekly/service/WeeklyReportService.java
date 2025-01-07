@@ -42,7 +42,7 @@ public class WeeklyReportService {
      */
     @CacheEvict(
             cacheNames = {"dailyReportStatus", "weeklyReportStatus"}, cacheManager = "caffeineCacheManager",
-            key = "#userId.toString() + #startDate.toString()"
+            key = "#userId.toString()"
     )
     public WeeklyReportResponseDto createWeeklyReport(UUID userId, LocalDate startDate) {
         // 주간 분석 생성할 수 있는지 검증
@@ -91,7 +91,7 @@ public class WeeklyReportService {
 
     @Cacheable(
             cacheNames = "weeklyReport", cacheManager = "caffeineCacheManager",
-            key = "#userId.toString() + #startDate.toString()", unless = "#result == null"
+            key = "#userId.toString()", unless = "#result == null"
     )
     @Transactional(readOnly = true)
     public WeeklyReportResponseDto getWeeklyReport(UUID userId, LocalDate startDate, LocalDate endDate) {

@@ -1,16 +1,30 @@
 package bsise.server.auth.jwt;
 
+import static bsise.server.auth.jwt.JwtConstant.ACCESS_VALID_MILLIS;
+import static bsise.server.auth.jwt.JwtConstant.REFRESH_VALID_MILLIS;
+import static bsise.server.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
+
 import bsise.server.auth.UpOAuth2UserService;
 import bsise.server.auth.UpUserDetails;
 import bsise.server.user.domain.User;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Jwts.SIG;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.UUID;
+import javax.crypto.SecretKey;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
@@ -18,15 +32,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.UUID;
-
-import static bsise.server.auth.jwt.JwtConstant.*;
-
-@Slf4j
 @Component
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class JwtService {
@@ -58,30 +63,36 @@ public class JwtService {
     }
 
     private JwtBuilder issueToken(Claims claims, SecretKey secretKey, int expireAt) {
+        Instant seoulInstant = getSeoulInstant();
         return Jwts.builder()
                 .id(UUID.randomUUID().toString())
                 .issuer(JwtConstant.ISSUER)
                 .claims(claims)
-                .issuedAt(Timestamp.valueOf(LocalDateTime.now()))
-                .expiration(Timestamp.valueOf(LocalDateTime.now().plus(expireAt, ChronoUnit.MILLIS)))
+                .issuedAt(Date.from(seoulInstant))
+                .expiration(Date.from(seoulInstant.plus(expireAt, ChronoUnit.MILLIS)))
                 .signWith(secretKey, SIG.HS256);
     }
 
+    private Instant getSeoulInstant() {
+        return ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toInstant();
+    }
+
     public String reIssueAccessToken(String jwt) {
-        return reIssue(getClaims(jwt), accessSecretKey, ACCESS_VALID_MILLIS);
+        return reIssue(getClaims(jwt, accessSecretKey), accessSecretKey, ACCESS_VALID_MILLIS);
     }
 
     public String reIssueRefreshToken(String jwt) {
-        return reIssue(getClaims(jwt), refreshSecretKey, REFRESH_VALID_MILLIS);
+        return reIssue(getClaims(jwt, refreshSecretKey), refreshSecretKey, REFRESH_VALID_MILLIS);
     }
 
     private String reIssue(Claims oldClaims, SecretKey secretKey, int expireAt) {
+        Instant seoulInstant = getSeoulInstant();
         return Jwts.builder()
                 .id(oldClaims.getId())
                 .issuer(oldClaims.getIssuer())
                 .subject(oldClaims.getSubject())
-                .issuedAt(Timestamp.valueOf(LocalDateTime.now()))
-                .expiration(Timestamp.valueOf(LocalDateTime.now().plus(expireAt, ChronoUnit.MILLIS)))
+                .issuedAt(Date.from(seoulInstant))
+                .expiration(Date.from(seoulInstant.plus(expireAt, ChronoUnit.MILLIS)))
                 .signWith(secretKey, SIG.HS256)
                 .compact();
     }
@@ -90,7 +101,11 @@ public class JwtService {
         String userId = getUserId(jwt);
         UserDetails userDetails = oAuth2UserService.loadUserByUsername(userId);
 
-        return new RememberMeAuthenticationToken(userId, userDetails, userDetails.getAuthorities());
+        RememberMeAuthenticationToken authenticationToken = new RememberMeAuthenticationToken(userId, userDetails,
+                userDetails.getAuthorities());
+        authenticationToken.setDetails(userDetails);
+
+        return authenticationToken;
     }
 
     public String getUserId(String jwt) {
@@ -115,9 +130,9 @@ public class JwtService {
                 .build();
     }
 
-    public Claims getClaims(String jwt) {
+    public Claims getClaims(String jwt, SecretKey secretKey) {
         return Jwts.parser()
-                .verifyWith(refreshSecretKey)
+                .verifyWith(secretKey)
                 .build()
                 .parseSignedClaims(jwt)
                 .getPayload();
@@ -150,6 +165,7 @@ public class JwtService {
     private boolean validateToken(String jwt, SecretKey secretKey) {
         try {
             Jwts.parser()
+                    .clock(() -> Date.from(getSeoulInstant()))
                     .verifyWith(secretKey)
                     .build()
                     .parseSignedClaims(jwt);

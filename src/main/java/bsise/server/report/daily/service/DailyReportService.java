@@ -62,7 +62,7 @@ public class DailyReportService {
      */
     @CacheEvict(
             cacheNames = {"dailyReportStatus", "weeklyReportStatus"}, cacheManager = "caffeineCacheManager",
-            key = "#userId.toString() + #targetDate.toString()"
+            key = "#userId.toString()"
     )
     @NamedLock(lockName = "createdDailyReport", timeout = 0, keyFields = {"userId"})
     public DailyReportResponseDto createDailyReport(UUID userId, LocalDate targetDate) {
@@ -116,7 +116,7 @@ public class DailyReportService {
 
     @Cacheable(
             cacheNames = "dailyReport", cacheManager = "caffeineCacheManager",
-            key = "#userId.toString() + #targetDate.toString()", unless = "#result == null"
+            key = "#userId.toString()", unless = "#result == null"
     )
     public DailyReportResponseDto getDailyReport(UUID userId, LocalDate targetDate) {
         DailyReport dailyReport = dailyReportRepository.findByUserAndTargetDate(userId, targetDate)
