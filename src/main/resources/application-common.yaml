@@ -7,6 +7,34 @@ spring:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     open-in-view: false
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+      client:
+        config:
+          default:
+            connect-timeout: 10000
+            read-timeout: 120000
+  lifecycle:
+    timeout-per-shutdown-phase: 2m
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        wait-duration-in-open-state: 30s    # OPEN -> HALF_OPEN 상태로 변경까지 대기 시간
+        slow-call-rate-threshold: 80        # slow-call 비율 임계값 80%가 넘으면 CLOSE -> OPEN
+        slow-call-duration-threshold: 120s  # 120초가 넘으면 slow-call 으로 판단
+        register-health-indicator: true
+        record-failure-predicate: site.radio.common.resilience.DefaultExceptionRecordFailurePredicate
+    instances:
+      default:
+        base-config: default
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 150s              # 150초가 넘으면 Future 작업 중단. slow-call-duration 보다 큰 값
+        cancel-running-future: true         # timeout-duration 값이 지나면 Future 작업 중단
 server:
   error:
     whitelabel:
@@ -19,6 +47,7 @@ server:
   tomcat:
     mbeanregistry:
       enabled: true
+  shutdown: graceful
 management:
   server:
     port: 9292

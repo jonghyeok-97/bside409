@@ -1,7 +1,7 @@
 spring:
   application:
-    name: server
+    name: radio
   profiles:
     group:
-      dev: dev, common, secret, oauth
-      prod: prod, common, secret, oauth, ssl
+      dev: dev, common, secret_dev, oauth_dev
+      prod: prod, common, secret, oauth

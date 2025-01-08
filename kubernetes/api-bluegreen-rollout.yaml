@@ -1,0 +1,175 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: api-deployment
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: api
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: api
+        tier: backend
+    spec:
+      terminationGracePeriodSeconds: 150
+      containers:
+        - name: backend
+          image: yeriimii/upup-radio-backend:2025-01-07T21-59-19
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+            - containerPort: 9292
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 9292
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 9292
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          env:
+            - name: SPRING_ACTIVE_PROFILE
+              valueFrom:
+                configMapKeyRef:
+                  key: spring-active-profile
+                  name: api-config-env
+            - name: JAR_FILENAME
+              valueFrom:
+                configMapKeyRef:
+                  key: jar-file-name
+                  name: api-config-env
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: project-secret
+                  key: db-url
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: project-secret
+                  key: db-username
+            - name: DB_PASSWD
+              valueFrom:
+                secretKeyRef:
+                  name: project-secret
+                  key: db-password
+            - name: KET_STORE
+              valueFrom:
+                secretKeyRef:
+                  name: project-secret
+                  key: key-store
+            - name: KET_STORE_PASSWD
+              valueFrom:
+                secretKeyRef:
+                  name: project-secret
+                  key: key-store-password
+            - name: KET_STORE_TYPE
+              valueFrom:
+                secretKeyRef:
+                  name: project-secret
+                  key: key-store-type
+            - name: KET_ALIAS
+              valueFrom:
+                secretKeyRef:
+                  name: project-secret
+                  key: key-alias
+            - name: KAKAO_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: project-secret
+                  key: kakao-client-id
+            - name: KAKAO_APP_ADMIN_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: project-secret
+                  key: kakao-app-admin-key
+            - name: KAKAO_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: project-secret
+                  key: kakao-client-secret
+            - name: CLOVASTUDIO_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: project-secret
+                  key: clova-studio-api-key
+            - name: CLOVASTUDIO_APIGW_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: project-secret
+                  key: clova-studio-apigw-api-key
+            - name: CLOVASTUDIO_REQUEST_ID
+              valueFrom:
+                secretKeyRef:
+                  name: project-secret
+                  key: clova-studio-request-id
+            - name: JWT_ACCESS_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: project-secret
+                  key: jwt-access-secret
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: project-secret
+                  key: redis-host
+            - name: REDIS_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: project-secret
+                  key: redis-port
+            - name: JWT_REFRESH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: project-secret
+                  key: jwt-refresh-secret
+            - name: REDIS_EXPIRE
+              valueFrom:
+                secretKeyRef:
+                  name: project-secret
+                  key: redis-expire
+            - name: REDIS_LIMIT
+              valueFrom:
+                secretKeyRef:
+                  name: project-secret
+                  key: redis-limit
+            - name: DEV_KAKAO_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: project-secret
+                  key: dev-kakao-client-secret
+            - name: DEV_KAKAO_APP_ADMIN_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: project-secret
+                  key: dev-kakao-app-admin-key
+            - name: DEV_KAKAO_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: project-secret
+                  key: dev-kakao-client-secret
+            - name: BASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: project-secret
+                  key: base-url
+          volumeMounts:
+            - name: logs-volume
+              mountPath: /app/logs
+          command: [ "sh", "-c", "mkdir -p /app/logs && java -Dspring.profiles.active=${SPRING_ACTIVE_PROFILE} -Duser.timezone=Asia/Seoul -jar ${JAR_FILENAME}.jar" ]
+      volumes:
+        - name: logs-volume
+          persistentVolumeClaim:
+            claimName: logs-pvc
+  strategy:
+    blueGreen:
+      activeService: api-svc
+      autoPromotionEnabled: true

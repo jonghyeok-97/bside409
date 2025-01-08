@@ -1,0 +1,57 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: jdbc:tc:mysql:8.0.39:///test_db?useSSL=false&allowPublicKeyRetrieval=true #?TC_INITSCRIPT=file:src/test/resources/scheme.sql
+    username: test
+    password: test1234
+    hikari:
+      maximum-pool-size: 40
+  #   TestContainer가 필요없는 테스트를 위해 추가
+  #    driver-class-name: org.h2.Driver
+  #    url: jdbc:h2:mem:~/test
+  #    username: sa
+  #    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+  data:
+    redis:
+      host: bside-redis
+      port: 6379
+logging:
+  level:
+    site.radio: debug
+    org:
+      hibernate:
+        SQL: debug
+        orm:
+          jdbc:
+            bind: trace
+
+clova:
+  api:
+    key: none
+  apigw:
+    key: none
+  request:
+    id: none
+security:
+  jwt:
+    token:
+      access-key: SpringSecurityKey_!@Upup-radio_https://upup-radio.site
+      refresh-key: SpringSecurityKey_!R2fre2h@Upup-radio_https://upup-radio.site
+  base-url: https://upup-radio.site
+  kakao-admin-key: none
+redis:
+  expire: 7200
+  limit: 10
+
+feign:
+  clova:
+    url: https://clovastudio.stream.ntruss.com/testapp/v1/chat-completions/HCX-003

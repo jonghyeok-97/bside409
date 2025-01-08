@@ -13,21 +13,25 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        highlight_sql: true
+        highlight_sql: false #true
   docker:
     compose:
       skip:
         in-tests: false
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
 logging:
   level:
-    bsise.server: debug
+    site.radio: debug
     org:
       hibernate:
         SQL: debug
         orm:
           jdbc:
             bind: trace
+
+feign:
+  clova:
+    url: https://clovastudio.stream.ntruss.com/testapp/v1/chat-completions/HCX-003
