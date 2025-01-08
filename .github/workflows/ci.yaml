@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ "main", "dev" ]
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -40,7 +40,7 @@ jobs:
         uses: docker/build-push-action@v6.10.0
         with:
           context: .
-          file: Dockerfile-dev
+          file: Dockerfile
           tags: ${{ vars.CONTAINER_REGISTRY }}:${{ steps.current_time.outputs.formattedTime }}
           push: true
 

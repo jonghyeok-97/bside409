@@ -1,24 +1,15 @@
 package site.radio.config;
 
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static site.radio.auth.jwt.JwtConstant.X_REFRESH_TOKEN;
 
-import site.radio.auth.CookieEncodingFilter;
-import site.radio.auth.OAuth2SuccessHandler;
-import site.radio.auth.UpOAuth2UserService;
-import site.radio.auth.jwt.JwtAuthenticationEntryPoint;
-import site.radio.auth.jwt.JwtAuthenticationFailureHandlingFilter;
-import site.radio.auth.jwt.JwtGeneratorFilter;
-import site.radio.auth.jwt.JwtService;
-import site.radio.auth.jwt.JwtValidatorFilter;
 import java.util.Arrays;
 import java.util.Collections;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -30,10 +21,18 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
+import site.radio.auth.CookieEncodingFilter;
+import site.radio.auth.OAuth2SuccessHandler;
+import site.radio.auth.UpOAuth2UserService;
+import site.radio.auth.jwt.JwtAuthenticationEntryPoint;
+import site.radio.auth.jwt.JwtAuthenticationFailureHandlingFilter;
+import site.radio.auth.jwt.JwtGeneratorFilter;
+import site.radio.auth.jwt.JwtService;
+import site.radio.auth.jwt.JwtValidatorFilter;
 
 @EnableWebSecurity(debug = false)
 @Configuration
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+@RequiredArgsConstructor
 @Profile("prod")
 public class SecurityConfig {
 
@@ -54,17 +53,7 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable);
 
         // cors
-        http.cors(config -> config.configurationSource(request -> {
-            CorsConfiguration corsConfig = new CorsConfiguration();
-            corsConfig.setAllowedOrigins(Collections.singletonList(baseUrl));
-            corsConfig.setAllowedMethods(Arrays.asList("HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"));
-            corsConfig.setAllowedHeaders(Collections.singletonList("*"));
-            corsConfig.setAllowCredentials(true);
-            corsConfig.setExposedHeaders(
-                    Arrays.asList(HttpHeaders.AUTHORIZATION, X_REFRESH_TOKEN, "Cache-Control", "Content-Type"));
-            corsConfig.setMaxAge(3600L);
-            return corsConfig;
-        }));
+        http.cors(cors -> cors.configurationSource(source -> corsConfiguration()));
 
         // filter
         http.addFilterAfter(jwtGeneratorFilter(jwtService), OAuth2LoginAuthenticationFilter.class);
@@ -83,27 +72,24 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**",
                                 "/error",
+                                "/actuator/**",
                                 "/login",
                                 "/login/**",
                                 "/oauth2/**",
-                                "/static/**", // 정적 리소스
+                                "/static/**",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
                                 "/api/v1/users/**"
                         ).permitAll()
-                        .requestMatchers("/api/v1/replies**").authenticated()
-                        .requestMatchers("/api/v1/replies/**").authenticated()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2 // OAuth2 로그인
                         .loginPage(baseUrl + "/login")
                         .userInfoEndpoint(config -> config.userService(upOAuth2UserService))
-                        .successHandler(oAuth2SuccessHandler)
-                )
-
+                        .successHandler(oAuth2SuccessHandler))
                 .logout(LogoutConfigurer::permitAll)
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint))
-        ;
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint));
+
         return http.build();
     }
 
@@ -117,7 +103,7 @@ public class SecurityConfig {
         return new JwtValidatorFilter(jwtService);
     }
 
-    @Bean
+    //    @Bean
     public HttpFirewall allowUrlEncodedSlashHttpFirewall() {
         StrictHttpFirewall firewall = new StrictHttpFirewall();
         firewall.setAllowSemicolon(true);
@@ -128,5 +114,18 @@ public class SecurityConfig {
         firewall.setAllowedHeaderNames((header) -> true);  // 모든 헤더 이름 허용
         firewall.setAllowedHeaderValues((header) -> true); // 모든 헤더 값 허용
         return firewall;
+    }
+
+    @Bean
+    public CorsConfiguration corsConfiguration() {
+        CorsConfiguration corsConfig = new CorsConfiguration();
+        corsConfig.setAllowedOrigins(Collections.singletonList(baseUrl));
+        corsConfig.setAllowedMethods(Arrays.asList("HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"));
+        corsConfig.setAllowedHeaders(Collections.singletonList("*"));
+        corsConfig.setAllowCredentials(true);
+        corsConfig.setExposedHeaders(Arrays.asList(AUTHORIZATION, X_REFRESH_TOKEN, "Cache-Control", "Content-Type"));
+        corsConfig.setMaxAge(3600L);
+
+        return corsConfig;
     }
 }

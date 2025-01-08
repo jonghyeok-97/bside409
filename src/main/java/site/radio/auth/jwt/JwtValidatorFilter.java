@@ -24,7 +24,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtValidatorFilter extends OncePerRequestFilter {
 
     private static final String[] NOT_FILTERED_URLS = {
-            "/login*", "/oauth2*", "/error", "/swagger-*", "/v3/api-docs*", "/api-docs*", "/api/v1/users*"
+            "/login*", "/oauth2*", "/error", "/swagger-*", "/v3/api-docs*", "/api-docs*", "/api/v1/users*",
+            "/actuator/**"
     };
     private final JwtService jwtService;
 

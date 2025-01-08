@@ -7,7 +7,7 @@ metadata:
     nginx.ingress.kubernetes.io/enable-sticky-session: 'true'
     nginx.ingress.kubernetes.io/ssl-redirect: 'true'
     nginx.ingress.kubernetes.io/enable-cors: "true"
-    nginx.ingress.kubernetes.io/cors-allow-origin: "https://dev2.upup-radio.site"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://upup-radio.site"
     nginx.ingress.kubernetes.io/cors-allow-methods: "HEAD, GET, POST, PUT, PATCH, DELETE, OPTIONS"
     nginx.ingress.kubernetes.io/cors-allow-headers: "Authorization, Content-Type, X-Refresh-Token, Cache-Control"
     nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
@@ -16,11 +16,11 @@ metadata:
 spec:
   tls:
     - hosts:
-        - dev2.upup-radio.site
-      secretName: dev2-cert
+        - "*.upup-radio.site"
+      secretName: radio-cert
   ingressClassName: nginx
   rules:
-    - host: dev2.upup-radio.site
+    - host: "*.upup-radio.site"
       http:
         paths:
           - path: /api/.*

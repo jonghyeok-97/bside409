@@ -3,5 +3,5 @@ kind: ConfigMap
 metadata:
   name: api-config-env
 data:
-  spring-active-profile: "dev"
+  spring-active-profile: "prod"
   jar-file-name: "bside-backend"

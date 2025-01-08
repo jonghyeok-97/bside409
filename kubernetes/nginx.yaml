@@ -37,7 +37,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: yeriimii/upup-radio-front:latest
+          image: yeriimii/upup-radio-front:v2.0
           imagePullPolicy: Always
           ports:
             - containerPort: 80
