@@ -20,7 +20,7 @@ spec:
       secretName: radio-cert
   ingressClassName: nginx
   rules:
-    - host: "*.upup-radio.site"
+    - host: upup-radio.site
       http:
         paths:
           - path: /api/.*
