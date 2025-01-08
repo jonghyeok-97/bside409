@@ -6,6 +6,7 @@ metadata:
     nginx.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80},{"HTTPS":443}]'
     nginx.ingress.kubernetes.io/enable-sticky-session: 'true'
     nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+    nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
     nginx.ingress.kubernetes.io/enable-cors: "true"
     nginx.ingress.kubernetes.io/cors-allow-origin: "https://upup-radio.site"
     nginx.ingress.kubernetes.io/cors-allow-methods: "HEAD, GET, POST, PUT, PATCH, DELETE, OPTIONS"
