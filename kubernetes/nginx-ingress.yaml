@@ -16,7 +16,7 @@ metadata:
 spec:
   tls:
     - hosts:
-        - "*.upup-radio.site"
+        - upup-radio.site
       secretName: radio-cert
   ingressClassName: nginx
   rules:
