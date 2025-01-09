@@ -48,7 +48,7 @@ public class WeeklyReportService {
         dailyReportService.createDailyReportsBy(userId, startDate, startDate.plusDays(6));
 
         // startDate 로 부터 1주일 날짜 구하기
-        DailyStaticsOneWeekResponseDto dailyStaticsDto = dailyReportService.findDailyStaticsInOneWeek(
+        DailyStaticsOneWeekResponseDto dailyStaticsDto = dailyReportService.findDailyStaticsInOneWeek(userId,
                 createOneWeek(startDate));
 
         // 1주일에 해당하는 일일 분석들 찾기

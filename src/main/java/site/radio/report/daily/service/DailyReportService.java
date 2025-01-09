@@ -171,9 +171,9 @@ public class DailyReportService {
         letterAnalysisRepository.saveAll(letterAnalyses);
     }
 
-    public DailyStaticsOneWeekResponseDto findDailyStaticsInOneWeek(List<LocalDate> oneWeekDates) {
-        List<DailyReport> dailyReports = dailyReportRepository.findByTargetDateIn(oneWeekDates);
-        DailyReportStaticsDto dto = dailyReportRepository.findStaticsBy(oneWeekDates);
+    public DailyStaticsOneWeekResponseDto findDailyStaticsInOneWeek(UUID userId, List<LocalDate> oneWeekDates) {
+        List<DailyReport> dailyReports = dailyReportRepository.findByTargetDateIn(userId, oneWeekDates);
+        DailyReportStaticsDto dto = dailyReportRepository.findStaticsBy(userId, oneWeekDates);
 
         return DailyStaticsOneWeekResponseDto.of(dailyReports, dto);
     }
