@@ -1,15 +1,14 @@
 package site.radio.report.daily.repository;
 
-import site.radio.report.daily.domain.DailyReport;
-import site.radio.report.daily.dto.DailyReportStaticsDto;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import site.radio.report.daily.domain.DailyReport;
+import site.radio.report.daily.dto.DailyReportStaticsDto;
 
 @Repository
 public interface DailyReportRepository extends JpaRepository<DailyReport, UUID> {
@@ -30,7 +29,13 @@ public interface DailyReportRepository extends JpaRepository<DailyReport, UUID> 
             """)
     Optional<DailyReport> findByUserAndTargetDate(UUID userId, LocalDate targetDate);
 
-    List<DailyReport> findByTargetDateIn(List<LocalDate> dates);
+    @Query("""
+            SELECT d
+            FROM DailyReport d
+            JOIN Letter l ON d.id = l.dailyReport.id
+            WHERE l.user.id = :userId AND d.targetDate IN :dates
+            """)
+    List<DailyReport> findByTargetDateIn(UUID userId, List<LocalDate> dates);
 
     @Query(value = """
             SELECT
@@ -38,9 +43,9 @@ public interface DailyReportRepository extends JpaRepository<DailyReport, UUID> 
                 COUNT(CASE WHEN l.published = FALSE THEN 1 END) AS unPublishedCount
             FROM daily_report d
             JOIN letter l ON d.daily_report_id = l.daily_report_id
-            WHERE d.target_date IN :dateRange
+            WHERE l.user_id = :userId AND d.target_date IN :dateRange
             """, nativeQuery = true)
-    DailyReportStaticsDto findStaticsBy(@Param("dateRange") List<LocalDate> dateRange);
+    DailyReportStaticsDto findStaticsBy(UUID userId, List<LocalDate> dateRange);
 
     @Query("""
             SELECT d

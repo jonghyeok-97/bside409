@@ -3,17 +3,6 @@ package site.radio.report.daily.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import site.radio.auth.OAuth2Provider;
-import site.radio.common.cache.CacheGroup;
-import site.radio.letter.Letter;
-import site.radio.letter.LetterRepository;
-import site.radio.report.daily.domain.DailyReport;
-import site.radio.report.daily.dto.DailyReportResponseDto;
-import site.radio.report.daily.repository.DailyReportRepository;
-import site.radio.user.domain.Preference;
-import site.radio.user.domain.Role;
-import site.radio.user.domain.User;
-import site.radio.user.repository.UserRepository;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import java.lang.reflect.Field;
@@ -37,6 +26,17 @@ import org.springframework.cache.caffeine.CaffeineCache;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import site.radio.auth.OAuth2Provider;
+import site.radio.common.cache.CacheGroup;
+import site.radio.letter.Letter;
+import site.radio.letter.LetterRepository;
+import site.radio.report.daily.domain.DailyReport;
+import site.radio.report.daily.dto.DailyReportResponseDto;
+import site.radio.report.daily.repository.DailyReportRepository;
+import site.radio.user.domain.Preference;
+import site.radio.user.domain.Role;
+import site.radio.user.domain.User;
+import site.radio.user.repository.UserRepository;
 
 @SpringBootTest
 @Testcontainers
@@ -118,7 +118,7 @@ class DailyReportServiceTest {
                 .filter(exception -> exception.getMessage().contains("Deadlock"))
                 .count();
 
-        List<DailyReport> dailyReports = dailyReportRepository.findByTargetDateIn(List.of(localDate));
+        List<DailyReport> dailyReports = dailyReportRepository.findByTargetDateIn(user.getId(), List.of(localDate));
 
         assertAll(
                 "데일리 리포트는 하나만 생성된다.",
@@ -169,7 +169,7 @@ class DailyReportServiceTest {
                 .filter(exception -> exception.getMessage().contains("Deadlock"))
                 .count();
 
-        List<DailyReport> dailyReports = dailyReportRepository.findByTargetDateIn(List.of(localDate));
+        List<DailyReport> dailyReports = dailyReportRepository.findByTargetDateIn(user.getId(), List.of(localDate));
 
         assertAll(
                 "데일리 리포트는 하나만 생성된다.",
