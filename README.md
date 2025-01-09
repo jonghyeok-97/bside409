@@ -5,25 +5,29 @@
 ## Project Link: [올려 올려 라디오 (https://upup-radio.site)](https://upup-radio.site)
 
 <img src="https://github.com/user-attachments/assets/6604ceb1-8c4a-47e2-a43b-25e7b4d27633" alt="cover img" />
+<br>
 
-> ### ❤️ 위로의 사전적 정의
-> ***따뜻한 말이나 행동으로 괴로움을 덜어주거나 슬픔을 달래주는 것.***
+> ## ❤️ 위로의 사전적 정의
+> ### ***따뜻한 말이나 행동으로 괴로움을 덜어주거나 슬픔을 달래주는 것.***
 
-'올려올려 라디오' 서비스는 다양한 상황에서 감정형(F)과 사고형(T)인 사람이 각각 다르게 반응하고 말하는 방식에서 영감을 얻어 감정형과 사고형의 두 가지 시각에서의 위로, 조언을 동시에 제공하는 서비스입니다.
+### '올려올려 라디오' 서비스는 다양한 상황에서 감정형(F)과 사고형(T)인 사람이 각각 다르게 반응하고 말하는 방식에서 영감을 얻어 감정형과 사고형의 두 가지 시각에서의 위로, 조언을 동시에 제공하는 서비스입니다.
+<br>
 
 ## 💌 Core Feature
 
 1. 💌 작성한 사연에 따라 감정형(F) & 사고형(T) 맞춤 답변 제공.
 2. 📮 사용자가 작성한 사연과 답변을 볼 수 있는 편지함.
 3. 📑 사용자가 작성한 사연을 분석해 8가지 대표 감정과 따뜻한 메시지를 건네주는 일일 리포트와 주간 리포트 제공.
+<br>
 
 ## 💜 Code Contributors
 
 이 프로젝트에 기여하신 고마운 분들입니다.  
 <a href="https://github.com/jellyyelly/bside409/graphs/contributors">
-<img src="https://contrib.rocks/image?repo=jellyyelly/bside409" />
+  <img src="https://contrib.rocks/image?repo=jellyyelly/bside409&max=3" />
 </a>
 
+  
 ## ⚙️ Tech Stack Used
 
 ### Container Orchestration
@@ -122,12 +126,11 @@ ref: https://dev-gallery.tistory.com/69
 |                                                  편지 쓰기                                                   |                                                사연 채택 중...                                                 |
 | <img src="https://github.com/user-attachments/assets/15841170-5e8a-4a6f-bea6-96d33bffbf2c" alt="img6" /> | <img src="https://github.com/user-attachments/assets/2d09d2c8-d097-4e69-a564-71863fc2f9b5" alt="img7" />  |
 |                                               F 유형을 위한 답변                                                |                                                T 유형을 위한 답변                                                |
-| <img src="https://github.com/user-attachments/assets/62bfe9be-ddf5-41c8-ab55-60f8b38e354b" alt="img9" /> | <img src="https://github.com/user-attachments/assets/773bcdec-0d9f-45b5-8440-8f4dc06014f4" alt="img10" /> |
-|                                                 일일 리포트 1                                                 |                                                 일일 리포트 2                                                  |
+| <img src="https://github.com/user-attachments/assets/62bfe9be-ddf5-41c8-ab55-60f8b38e354b" alt="img9" /> | <img src="https://github.com/user-attachments/assets/12ca7649-201e-4664-9fb2-c25766494693" alt="img10" /> |
+|                                                 일일 리포트                                                 |                                                 주간 리포트                                                  |
 
 ## Contact
-
-jellyyelly
+#### jellyyelly
 
 - GitHub: [@jellyyelly](https://github.com/jellyyelly)
 - email: [email](mailto:seojs0511@naver.com)  
