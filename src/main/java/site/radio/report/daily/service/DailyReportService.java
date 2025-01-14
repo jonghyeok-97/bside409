@@ -145,14 +145,7 @@ public class DailyReportService {
                 ));
     }
 
-    public void addDailyReports(Map<LocalDate, List<Letter>> latestThreeLettersByDate) {
-        // 편지 3개에 대한 분석을 Clova에게 요청해서 받은 결과물들
-        Map<ClovaDailyAnalysisResult, List<Letter>> lettersByAnalysisResult = latestThreeLettersByDate.values().stream()
-                .collect(Collectors.toMap(
-                        letters -> DailyReportExtractor.extract(requestClovaAnalysis(letters)),
-                        letters -> letters
-                ));
-
+    public void saveClovaDailyAnalysisResult(Map<ClovaDailyAnalysisResult, List<Letter>> lettersByAnalysisResult) {
         // 분석결과와 편지들을 가지고 데일리 리포트 생성
         Map<DailyReport, List<Letter>> lettersByDailyReport = lettersByAnalysisResult.entrySet().stream()
                 .collect(Collectors.toMap(
