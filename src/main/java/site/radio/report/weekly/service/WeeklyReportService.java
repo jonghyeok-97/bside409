@@ -39,10 +39,6 @@ public class WeeklyReportService {
      * 분석 날짜, 작성빈도, 요일 ⛧ 감정 변화 추이, 위로 메세지, + 데일리의 각 편지 대표 감정 일요일 자정(00:00)을 넘으면 주간 분석 요청 버튼 활성화 및 주간 분석 요청 가능
      */
     public WeeklyReportResponseDto createWeeklyReport(UUID userId, LocalDate startDate) {
-        // 주간 분석 생성할 수 있는지 검증
-        if (weeklyReportRepository.fetchCountBy(userId, startDate, startDate.plusDays(6)).isPresent()) {
-            throw new WeeklyReportAlreadyExistsException("주간 분석이 이미 존재합니다");
-        }
 
         // 1주일 동안의 일일 분석 생성
         dailyReportService.createDailyReportsBy(userId, startDate, startDate.plusDays(6));
@@ -108,5 +104,13 @@ public class WeeklyReportService {
         return IntStream.range(0, 7)
                 .mapToObj(startDate::plusDays)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public void vaildateWeeklyReportBy(UUID userId, LocalDate startDate) {
+        // 주간 분석 생성할 수 있는지 검증
+        if (weeklyReportRepository.fetchCountBy(userId, startDate, startDate.plusDays(6)).isPresent()) {
+            throw new WeeklyReportAlreadyExistsException("주간 분석이 이미 존재합니다");
+        }
     }
 }
