@@ -14,6 +14,7 @@ import site.radio.clova.dailyReport.DailyReportPreprocessor;
 import site.radio.clova.dto.ClovaResponseDto;
 import site.radio.clova.service.ClovaService;
 import site.radio.letter.Letter;
+import site.radio.letter.LetterService;
 import site.radio.report.daily.service.DailyReportService;
 import site.radio.report.weekly.dto.WeeklyReportResponseDto;
 
@@ -25,13 +26,14 @@ public class WeeklyFacade {
     private final DailyReportService dailyReportService;
     private final WeeklyReportService weeklyReportService;
     private final ClovaService clovaService;
+    private final LetterService letterService;
 
     public WeeklyReportResponseDto createWeeklyReport(UUID userId, LocalDate startDate) {
         // 주간 리포트 생성 여부 확인
         weeklyReportService.vaildateWeeklyReportBy(userId, startDate);
 
-        // 클로바에게 요청을 보낼 일일 리포트 찾기
-        Map<LocalDate, List<Letter>> dailyReportsForClovaRequest = dailyReportService.findDailyReportsForClovaRequest(
+        // 클로바에게 요청을 보낼 사용자의 1주일치 편지들 찾기
+        Map<LocalDate, List<Letter>> dailyReportsForClovaRequest = letterService.findLettersForDailyReport(
                 userId, startDate, startDate.plusDays(6));
 
         // 일일 리포트의 편지들을 가공하고, 클로바에게 요청
