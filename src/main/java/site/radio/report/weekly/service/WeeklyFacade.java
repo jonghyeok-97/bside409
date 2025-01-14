@@ -33,11 +33,11 @@ public class WeeklyFacade {
         weeklyReportService.vaildateWeeklyReportBy(userId, startDate);
 
         // 클로바에게 요청을 보낼 사용자의 1주일치 편지들 찾기
-        Map<LocalDate, List<Letter>> dailyReportsForClovaRequest = letterService.findLettersForDailyReport(
+        Map<LocalDate, List<Letter>> lettersForDailyReport = letterService.findLettersForDailyReport(
                 userId, startDate, startDate.plusDays(6));
 
         // 일일 리포트의 편지들을 가공하고, 클로바에게 요청
-        Map<ClovaDailyAnalysisResult, List<Letter>> lettersByAnalysisResult = dailyReportsForClovaRequest.values().stream()
+        Map<ClovaDailyAnalysisResult, List<Letter>> lettersByAnalysisResult = lettersForDailyReport.values().stream()
                 .collect(Collectors.toMap(
                         letters -> {
                             String combinedLetters = DailyReportPreprocessor.requestClovaAnalysis(letters);
