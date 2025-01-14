@@ -118,7 +118,8 @@ public class DailyReportService {
         return DailyReportResponseDto.of(dailyReport, letterAnalyses);
     }
 
-    public void createDailyReportsBy(UUID userId, LocalDate startDate, LocalDate endDate) {
+    @Transactional(readOnly = true)
+    public Map<LocalDate, List<Letter>> findDailyReportsForClovaRequest(UUID userId, LocalDate startDate, LocalDate endDate) {
         // 주간분석을 요청한 기간 동안 사용자가 작성한 편지들 찾기
         List<Letter> userLettersByLatest = letterRepository.findByCreatedAtDesc(userId,
                 startDate.atStartOfDay(),
@@ -135,14 +136,16 @@ public class DailyReportService {
         );
 
         // 일일 분석을 생성하려는 편지들을 날짜당 3개로 제한
-        Map<LocalDate, List<Letter>> latestThreeLettersByDate = latestLettersByDate.entrySet().stream()
+        return latestLettersByDate.entrySet().stream()
                 .collect(Collectors.toMap(
                         Entry::getKey,
                         entry -> entry.getValue().stream()
                                 .limit(3)
                                 .collect(Collectors.toList())
                 ));
+    }
 
+    public void addDailyReports(Map<LocalDate, List<Letter>> latestThreeLettersByDate) {
         // 편지 3개에 대한 분석을 Clova에게 요청해서 받은 결과물들
         Map<ClovaDailyAnalysisResult, List<Letter>> lettersByAnalysisResult = latestThreeLettersByDate.values().stream()
                 .collect(Collectors.toMap(

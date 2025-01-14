@@ -41,7 +41,8 @@ public class WeeklyReportService {
     public WeeklyReportResponseDto createWeeklyReport(UUID userId, LocalDate startDate) {
 
         // 1주일 동안의 일일 분석 생성
-        dailyReportService.createDailyReportsBy(userId, startDate, startDate.plusDays(6));
+//        dailyReportService.addDailyReports(threeLatestByDate);
+
 
         // startDate 로 부터 1주일 날짜 구하기
         DailyStaticsOneWeekResponseDto dailyStaticsDto = dailyReportService.findDailyStaticsInOneWeek(userId,
