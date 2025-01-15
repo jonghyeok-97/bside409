@@ -56,6 +56,37 @@ public class WeeklyReportService {
         return WeeklyReportResponseDto.from(weeklyReport, coreEmotions);
     }
 
+    public WeeklyReportResponseDto createWeeklyReportV2(DailyStaticsOneWeekResponseDto dailyStaticsOneWeekDto, String resultMessage, LocalDate startDate) {
+        DailyReportStaticsDto staticsDto = dailyStaticsOneWeekDto.getStaticsDto();
+
+        // 주간 리포트 생성
+        WeeklyDataManager manager = new WeeklyDataManager(startDate); // TODO: util class 로 리팩토링 필요
+        WeeklyReport weeklyReport = WeeklyReport.builder()
+                .weekOfYear(manager.getWeekOfWeekBasedYear())
+                .startDate(manager.getMondayOfWeek())
+                .endDate(manager.getSundayOfWeek())
+                .cheerUp(resultMessage)
+                .publishedCount(staticsDto.getPublishedCount())
+                .unpublishedCount(staticsDto.getUnPublishedCount())
+                .build();
+        weeklyReportRepository.save(weeklyReport);
+
+        // DailyReport 는 준영속 상태
+        List<DailyReport> dailyReports = dailyStaticsOneWeekDto.getDailyReports();
+        List<UUID> dailyReportIds = dailyReports.stream()
+                .map(DailyReport::getId)
+                .collect(Collectors.toList());
+
+        // UPDATE 쿼리
+        dailyReportRepository.updateWeeklyReportId(weeklyReport, dailyReportIds);
+
+        List<CoreEmotion> coreEmotions = dailyReports.stream()
+                .map(DailyReport::getCoreEmotion)
+                .toList();
+
+        return WeeklyReportResponseDto.from(weeklyReport, coreEmotions);
+    }
+
     @Transactional(readOnly = true)
     public WeeklyReportResponseDto getWeeklyReport(UUID userId, LocalDate startDate, LocalDate endDate) {
         List<DailyReport> dailyReports = dailyReportRepository.findDailyReportsWithWeeklyReport(userId, startDate,
