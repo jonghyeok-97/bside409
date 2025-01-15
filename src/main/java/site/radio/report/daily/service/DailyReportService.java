@@ -140,6 +140,7 @@ public class DailyReportService {
         letterAnalysisRepository.saveAll(letterAnalyses);
     }
 
+    @Transactional(readOnly = true)
     public DailyStaticsOneWeekResponseDto findDailyStaticsInOneWeek(UUID userId, List<LocalDate> oneWeekDates) {
         List<DailyReport> dailyReports = dailyReportRepository.findByTargetDateIn(userId, oneWeekDates);
         DailyReportStaticsDto dto = dailyReportRepository.findStaticsBy(userId, oneWeekDates);
