@@ -148,6 +148,11 @@ public class DailyReportService {
         return DailyStaticsOneWeekResponseDto.of(dailyReports, dto);
     }
 
+    @Transactional(readOnly = true)
+    public List<DailyReport> getDailyReportsOfOneWeek(UUID userId, List<LocalDate> oneWeekDates) {
+        return dailyReportRepository.findByTargetDateIn(userId, oneWeekDates);
+    }
+
     /**
      * <ol> userId와 targetDate에 해당하는 편지를 최대 3건 조회합니다.
      *     <li>만약 오늘이라면, 현재 시점 기준 가장 최근 3건</li>
