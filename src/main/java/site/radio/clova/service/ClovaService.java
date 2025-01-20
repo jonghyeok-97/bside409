@@ -3,8 +3,10 @@ package site.radio.clova.service;
 import static site.radio.user.domain.Preference.F;
 import static site.radio.user.domain.Preference.T;
 
+import java.util.List;
 import site.radio.clova.client.ClovaFeignClient;
 import site.radio.clova.dailyReport.ClovaDailyReportRequestDto;
+import site.radio.clova.dailyReport.DailyReportMessageParser;
 import site.radio.clova.dto.ClovaRequestDto;
 import site.radio.clova.dto.ClovaResponseDto;
 import site.radio.clova.letter.ClovaLetterReplyRequestDto;
@@ -15,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import site.radio.letter.Letter;
 
 @Profile({"prod", "dev"})
 @Service
@@ -30,6 +33,11 @@ public class ClovaService {
     }
 
     public ClovaResponseDto sendDailyReportRequest(String message) {
+        return sendRequestToClova(ClovaDailyReportRequestDto.from(message));
+    }
+
+    public ClovaResponseDto sendDailyReportRequest(List<Letter> letters) {
+        String message = DailyReportMessageParser.requestClovaAnalysis(letters);
         return sendRequestToClova(ClovaDailyReportRequestDto.from(message));
     }
 

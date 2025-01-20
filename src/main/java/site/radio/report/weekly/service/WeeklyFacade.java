@@ -42,8 +42,7 @@ public class WeeklyFacade {
         Map<ClovaDailyAnalysisResult, List<Letter>> lettersByAnalysisResult = lettersForDailyReport.values().stream()
                 .collect(Collectors.toMap(
                         letters -> {
-                            String combinedLetters = DailyReportMessageParser.requestClovaAnalysis(letters);
-                            ClovaResponseDto clovaResponseDto = clovaService.sendDailyReportRequest(combinedLetters);
+                            ClovaResponseDto clovaResponseDto = clovaService.sendDailyReportRequest(letters);
                             return DailyReportMessageParser.extract(clovaResponseDto);
                         },
                         letters -> letters

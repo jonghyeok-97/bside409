@@ -66,7 +66,7 @@ public class DailyReportService {
         List<Letter> letters = findRecentLetters(userId, targetDate);
 
         // 클로바에 분석 요청
-        ClovaResponseDto clovaResponse = requestClovaAnalysis(letters);
+        ClovaResponseDto clovaResponse = clovaService.sendDailyReportRequest(letters);
 
         // 클로바 응답 파싱
         ClovaDailyAnalysisResult clovaDailyAnalysisResult = DailyReportMessageParser.extract(clovaResponse);
@@ -91,7 +91,7 @@ public class DailyReportService {
         List<Letter> letters = findRecentLetters(userId, targetDate);
 
         // 클로바에 분석 요청
-        ClovaResponseDto clovaResponse = requestClovaAnalysis(letters);
+        ClovaResponseDto clovaResponse = clovaService.sendDailyReportRequest(letters);
 
         // 클로바 응답 파싱
         ClovaDailyAnalysisResult clovaDailyAnalysisResult = DailyReportMessageParser.extract(clovaResponse);
@@ -174,29 +174,6 @@ public class DailyReportService {
             throw new LetterNotFoundException("Letters for daily analysis not found.");
         }
         return letters;
-    }
-
-    private ClovaResponseDto requestClovaAnalysis(List<Letter> letters) {
-        // 편지 내용 구분자 동적 생성
-        String msgSeparator = Long.toHexString(Double.doubleToLongBits(Math.random()));
-
-        String formattedMessages = letters.stream()
-                .map(letter -> String.format("<%s:%s>\n%s\n</%s:%s>",
-                        LETTER_SEPARATOR, msgSeparator,
-                        reformatMsg(letter.getMessage()),
-                        LETTER_SEPARATOR, msgSeparator))
-                .collect(Collectors.joining("\n"));
-
-        return clovaService.sendDailyReportRequest(formattedMessages);
-    }
-
-    private String reformatMsg(String input) {
-        return input
-                .replaceAll("<", "&lt;")
-                .replaceAll(">", "&gt;")
-                .replaceAll("&", "&amp;")
-                .replaceAll("\"", "&quot;")
-                .replaceAll("'", "&apos;");
     }
 
     private DailyReport buildDailyReport(LocalDate targetDate, ClovaDailyAnalysisResult clovaDailyAnalysisResult) {
