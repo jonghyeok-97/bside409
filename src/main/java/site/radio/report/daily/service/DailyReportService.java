@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -120,18 +119,27 @@ public class DailyReportService {
 
     public void saveClovaDailyAnalysisResult(Map<ClovaDailyAnalysisResult, List<Letter>> lettersByAnalysisResult) {
         // 분석결과와 편지들을 가지고 데일리 리포트 생성
+        Map<UUID, Letter> persistenceLetters = letterRepository.findAllById(lettersByAnalysisResult.values().stream()
+                        .flatMap(letters -> letters.stream().map(Letter::getId))
+                        .toList())
+                .stream()
+                .collect(Collectors.toMap(
+                        Letter::getId,
+                        letter -> letter
+                ));
+
         Map<DailyReport, List<Letter>> lettersByDailyReport = lettersByAnalysisResult.entrySet().stream()
                 .collect(Collectors.toMap(
                         entry -> buildDailyReport(entry.getValue().get(0).getCreatedAt().toLocalDate(), entry.getKey()),
-                        Entry::getValue
+                        entry -> entry.getValue().stream()
+                                .map(letter -> persistenceLetters.get(letter.getId())) // 영속 상태로 변환
+                                .toList()
                 ));
-        dailyReportRepository.saveAll(lettersByDailyReport.keySet());
 
         // 편지들에 알맞는 데일리 리포트를 setter 주입
-        lettersByDailyReport.forEach((key, value) ->
-                value.forEach(
-                        letter -> letter.setDailyReport(key)
-                ));
+        lettersByDailyReport.forEach((dailyReport, letters) ->
+                letters.forEach(letter -> letter.setDailyReport(dailyReport)));
+        dailyReportRepository.saveAll(lettersByDailyReport.keySet());
 
         // 편지와 분석결과를 가지고 편지분석엔티티들 생성 및 저장
         List<LetterAnalysis> letterAnalyses = lettersByAnalysisResult.entrySet().stream()
