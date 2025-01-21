@@ -4,6 +4,8 @@ import static site.radio.user.domain.Preference.F;
 import static site.radio.user.domain.Preference.T;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import site.radio.clova.client.ClovaFeignClient;
 import site.radio.clova.dailyReport.ClovaDailyReportRequestDto;
 import site.radio.clova.dailyReport.DailyReportMessageParser;
@@ -26,6 +28,7 @@ import site.radio.letter.Letter;
 public class ClovaService {
 
     private final ClovaKeyProperties properties;
+    private final Executor clovaExecutor;
     protected final ClovaFeignClient client;
 
     public ClovaResponseDto send(String message) {
@@ -39,6 +42,13 @@ public class ClovaService {
     public ClovaResponseDto sendDailyReportRequest(List<Letter> letters) {
         String message = DailyReportMessageParser.requestClovaAnalysis(letters);
         return sendRequestToClova(ClovaDailyReportRequestDto.from(message));
+    }
+
+    public CompletableFuture<ClovaResponseDto> sendAsyncDailyReportRequest(List<Letter> letters) {
+        return CompletableFuture.supplyAsync(() -> {
+            String message = DailyReportMessageParser.requestClovaAnalysis(letters);
+            return sendRequestToClova(ClovaDailyReportRequestDto.from(message));
+        }, clovaExecutor);
     }
 
     public ClovaResponseDto sendWeeklyReportRequest(ClovaWeeklyReportRequestDto dto) {
