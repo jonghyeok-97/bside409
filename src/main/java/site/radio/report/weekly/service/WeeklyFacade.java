@@ -42,25 +42,36 @@ public class WeeklyFacade {
                 userId, startDate, startDate.plusDays(6));
 
         // 일일 리포트를 만들 편지들을 Clova에게 전송
-        Map<CompletableFuture<ClovaDailyAnalysisResult>, List<Letter>> futuresToLetters = sendAsyncLettersForDailyReport(lettersForDailyReport);
-
-        // 비동기 결과 기다리기
-        Map<ClovaDailyAnalysisResult, List<Letter>> analysisResultToLetters = resolveDailyReportFutures(futuresToLetters);
+        Map<ClovaDailyAnalysisResult, List<Letter>> analysisResultToLetters = sendAsyncLettersForDailyReport(lettersForDailyReport);
 
         // 클로바로부터 받은 일일 리포트의 분석결과들을 저장
         dailyReportService.saveClovaDailyAnalysisResult(analysisResultToLetters);
 
-        // 주간 분석에 필요한 위로 한마디 구하기
-        List<LocalDate> oneWeek = createOneWeek(startDate);
-        List<DailyReport> dailyReports = dailyReportService.getDailyReportsOfOneWeek(userId, oneWeek);
-        ClovaWeeklyReportRequestDto clovaWeeklyReportRequestDto = ClovaWeeklyReportRequestDto.from(
-                combineDescription(dailyReports));
+        // 주간 분석에 필요한 위로 한마디 조회
+        String cheerUpMessage = getCheerUpMessageForWeeklyReport(userId, startDate);
 
-        // 주간 분석 요청 및 응답
-        ClovaResponseDto clovaResponseDto = clovaService.sendWeeklyReportRequest(clovaWeeklyReportRequestDto);
-        String resultMessage = clovaResponseDto.getResultMessage();
+        // 주간 리포트 요청
+        ClovaResponseDto clovaResponseDto = requestWeeklyReport(cheerUpMessage);
 
-        return weeklyReportService.createWeeklyReport(userId, oneWeek, resultMessage);
+        // 주간 리포트 저장
+        return weeklyReportService.createWeeklyReport(userId, createOneWeek(startDate), clovaResponseDto.getResultMessage());
+    }
+
+    private Map<ClovaDailyAnalysisResult, List<Letter>> sendAsyncLettersForDailyReport(
+            Map<LocalDate, List<Letter>> lettersForDailyReport) {
+
+        Map<CompletableFuture<ClovaDailyAnalysisResult>, List<Letter>> analysisResultFutures = lettersForDailyReport.values()
+                .stream()
+                .collect(Collectors.toMap(
+                        letters -> clovaService.sendAsyncDailyReportRequest(letters)
+                                .thenApply(DailyReportMessageParser::extract)
+                                .exceptionally(ex -> {
+                                    throw new AsyncErrorException("Clova 비동기 중 오류 발생", ex);
+                                }),
+                        letters -> letters
+                ));
+
+        return resolveDailyReportFutures(analysisResultFutures);
     }
 
     private Map<ClovaDailyAnalysisResult, List<Letter>> resolveDailyReportFutures(
@@ -72,18 +83,10 @@ public class WeeklyFacade {
                 ));
     }
 
-    private Map<CompletableFuture<ClovaDailyAnalysisResult>, List<Letter>> sendAsyncLettersForDailyReport(
-            Map<LocalDate, List<Letter>> lettersForDailyReport) {
-        return lettersForDailyReport.values()
-                .stream()
-                .collect(Collectors.toMap(
-                        letters -> clovaService.sendAsyncDailyReportRequest(letters)
-                                .thenApply(DailyReportMessageParser::extract)
-                                .exceptionally(ex -> {
-                                    throw new AsyncErrorException("Clova 비동기 중 오류 발생", ex);
-                                }),
-                        letters -> letters
-                ));
+    private String getCheerUpMessageForWeeklyReport(UUID userId, LocalDate startDate) {
+        List<LocalDate> oneWeek = createOneWeek(startDate);
+        List<DailyReport> dailyReports = dailyReportService.getDailyReportsOfOneWeek(userId, oneWeek);
+        return combineDescription(dailyReports);
     }
 
     private List<LocalDate> createOneWeek(LocalDate startDate) {
@@ -96,5 +99,11 @@ public class WeeklyFacade {
         return dailyReports.stream()
                 .map(DailyReport::getDescription)
                 .collect(Collectors.joining());
+    }
+
+    private ClovaResponseDto requestWeeklyReport(String cheerUpMessage) {
+        ClovaWeeklyReportRequestDto clovaWeeklyReportRequestDto = ClovaWeeklyReportRequestDto.from(cheerUpMessage);
+
+        return clovaService.sendWeeklyReportRequest(clovaWeeklyReportRequestDto);
     }
 }
