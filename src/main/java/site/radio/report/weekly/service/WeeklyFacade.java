@@ -10,8 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import site.radio.clova.dailyReport.ClovaDailyAnalysisResult;
-import site.radio.clova.dailyReport.DailyReportExtractor;
-import site.radio.clova.dailyReport.DailyReportPreprocessor;
+import site.radio.clova.dailyReport.DailyReportMessageParser;
 import site.radio.clova.dto.ClovaResponseDto;
 import site.radio.clova.service.ClovaService;
 import site.radio.clova.weekly.ClovaWeeklyReportRequestDto;
@@ -43,9 +42,9 @@ public class WeeklyFacade {
         Map<ClovaDailyAnalysisResult, List<Letter>> lettersByAnalysisResult = lettersForDailyReport.values().stream()
                 .collect(Collectors.toMap(
                         letters -> {
-                            String combinedLetters = DailyReportPreprocessor.requestClovaAnalysis(letters);
+                            String combinedLetters = DailyReportMessageParser.requestClovaAnalysis(letters);
                             ClovaResponseDto clovaResponseDto = clovaService.sendDailyReportRequest(combinedLetters);
-                            return DailyReportExtractor.extract(clovaResponseDto);
+                            return DailyReportMessageParser.extract(clovaResponseDto);
                         },
                         letters -> letters
                 ));

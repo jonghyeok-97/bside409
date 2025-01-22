@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import site.radio.clova.dailyReport.ClovaDailyAnalysisResult;
-import site.radio.clova.dailyReport.DailyReportExtractor;
+import site.radio.clova.dailyReport.DailyReportMessageParser;
 import site.radio.clova.dto.ClovaResponseDto;
 import site.radio.clova.service.ClovaService;
 import site.radio.common.aop.transaction.NamedLock;
@@ -69,7 +69,7 @@ public class DailyReportService {
         ClovaResponseDto clovaResponse = requestClovaAnalysis(letters);
 
         // 클로바 응답 파싱
-        ClovaDailyAnalysisResult clovaDailyAnalysisResult = DailyReportExtractor.extract(clovaResponse);
+        ClovaDailyAnalysisResult clovaDailyAnalysisResult = DailyReportMessageParser.extract(clovaResponse);
 
         // 데일리 리포트 저장
         DailyReport dailyReport = buildDailyReport(targetDate, clovaDailyAnalysisResult);
@@ -94,7 +94,7 @@ public class DailyReportService {
         ClovaResponseDto clovaResponse = requestClovaAnalysis(letters);
 
         // 클로바 응답 파싱
-        ClovaDailyAnalysisResult clovaDailyAnalysisResult = DailyReportExtractor.extract(clovaResponse);
+        ClovaDailyAnalysisResult clovaDailyAnalysisResult = DailyReportMessageParser.extract(clovaResponse);
 
         // 데일리 리포트 저장
         DailyReport dailyReport = buildDailyReport(targetDate, clovaDailyAnalysisResult);
