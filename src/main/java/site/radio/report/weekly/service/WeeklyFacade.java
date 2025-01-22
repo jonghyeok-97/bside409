@@ -16,7 +16,6 @@ import site.radio.clova.dailyReport.DailyReportMessageParser;
 import site.radio.clova.dto.ClovaResponseDto;
 import site.radio.clova.service.ClovaService;
 import site.radio.clova.weekly.ClovaWeeklyReportRequestDto;
-import site.radio.error.AsyncErrorException;
 import site.radio.letter.Letter;
 import site.radio.letter.LetterService;
 import site.radio.report.daily.domain.DailyReport;
@@ -64,10 +63,7 @@ public class WeeklyFacade {
                 .stream()
                 .collect(Collectors.toMap(
                         letters -> clovaService.sendAsyncDailyReportRequest(letters)
-                                .thenApply(DailyReportMessageParser::extract)
-                                .exceptionally(ex -> {
-                                    throw new AsyncErrorException("Clova 비동기 중 오류 발생", ex);
-                                }),
+                                .thenApply(DailyReportMessageParser::extract),
                         letters -> letters
                 ));
 
