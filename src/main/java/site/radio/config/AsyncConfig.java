@@ -14,8 +14,8 @@ public class AsyncConfig {
     @Bean
     public Executor clovaExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(16);
-        executor.setMaxPoolSize(32);
+        executor.setCorePoolSize(4); // 코어 2 * 2
+        executor.setMaxPoolSize(6);  // 코어 2 * 3
         executor.setQueueCapacity(100);
         executor.setKeepAliveSeconds(60); // 기본 값 60
         executor.setThreadNamePrefix("clove-async-");
